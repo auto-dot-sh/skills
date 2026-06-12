@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a repository to auto end to end — pitch what auto does, set up sign-in and a Slack channel, study the repo into a dossier, make first contact through a concierge session, install exactly one workflow, and wire CI to apply .auto/ on merge. Use when the user wants to set up auto in their repository or asks how to get started with auto.
 metadata:
   version: 0.1.0
-  source-commit: 8ff4c42fa0183c38501dc1b182d0f19b5bf4c272
+  source-commit: f9a6077633f547ce21b1ea405ad3b7211f7da506
 ---
 
 # Onboard your user to auto
