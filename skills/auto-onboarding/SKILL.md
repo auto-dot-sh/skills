@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, CI/CD, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: e73a92d334f2ed413f66fa333b9d1e483e3f3f03
+  source-commit: 554e5be5508dd191af54a9d8c840181656f99b8d
 ---
 
 # Intent
@@ -62,9 +62,11 @@ Hold these throughout the onboarding:
 - **Trust live command output over this document.** The CLI evolves; run `auto --help` early and whenever in doubt, and when a command's real output disagrees with anything written here, trust the command output over this document and adapt.
 - **Converse, don't lecture.** Short messages, one question at a time, and adapt your vocabulary to the user's technical level. The pitch should take seconds, not paragraphs.
 - **Ask before changing anything outside `.auto/`.** The onboarding's write surface is the `.auto/` directory (plus the CI workflow in Beat 7, which ships as a PR). Any other file in the user's repo gets touched only with their explicit go-ahead.
-- **Warn before browsers open.** `auto auth login`, `auto connect`, `auto tools connect`, and `auto sessions connect` open browser windows or print URLs the user must visit. Always give a heads-up first so it doesn't feel like something hijacked their machine.
+- **Warn before browsers open, and surface the link either way.** `auto auth login`, `auto connect`, `auto tools connect`, and `auto sessions connect` open a browser window *and* print the authorization URL. Give a one-sentence heads-up first ("this will open your browser to install the GitHub App") so it doesn't feel like something hijacked their machine. If the browser doesn't pop (some environments can't open one), don't leave the user hunting through command output — repeat the printed authorization URL back to them on its own line as a clickable fallback, one provider at a time, and tell them plainly to click it.
 - **Signal before going quiet.** Deep repo exploration and waiting on async runs both involve silence. Say what you're about to do and roughly how long it will take.
 - **Enlist the user as the second pair of hands.** They trigger the inputs you can't (tagging a bot in Slack, commenting on a PR) and verify the outputs you can't see (a Slack message arriving). Make those asks explicit and specific.
+- **Hand off, don't hint.** When the user needs to do something, spell it out the *first* time — before they have to ask. Name the exact trigger (which label, which channel, which command), where to click, and what they'll see when it works. "Label the issue whenever you're ready" assumes they can see what's in your head and the YAML you wrote; a numbered "in Linear: create an issue → add the `auto-triage` label → that label is the trigger" does not. If you catch yourself about to post a one-line "go ahead and …", expand it.
+- **Set expectations once, then stay quiet.** When you start watching an async run, tell the user up front roughly how long it takes and what "normal" looks like ("the coder run provisions a sandbox first — expect a quiet couple of minutes"), then hold until something *they'd care about* changes. Don't narrate every monitor tick or re-report the same event from a second watcher — a stream of "still queued / still running / no news" reads as noise, not reassurance.
 - **Expect trouble; own the troubleshooting.** OAuth flows fail, secrets get mistyped, webhooks misfire. When something breaks, diagnose it with the CLI (`auto runs list`, `auto runs show`, `auto runs conversation`, `auto apply --dry-run`) rather than asking the user to debug.
 - **Asynchronous means asynchronous.** Triggered runs take time to spawn and act. Tell the user when a wait is expected, and tail run state rather than declaring failure early.
 - **Never fabricate success.** Verify each step actually worked (the apply plan, the trigger receipt, the run conversation) before telling the user it did.
@@ -80,7 +82,9 @@ Before talking to the user, make sure you have a working command of the system: 
 
 ## Beat 1: Establish rapport
 
-Give the pitch briefly — two or three sentences on what auto is and where it's valuable — then immediately shift into lightly interviewing the user. You want to learn:
+**Your very first message after launching is a plain-language pitch, not a form.** Two or three sentences on what auto is and where it's valuable, then *one* opening question. Do **not** open with `AskUserQuestion` or a multiple-choice menu — that skips the *Educate* goal and makes the onboarding feel like a config wizard. Lead with words; reach for `AskUserQuestion` only once you're past the pitch and genuinely offering discrete choices (e.g. the hero workflow in Beat 3).
+
+After the pitch, shift into lightly interviewing the user. You want to learn:
 
 1. **Who they are and their professional context.**
    - Hobbyist, or evaluating auto for a real business?
@@ -94,7 +98,16 @@ Keep this light — a few questions, not a survey. You're gathering enough signa
 
 ## Beat 2: Get up to speed
 
-If you are running inside a repo the user has indicated is their focus, tell them you're going to explore it for a few minutes, then do a deep read: what the project does, how the team works (CI, review culture, issue tracker integrations), and where the recurring toil is. You're hunting for workflows that auto could own *today*. Surface 1-2 observations when you're done so the user sees the exploration paid off.
+If you are running inside a repo the user has indicated is their focus, tell them you're going to explore it for a few minutes (and that you'll go quiet while a research agent reads the repo) — then **dispatch a subagent to do the deep read in parallel** rather than reading file-by-file in the main thread. This keeps the conversation responsive and your own context clean, and it forces real exploration instead of leaning on whatever `CLAUDE.md` / `AGENTS.md` happened to load.
+
+Spawn one general-purpose / Explore subagent (or a small fan-out of them for a large monorepo) and have it read **both**:
+
+- **The repo:** what the project does, how the team works (CI, review culture, issue-tracker and chat integrations), the conventions written down in `CLAUDE.md`/`AGENTS.md`/`docs/`, and — most importantly — where the recurring, automatable toil is.
+- **This skill's `docs/` and `examples/`**, so the ideas it returns are already expressed in auto's vocabulary (sessions, triggers, profiles) and mapped to a concrete archetype.
+
+Have the subagent return a structured shortlist: for each candidate workflow, a one-line description, the matching archetype, the trigger/event that would fire it, and the *specific evidence in this repo* that the toil is real (a file, a workflow, a documented rule, a past incident). That shortlist is the raw material for Beat 3.
+
+When the agent returns, don't just move on — **surface 1-2 concrete observations to the user** ("you renumber migrations by hand and a missed renumber caused a prod outage; your `postman/collection.json` updates are marked NOT OPTIONAL") so they see the exploration paid off and trust that your pitches are grounded in *their* code. If `CLAUDE.md` already told you something, say so and confirm it against the repo rather than presenting it as discovery.
 
 ## Beat 3: Present some options
 
@@ -115,7 +128,7 @@ Get the user from zero to a deployed, *hollow* version of the hero workflow — 
 
 Then run the smoke test. Its exact shape depends on the use case, but the goal is always the same: verify that the trigger fires and the agent's output surfaces reach the user. A workflow almost always involves some communication channel, so a good smoke test "breaks the fourth wall" — have the hollow agent send the user a hello in Slack (or wherever they live).
 
-Enlist the user: ask them to fire inputs only they can fire (tag the bot, open a test PR, add a label) and to confirm outputs only they can see. Acknowledge the async gaps — "the run is spawning, give it a minute" — and watch progress yourself with `auto runs list` and `auto attach <run-id>` (live stream; `auto runs conversation <run-id>` for a snapshot) so you can narrate what's happening. Troubleshoot until the smoke test passes.
+Enlist the user, and **hand off, don't hint** (see the operating principle): when you ask them to fire the input only they can fire, give the full, numbered steps the first time — *which* label on *which* issue, *which* channel to create, the exact command to run, and what they'll see when it lands. Don't post "go ahead and label the issue" and assume they know a label is the trigger; that one-liner is what makes a user ask "wait, what exactly do I do?". Right after `auto apply`, before you start watching, tell them in plain words what just deployed and what their next action is. Then **set expectations once** — "the run takes a minute or two to spawn; I'll tell you when it acts" — and watch progress yourself with `auto runs list` and `auto attach <run-id>` (live stream; `auto runs conversation <run-id>` for a snapshot), surfacing only meaningful changes rather than every tick. Troubleshoot until the smoke test passes.
 
 If a channel install is blocked — for example the Slack workspace requires admin approval — don't stall the onboarding on it. Pick an output surface the user can verify without the channel (a PR comment, a GitHub check, the run transcript via `auto runs conversation`), continue the beats, and circle back to realize the channel identity once the approval lands.
 
