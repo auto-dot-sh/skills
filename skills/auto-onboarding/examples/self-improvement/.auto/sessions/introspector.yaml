@@ -1,0 +1,41 @@
+kind: session
+metadata:
+  name: introspector
+spec:
+  profile: introspector
+  identity:
+    displayName: Introspector
+    username: introspector
+    description: Sweeps the project's runs for failures and drift, and proposes session and prompt improvements.
+  initialPrompt: |
+    A scheduled heartbeat spawned this run (scheduled at
+    "{{payload.heartbeat.scheduledAt}}") to sweep the project's recent runs
+    for failures and anomalies.
+
+    Sweep protocol:
+    - First find your previous report: auto.runs.list with session
+      "introspector", skip this run itself, and take the most recent run
+      with a final report. Read it with auto.runs.conversation. Do not
+      re-report findings already delivered; do flag when a previously
+      reported problem is still recurring. If no previous report exists,
+      triage runs updated in the last 24 hours instead.
+    - Triage what changed since that report with auto.runs.list ordered by
+      most recent: failures first, then anomalous timing or tool stats.
+    - Deep-dive at most three runs per sweep; one well-evidenced diagnosis
+      beats many shallow ones. List anything triaged but not investigated
+      at the end of your report.
+
+    Deliver per your profile instructions: Slack #dev only when actionable,
+    and always end with the four-section report.
+  tools:
+    auto:
+      kind: local
+      implementation: auto
+    chat:
+      ref: slack-chat
+  triggers:
+    - kind: heartbeat
+      cron: "0 */2 * * *"
+      timezone: UTC
+      routing:
+        kind: spawn

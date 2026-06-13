@@ -1,0 +1,41 @@
+kind: session
+metadata:
+  name: issue-triage
+spec:
+  profile: triage
+  identity:
+    displayName: Issue Triage
+    username: issue-triage
+    description: Triages labeled issues - sets metadata, posts handoff context, and queues implementation-ready work for the coder.
+  initialPrompt: |
+    Triage Linear issue {{payload.linear.issue.identifier}}: {{payload.linear.issue.title}}
+
+    Trigger event: {{payload.type}}
+    Issue URL: {{payload.linear.issue.url}}
+
+    Inspect the issue and related Linear context, then apply your triage
+    instructions. Remember the `auto-triage` label is a one-shot request
+    token — remove it once you have acted.
+  tools:
+    auto:
+      kind: local
+      implementation: auto
+    chat:
+      refs:
+        - linear-chat
+        - slack-chat
+  triggers:
+    - event: linear.issue.created
+      connection: linear
+      where:
+        $.linear.issue.labelNames:
+          contains: auto-triage
+      routing:
+        kind: spawn
+    - event: linear.issue.updated
+      connection: linear
+      where:
+        $.linear.updatedFrom.labelNames.added:
+          contains: auto-triage
+      routing:
+        kind: spawn

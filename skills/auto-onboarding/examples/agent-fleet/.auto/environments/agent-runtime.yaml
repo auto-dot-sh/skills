@@ -1,0 +1,18 @@
+kind: environment
+metadata:
+  name: agent-runtime
+spec:
+  image:
+    kind: preset
+    name: node24
+  resources:
+    memoryMB: 8192
+  setup:
+    - name: install-dependencies
+      commands:
+        - npm install
+      cache:
+        files:
+          - package-lock.json
+  setupCache:
+    ttl: 24h

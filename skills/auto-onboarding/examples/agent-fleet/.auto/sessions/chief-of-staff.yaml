@@ -1,0 +1,132 @@
+kind: session
+metadata:
+  name: chief-of-staff
+spec:
+  profile: chief-of-staff
+  identity:
+    displayName: Chief of Staff Engineers
+    username: chief
+    description: Give @chief a task list; it dispatches coding agents, shepherds them to green, and reports back.
+  initialPrompt: |
+    {{payload.message.author.userName}} mentioned you on Slack.
+
+    Trigger context:
+    - Channel: {{payload.chat.channelId}}
+    - Thread: {{payload.chat.threadId}}
+    - Message text: {{payload.message.text}}
+
+    You are starting as a fresh singleton run. Before handling this message,
+    check whether prior work is in flight: list recent staff-engineer runs
+    with auto.runs.list and rebuild any live batch state per your profile
+    instructions.
+
+    Then handle the message. If it contains tasks, run your intake flow:
+    react to the message, call auto.chat.subscribe for the thread (fall back
+    to the triggering message as the thread root when no thread id is
+    present), split the work into tasks, raise ambiguities, dispatch clear
+    tasks to staff-engineer runs, and post the roster in the thread. If it
+    is a question or steering rather than new work, answer or act on it in
+    the thread.
+  mounts:
+    - kind: git
+      repository: acme/widgets
+      mountPath: /workspace/widgets
+      ref: main
+      depth: 1
+      auth:
+        kind: githubApp
+        capabilities:
+          contents: read
+          pullRequests: read
+          issues: read
+          checks: read
+          actions: read
+  workingDirectory: /workspace/widgets
+  tools:
+    auto:
+      kind: local
+      implementation: auto
+    chat:
+      ref: slack-chat
+  triggers:
+    - event: chat.message.mentioned
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.auto.authored: false
+      message: |
+        {{message.author.userName}} mentioned you on Slack:
+
+        {{message.text}}
+
+        Channel: {{chat.channelId}}
+        Thread: {{chat.threadId}}
+
+        If this starts new work, run your intake flow for this thread:
+        react, subscribe to the thread, split tasks, raise ambiguities,
+        dispatch staff-engineer runs, and post the roster. If it concerns a
+        batch already in flight, treat it as steering or a question for that
+        batch.
+      routing:
+        kind: deliverOrSpawn
+        routeBy:
+          kind: singleton
+    - event: chat.message.subscribed
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.auto.authored: false
+      message: |
+        {{message.author.userName}} replied in a Slack thread you subscribed
+        to:
+
+        {{message.text}}
+
+        Channel: {{chat.channelId}}
+        Thread: {{chat.threadId}}
+
+        Match the thread to its batch. Treat the reply as steering, an
+        answer to a pending question, or a new request. Relay steering to
+        affected staff-engineer runs with auto.runs.message and acknowledge
+        in the thread when it changes what the fleet is doing.
+      routing:
+        kind: deliver
+        routeBy:
+          kind: singleton
+        onUnmatched: drop
+    - events:
+        - chat.reaction.added
+        - chat.reaction.removed
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.message.author.isMe: true
+        $.reaction.user.isMe: false
+      message: |
+        A Slack reaction was applied to one of your messages.
+
+        Reaction: {{reaction.rawEmoji}} from {{reaction.user.userName}}
+        Reacted-to message id: {{chat.messageId}}
+
+        Treat confused or negative reactions as feedback that may need a
+        short correction. Plain acknowledgements need no reply.
+      routing:
+        kind: deliver
+        routeBy:
+          kind: singleton
+        onUnmatched: drop
+    - kind: heartbeat
+      cron: "*/15 * * * *"
+      message: |
+        Heartbeat fleet review, scheduled at {{payload.heartbeat.scheduledAt}}.
+
+        Review every in-flight batch: list staff-engineer runs with
+        auto.runs.list, inspect suspicious runs with the introspection
+        tools, nudge stalled runs, respawn dead ones, and check whether any
+        batch has reached done so you can assemble and post its packet. If
+        nothing needs attention, end the turn without posting to Slack.
+      routing:
+        kind: deliver
+        routeBy:
+          kind: singleton
+        onUnmatched: drop

@@ -1,0 +1,106 @@
+kind: session
+metadata:
+  name: research-coordinator
+spec:
+  profile: coordinator
+  identity:
+    displayName: Research Coordinator
+    username: research
+    description: Give @research a measurable objective and a budget; it runs experiment rounds on a fleet and reports the lab log.
+  initialPrompt: |
+    {{payload.message.author.userName}} mentioned you on Slack.
+
+    Trigger context:
+    - Channel: {{payload.chat.channelId}}
+    - Thread: {{payload.chat.threadId}}
+    - Message text: {{payload.message.text}}
+
+    You are starting as a fresh singleton run. Before acting, check whether
+    a campaign is already in flight: list recent experimenter runs with
+    auto.runs.list and rebuild any live campaign state from the thread per
+    your profile instructions.
+
+    Then handle the message. If it starts a campaign, run your intake flow:
+    react, subscribe to the thread, post the campaign brief, and dispatch
+    round one. If it is steering or a question about a live campaign, answer
+    or act on it in the thread.
+  mounts:
+    - kind: git
+      repository: acme/widgets
+      mountPath: /workspace/widgets
+      ref: main
+      depth: 1
+      auth:
+        kind: githubApp
+        capabilities:
+          contents: read
+          pullRequests: read
+          issues: none
+          checks: read
+          actions: read
+  workingDirectory: /workspace/widgets
+  tools:
+    auto:
+      kind: local
+      implementation: auto
+    chat:
+      ref: slack-chat
+  triggers:
+    - event: chat.message.mentioned
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.auto.authored: false
+      message: |
+        {{message.author.userName}} mentioned you on Slack:
+
+        {{message.text}}
+
+        Channel: {{chat.channelId}}
+        Thread: {{chat.threadId}}
+
+        If this starts a new campaign, run your intake flow. If it concerns
+        a campaign already in flight, treat it as steering, approval, or a
+        question for that campaign.
+      routing:
+        kind: deliverOrSpawn
+        routeBy:
+          kind: singleton
+    - event: chat.message.subscribed
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.auto.authored: false
+      message: |
+        {{message.author.userName}} replied in a campaign thread you
+        subscribed to:
+
+        {{message.text}}
+
+        Channel: {{chat.channelId}}
+        Thread: {{chat.threadId}}
+
+        Match the thread to its campaign. Treat the reply as steering, an
+        approval, or a question, and acknowledge in the thread when it
+        changes the campaign plan.
+      routing:
+        kind: deliver
+        routeBy:
+          kind: singleton
+        onUnmatched: drop
+    - kind: heartbeat
+      cron: "*/10 * * * *"
+      message: |
+        Heartbeat campaign review, scheduled at {{payload.heartbeat.scheduledAt}}.
+
+        Review every in-flight campaign: sweep experimenter runs with
+        auto.runs.list, nudge quiet experiments, respawn dead ones once,
+        close out rounds whose results are all in by posting the lab log
+        update and dispatching the next round, and close campaigns that have
+        met their objective or exhausted their budget. If nothing needs
+        attention, end the turn without posting to Slack.
+      routing:
+        kind: deliver
+        routeBy:
+          kind: singleton
+        onUnmatched: drop

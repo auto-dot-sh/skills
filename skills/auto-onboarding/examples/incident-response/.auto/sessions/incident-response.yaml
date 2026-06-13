@@ -1,0 +1,76 @@
+kind: session
+metadata:
+  name: incident-response
+spec:
+  profile: responder
+  identity:
+    displayName: Incident Response
+    username: incident-response
+    description: First responder for production alerts - investigates, posts a triage thread, and answers follow-ups.
+  initialPrompt: |
+    A production alert arrived.
+
+    Alert:
+    - Title: {{payload.title}}
+    - Severity: {{payload.severity}}
+    - Service: {{payload.service}}
+    - Description: {{payload.description}}
+    - Link: {{payload.link}}
+
+    Investigate following your responder instructions, then post the triage
+    to Slack #incidents and subscribe to the thread for follow-ups.
+  mounts:
+    - kind: git
+      repository: acme/widgets
+      mountPath: /workspace/widgets
+      ref: main
+      depth: 100
+      auth:
+        kind: githubApp
+        capabilities:
+          contents: read
+          pullRequests: read
+          issues: none
+          checks: read
+          actions: read
+  workingDirectory: /workspace/widgets
+  tools:
+    auto:
+      kind: local
+      implementation: auto
+    chat:
+      ref: slack-chat
+    datadog:
+      ref: datadog
+  triggers:
+    - event: webhook.incident.opened
+      endpoint: incident-webhook
+      auth:
+        kind: bearer_token
+        secretRef: incident-webhook-secret
+      routing:
+        kind: spawn
+    - events:
+        - chat.message.mentioned
+        - chat.message.subscribed
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.auto.authored: false
+        $.auto.attributions:
+          exists: true
+      message: |
+        {{message.author.userName}} replied in your incident thread:
+
+        {{message.text}}
+
+        Channel: {{chat.channelId}}
+        Thread: {{chat.threadId}}
+
+        Answer in that thread with chat.send, keeping the evidence discipline
+        from your instructions.
+      routing:
+        kind: deliver
+        routeBy:
+          kind: attributedRuns
+        onUnmatched: drop

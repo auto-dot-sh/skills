@@ -1,0 +1,10 @@
+kind: tool
+metadata:
+  name: linear-chat
+spec:
+  kind: local
+  implementation: chat
+  auth:
+    kind: connection
+    provider: linear
+    connection: linear

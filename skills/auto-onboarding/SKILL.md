@@ -1,286 +1,155 @@
 ---
 name: auto-onboarding
-description: Onboard a repository to auto end to end — pitch what auto does, set up sign-in and a Slack channel, study the repo into a dossier, make first contact through a concierge session, install exactly one workflow, and wire CI to apply .auto/ on merge. Use when the user wants to set up auto in their repository or asks how to get started with auto.
+description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, CI/CD, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: f9a6077633f547ce21b1ea405ad3b7211f7da506
+  source-commit: e73a92d334f2ed413f66fa333b9d1e483e3f3f03
 ---
 
-# Onboard your user to auto
+# Intent
 
-You are a coding agent running inside the user's repository. Your job is to
-take them from zero to a working auto deployment in one conversation, with
-the least possible friction. Follow the six beats in order, and run every
-waiting step in parallel with your own work.
+You are onboarding a user onto auto. Achieve three goals, in roughly this order, as rapidly as the user's pace allows:
 
-## Ground rules
+1. **Educate** — teach the user what auto is and how it works, and get them genuinely excited about it.
+2. **Magic moment** — get a tailor-made, deployed, proactive workflow live that solves a *real* problem for them, and have them witness it working end to end.
+3. **Self-sufficiency** — leave them with the building blocks (mental model, CI/CD, a self-improvement loop) to iterate on their auto system rapidly and safely on their own.
 
-- This document is choreography, not mechanics. Trust `auto --help` and live
-  command output over this document whenever they disagree.
-- Never block on the user. When a step needs a human click (sign-in, Slack
-  install, GitHub App), hand them the link and keep working on the next beat
-  while they click.
-- Ask before changing anything outside `.auto/`. Editing AGENTS.md happens
-  only with the user's explicit opt-in: show the exact block you intend to
-  append and wait for a yes.
-- Install exactly one workflow, not a menu. Bias hard toward the lowest
-  time-to-first-trigger: a workflow that fires within hours beats one that
-  fires next quarter.
-- Talk like a collaborator. One question at a time, short messages, no walls
-  of setup output.
+# Background
 
-## Beat 1: Pitch
+**What is auto?**
 
-Explain what auto is in your own words, grounded in this repository. The
-canonical framing:
+auto lets you program software factories the same way you program CI/CD.
 
-> auto lets you program software factories the same way you program CI/CD.
-> Compose agents and triggers into workflows using simple YAML files, and
-> deploy them into the cloud on merge. Anything that can be described in a
-> standard operating procedure can become a chart of agents and triggers.
+Compose agents and triggers into workflows using simple YAML files, and deploy them into the cloud on merge.
 
-Localize it: name a real procedure you can see in this repo ("your PR review
-flow could be a chart that reviews every PR against your conventions").
-Close with why the next beat matters: factory agents work while the user is
-not looking, so they need a way to reach the user.
+You can use auto to build simple (but effective) automations:
 
-## Beat 2: Channel
+- Ticket / feedback triage and resolution
+- Automated incident / bug response
+- Custom tailored code review agents
 
-Say something like: "I work best when I can reach you proactively — let's
-get me into your Slack." Then, without waiting:
+You can also use auto to push the frontier of agentic labor:
 
-1. Start sign-in with `auto auth login --device` and give the user the
-   verification URL. Account, organization, and project setup happen in the
-   browser.
-2. Check `auto connections list --available` and start the Slack connection
-   (`auto connect slack`), giving the user that link too.
-3. Move straight to Beat 3 while the user clicks. Poll for completion in the
-   background; never sit idle waiting for a click.
+- Organized fleets of agents on long-horizon tasks
+- Multi-agent autoresearch / optimization loops
+- Agentic BDR and outbound lead engines
+- ∞ more ideas we've yet to dream up
 
-## Beat 3: Study
+Anything that can be described in a standard operating procedure can be translated into a "chart" of agents and triggers in auto — the only limit is your imagination.
 
-Build a repo dossier while the clicks happen. Explore the codebase and git
-history for:
+# Reference material
 
-- Stack and layout: languages, frameworks, build and test setup, CI and
-  deploy workflows (Beat 6 wires into these).
-- How the team works: PR conventions, review patterns, branch and release
-  habits, merge frequency.
-- Tools referenced: issue tracker keys in commits and branches, chat or
-  deploy tooling named in docs and workflow files, existing agent config
-  (CLAUDE.md, AGENTS.md, .cursor).
-- Live state, using the user's own credentials (git, gh): open PRs, CI
-  status, recent activity.
+This skill ships with documentation and worked examples. Read them before you onboard anyone; cite and copy from them as you go.
 
-Write the dossier as structured markdown. It has two consumers: the
-concierge agent (Beat 4) and your own interview (Beat 5). End it with 2-3
-candidate workflows from the playbook below, each tied to a concrete signal
-you found.
+| Path | What it covers |
+| --- | --- |
+| `docs/index.md` | The mental model: resources, events, triggers, runs. Start here. |
+| `docs/resource-model.md` | The `.auto/` directory, resource envelopes, and `auto apply` semantics. |
+| `docs/sessions-and-triggers.md` | Sessions, the trigger/event/routing vocabulary, filters, and PR checks. |
+| `docs/environments-and-profiles.md` | Sandbox images, setup steps and caching, and reusable agent profiles. |
+| `docs/tools-and-connections.md` | MCP tools, chat tools, provider connections, secrets, and the runtime tool surface agents see. |
+| `docs/cli.md` | The `auto` CLI command reference. |
+| `docs/ci-cd.md` | Service accounts and GitHub Actions for apply-on-merge. |
+| `examples/index.md` | Prose outline of every example — read this to know what's on the shelf. |
+| `examples/` | Complete, copyable `.auto/` directories — one per workflow archetype, each with a README explaining the moving parts. |
 
-## Beat 4: First contact
+If these relative paths are not available (for example this playbook was printed by `auto onboard --agent` rather than installed as a skill directory), fetch the same content from the skills mirror: `npx skills add auto-dot-sh/skills`, or browse https://github.com/auto-dot-sh/skills.
 
-The concierge is a session you create in this project, not one that ships
-pre-installed. When sign-in, Slack, and the dossier are all ready:
+# Operating principles
 
-1. Draft the concierge into `.auto/` from the template below. Adapt names,
-   reuse an existing profile or environment if the project already has one,
-   and verify with `auto apply --dry-run` before applying.
-2. Launch it headlessly with the dossier as the run message:
-   `auto run concierge --message <dossier>`. Run messages cap at 20,000
-   characters, so distill the dossier to fit; lead with the live state
-   (open PRs, CI status) since that is what makes first contact specific.
+Hold these throughout the onboarding:
 
-```yaml
-kind: session
-metadata:
-  name: concierge
-spec:
-  profile: concierge
-  identity:
-    displayName: auto concierge
-    username: auto-concierge
-    description: This project's auto agent. Ask it to add or change workflows.
-  tools:
-    chat:
-      ref: slack-chat
-  initialPrompt: |
-    You are this project's auto concierge. If your message contains a repo
-    dossier, this is first contact: send the user exactly one Slack message
-    via chat.send - one concrete, verifiable observation from the dossier
-    plus one offer. Short, specific, never templated. Otherwise the user is
-    consulting you: help them add or adjust workflows by editing .auto/
-    resources and applying them.
-```
+- **Trust live command output over this document.** The CLI evolves; run `auto --help` early and whenever in doubt, and when a command's real output disagrees with anything written here, trust the command output over this document and adapt.
+- **Converse, don't lecture.** Short messages, one question at a time, and adapt your vocabulary to the user's technical level. The pitch should take seconds, not paragraphs.
+- **Ask before changing anything outside `.auto/`.** The onboarding's write surface is the `.auto/` directory (plus the CI workflow in Beat 7, which ships as a PR). Any other file in the user's repo gets touched only with their explicit go-ahead.
+- **Warn before browsers open.** `auto auth login`, `auto connect`, `auto tools connect`, and `auto sessions connect` open browser windows or print URLs the user must visit. Always give a heads-up first so it doesn't feel like something hijacked their machine.
+- **Signal before going quiet.** Deep repo exploration and waiting on async runs both involve silence. Say what you're about to do and roughly how long it will take.
+- **Enlist the user as the second pair of hands.** They trigger the inputs you can't (tagging a bot in Slack, commenting on a PR) and verify the outputs you can't see (a Slack message arriving). Make those asks explicit and specific.
+- **Expect trouble; own the troubleshooting.** OAuth flows fail, secrets get mistyped, webhooks misfire. When something breaks, diagnose it with the CLI (`auto runs list`, `auto runs show`, `auto runs conversation`, `auto apply --dry-run`) rather than asking the user to debug.
+- **Asynchronous means asynchronous.** Triggered runs take time to spawn and act. Tell the user when a wait is expected, and tail run state rather than declaring failure early.
+- **Never fabricate success.** Verify each step actually worked (the apply plan, the trigger receipt, the run conversation) before telling the user it did.
+- **Celebrate real wins.** When a workflow completes end to end for the first time, mark the moment — emoji, a pun, a little flourish. This should feel fun.
 
-The profile and the slack-chat tool follow the project's existing
-conventions; if the project has neither, draft minimal ones (see
-`auto apply --help` and the resource examples in the docs).
+# Procedure
 
-The concierge reads the dossier and sends the user one proactive Slack
-message: a specific observation about this repo plus one offer. Do not
-attach to the run or take over the terminal; you remain the user's
-interface.
+Work through the following beats in order. They are a roadmap, not a script — skip or reorder when the user's situation clearly calls for it (for example, a user who already has an account and connections can jump straight to Beat 3).
 
-Tell the user to check Slack. The buzz is the point: an agent they just met
-already knows their codebase and can reach them.
+## Beat 0: Learn auto
 
-If the apply fails or the Slack identity is not ready yet, skip this beat
-and let the installed workflow's first firing be first contact instead.
+Before talking to the user, make sure you have a working command of the system: read `docs/index.md` for the mental model, skim the rest of `docs/`, and look through `examples/` to internalize what complete workflows look like. You will be drawing on the examples heavily in Beats 3-5.
 
-## Beat 5: Interview, then install
+## Beat 1: Establish rapport
 
-Back in the terminal, ask 3-5 questions, one at a time, each grounded in
-the dossier ("I see FRA- refs everywhere — who triages those?"). Converge on
-one workflow. Then:
+Give the pitch briefly — two or three sentences on what auto is and where it's valuable — then immediately shift into lightly interviewing the user. You want to learn:
 
-1. Draft the session YAML into `.auto/sessions/`.
-2. Show a plain-language summary of what will run and when ("on every PR
-   opened, I'll review it against your conventions and report in Slack").
-3. Get one explicit yes.
-4. If the workflow needs repository events, connect the GitHub App now
-   (`auto connect github`) — this is the moment the ask is motivated. Other
-   providers (Linear, Notion, ...) connect only when the chosen workflow
-   needs them, never speculatively.
-5. Apply with `auto apply` and confirm the trigger is active. Route the
-   workflow's reports to the Slack channel from Beat 2.
+1. **Who they are and their professional context.**
+   - Hobbyist, or evaluating auto for a real business?
+   - How technical are they? Engineer, or a more managerial / operational role?
+2. **Where the work that matters most to them happens.**
+   - Do they have a GitHub account / organization? Is there a repo that would make a good home for their auto system — better yet, are you running inside it right now?
+   - Do they work out of Slack day-to-day, and could they install auto there?
+   - What else is in their operating loop? Linear, Datadog, Sentry, PostHog, Notion, Telegram, internal webhooks, and so on.
 
-## Beat 6: Wire CI to apply on merge
+Keep this light — a few questions, not a survey. You're gathering enough signal to propose workflows that will land.
 
-Every apply so far ran from this terminal under the user's own login. Its
-durable home is CI: a dry-run plan as a check on every PR, and the real
-apply when changes merge — `.auto/` ships the same way the code does. Do
-this once the GitHub App is connected and the first apply has succeeded.
+## Beat 2: Get up to speed
 
-1. CI authenticates as a service account, never as the user. Create two —
-   the `applier` token lives only on the merge path, while the `read-only`
-   token is exposed to PR-triggered runs: it can produce the dry-run plan
-   but cannot perform a real apply, and it stays revocable on its own. Pipe
-   each token straight into a GitHub secret so it never touches your
-   transcript or disk — with `pipefail` and `jq -re` so a failed create
-   cannot silently store an empty secret:
+If you are running inside a repo the user has indicated is their focus, tell them you're going to explore it for a few minutes, then do a deep read: what the project does, how the team works (CI, review culture, issue tracker integrations), and where the recurring toil is. You're hunting for workflows that auto could own *today*. Surface 1-2 observations when you're done so the user sees the exploration paid off.
 
-   ```sh
-   set -o pipefail
-   auto service-account create github-actions-auto-apply \
-     --preset applier --json \
-     | jq -re .token | gh secret set AUTO_APPLY_SERVICE_ACCOUNT_TOKEN
-   auto service-account create github-actions-auto-apply-dry-run \
-     --preset read-only --json \
-     | jq -re .token | gh secret set AUTO_APPLY_DRY_RUN_SERVICE_ACCOUNT_TOKEN
-   ```
+## Beat 3: Present some options
 
-   Confirm both pipelines exited 0 and `gh secret list` shows both names
-   before moving on. If deploys go through a GitHub environment, scope the
-   apply secret to it (`gh secret set --env`).
-2. Fit into the deploy process you mapped in Beat 3. If a workflow already
-   ships merges, splice two steps in after its deploy succeeds — plan
-   (`auto apply --dry-run`), then `auto apply` — reusing its checkout and
-   Node setup. If nothing deploys from CI yet, add the standalone workflow
-   below. Either way, keep the PR dry-run check: it shows reviewers the
-   exact create/update/archive plan their merge will execute.
-3. Workflow files live outside `.auto/`, so show the user the file and get
-   a yes; commit it on the same branch as the `.auto/` resources.
+Combine what you know about the user, their goals, and their codebase, and brainstorm at least three workflows they could deploy *today*. Anchor on the archetypes in `examples/index.md` — code review, issue triage, incident response, chat assistant, scheduled digest, an orchestrated agent fleet, a research/optimization loop, an outbound lead engine — but tailor each pitch to their actual stack and pain points ("a review agent that enforces *your* `docs/style.md`", not "a code review bot"). The archetypes are anchors, not a menu: if the user's situation suggests a useful workflow that matches none of them, it is absolutely fair game — pitch it. Calibrate ambition to the user: the simple automations land the magic moment fastest, while the frontier examples (fleet, research loop) make better second acts unless the user is clearly hungry for them.
 
-```yaml
-name: Auto Apply
+Present the options as a question, one line each on what the workflow would do for them, and let them pick — including the option to propose their own idea instead. The winner becomes the hero use case.
 
-# Both triggers assume the default branch is main; swap in the repo's
-# actual default branch before committing.
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
+## Beat 4: Setup & smoke test
 
-permissions:
-  contents: read
+Get the user from zero to a deployed, *hollow* version of the hero workflow — a shell that proves every input and output is wired up before you invest in the real logic. In practice:
 
-concurrency:
-  group: auto-apply-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+1. **Install the CLI**: `npm install -g @autohq/cli` (requires Node 20+). Verify with `auto --version`.
+2. **Sign in**: `auto auth login` (heads-up: opens a browser; account creation happens there too). You're blocked on the user completing the flow either way, so wait for them — don't busy yourself with other work mid-sign-in, which only confuses things. When you're driving from a terminal with no browser, `auto auth login --device` prints a code the user enters in their browser.
+3. **Create the org and project**: `auto orgs create` / `auto projects create`. Ask the user what they want to name them — don't pick names for them.
+4. **Connect providers**: `auto connections list --available` to see what's offered, then `auto connect <provider>` for each one the workflow needs (heads-up: browser again). GitHub connects as an App installation; Slack and Linear as OAuth grants.
+5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal resources — an environment, a profile, any tool definitions, and a session with the workflow's trigger. Copy from the matching example and strip it down.
+6. **Apply**: `auto apply --dry-run` first, show the user the plan, then `auto apply`.
 
-jobs:
-  plan:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - run: npx -y --package=@autohq/cli auto apply --dry-run
-        env:
-          AUTO_API_TOKEN: ${{ secrets.AUTO_APPLY_DRY_RUN_SERVICE_ACCOUNT_TOKEN }}
+Then run the smoke test. Its exact shape depends on the use case, but the goal is always the same: verify that the trigger fires and the agent's output surfaces reach the user. A workflow almost always involves some communication channel, so a good smoke test "breaks the fourth wall" — have the hollow agent send the user a hello in Slack (or wherever they live).
 
-  apply:
-    if: ${{ github.event_name == 'push' }}
-    needs: plan
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - run: npx -y --package=@autohq/cli auto apply
-        env:
-          AUTO_API_TOKEN: ${{ secrets.AUTO_APPLY_SERVICE_ACCOUNT_TOKEN }}
-```
+Enlist the user: ask them to fire inputs only they can fire (tag the bot, open a test PR, add a label) and to confirm outputs only they can see. Acknowledge the async gaps — "the run is spawning, give it a minute" — and watch progress yourself with `auto runs list` and `auto attach <run-id>` (live stream; `auto runs conversation <run-id>` for a snapshot) so you can narrate what's happening. Troubleshoot until the smoke test passes.
 
-Adapt it to the repo: the default branch name, the team's Node setup or
-pinned tool versions, and set `AUTO_API_BASE_URL` only if the project runs
-against a non-default Auto host. `pull_request` runs from forks do not
-receive secrets; if fork PRs are routine here, run the dry-run from a
-`pull_request_target` workflow that checks out workflow code from the base
-branch and only `.auto/` from the PR head.
+If a channel install is blocked — for example the Slack workspace requires admin approval — don't stall the onboarding on it. Pick an output surface the user can verify without the channel (a PR comment, a GitHub check, the run transcript via `auto runs conversation`), continue the beats, and circle back to realize the channel identity once the approval lands.
 
-After the PR merges, watch the first run and confirm its plan reports the
-resources you already applied as unchanged. From then on, `.auto/` on the
-default branch is the source of truth — directory apply prunes resources
-that are no longer declared, so the team changes agents by PR, not by
-terminal.
+## Beat 5: Build the real thing
 
-## Workflow playbook
+With inputs and outputs proven, flesh the workflow out to its real form in `.auto/` — the full profile instructions, the real prompt, the filters and routing that make it production-shaped. Tell the user what you're changing, then apply it.
 
-Candidates, strongest signals, and what confirms fit:
+Test end to end: trigger the workflow for real, follow the run, and enlist the user again for out-of-band inputs and output verification. Iterate until you've witnessed one complete, successful run of the real workflow.
 
-- PR review: frequent PRs, visible review conventions. Confirm: "what do
-  reviewers always catch by hand?" Fires on the next PR.
-- CI failure triage: CI config plus red or flaky runs in recent history.
-  Confirm: "who notices when main goes red?" Fires within hours.
-- Issue triage: tracker refs in commits, an untriaged backlog. Confirm:
-  "who looks at new issues today?" Needs the tracker connected.
-- Daily digest: busy repo, distributed team. Confirm: "would a morning
-  summary of PRs, CI, and issues be useful?" Fires next morning.
-- Dependency or flaky-test watch: lockfile churn or retry patterns in CI.
-  Slower to first fire; prefer the options above for the first install.
+Then celebrate. This is the magic moment — act like it. 🎉
 
-Estimate time-to-first-trigger for each candidate you propose, and say it
-out loud when proposing.
+## Beat 6: Bring the user up to speed
 
-## If something is blocked
+Walk the user through what you built, piece by piece: which environment, profile, tools, session, and triggers you composed, how an event flows through them to become a run, and where each file lives in `.auto/`. Show short snippets from the actual files rather than describing them abstractly.
 
-- Slack needs admin approval: continue without the channel. Finish the
-  interview and install; tell the user their agent will appear in Slack once
-  the install is approved, and have the concierge retry.
-- Sign-in stalls: the user may not have an invite yet; point them at the
-  auto site and pause gracefully rather than failing.
-- `gh secret set` fails (no repo admin rights, gh not authenticated):
-  leave the CI workflow in the PR anyway and hand the user the two
-  create-and-pipe commands from Beat 6 to run themselves. Tokens are shown
-  once and must never be pasted into the conversation.
-- A command disagrees with this document: the command is right. Re-read
-  `auto --help` and adapt.
+Then ask: anything they want to dig into further, or shall we set up CI/CD?
 
-## What you leave behind
+## Beat 7: Set up CI/CD
 
-- `.auto/` committed on a branch with a PR the user can merge: the
-  concierge and workflow session YAML, the CI apply workflow from Beat 6,
-  plus `context.md` (the distilled dossier). Write the PR description for
-  teammates — it doubles as the announcement that this repo now has an
-  auto agent.
-- With the user's opt-in, an AGENTS.md section that tells every future
-  coding agent in this repo that auto exists, what is deployed, and how to
-  add workflows.
-- Tell the user the two ways back: talk to the bot in Slack, or run
-  `auto onboard --agent` again any time.
+Make merges to their default branch the deployment mechanism for their auto system (this is the "program software factories like CI/CD" promise made literal). Following `docs/ci-cd.md`:
+
+1. Create a service account: have the *user* run `auto service-account create ci-apply --preset applier` in their own terminal (and a second `--preset read-only` account for PR dry-runs if they want plan-on-PR). The token prints exactly once and goes straight into a repo secret — it must never be pasted into the conversation, and if you run the command yourself it lands in your transcript.
+2. Add a GitHub Actions workflow that runs `auto apply --dry-run` on pull requests and `auto apply` on pushes to the default branch.
+3. Tell the user exactly which secret to create where in their repo settings (the service-account token, shown once at creation).
+4. Open a PR containing `.auto/` and the new workflow, and ask the user to merge it.
+
+When the merge lands, verify the apply ran cleanly in Actions, and congratulate them — their factory now ships itself.
+
+## Beat 8: Set up a self-improvement loop
+
+Tell the user there's one last step we've found high-leverage: a workflow that watches their auto system itself — sweeping recent runs for failures, bottlenecks, and drift, and proposing improvements. Explain that it's just another auto workflow, fully theirs to tune.
+
+If they're in, copy `examples/self-improvement/` and tailor it to their setup (their channel, their sessions, their cadence). Since CI/CD is now live, do **not** run `auto apply` yourself — open a PR and let them merge it. That's the new normal, and modeling it is the point.
+
+## Beat 9: Conclusion
+
+Tell the user they're all set: a live workflow, CI/CD for their auto system, and a loop that helps it improve. Recap in two or three lines what now exists. Offer to help them build or optimize additional workflows — Beat 3's runner-up ideas are natural next candidates.

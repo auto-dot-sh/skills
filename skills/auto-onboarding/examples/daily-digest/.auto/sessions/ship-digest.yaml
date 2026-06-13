@@ -1,0 +1,76 @@
+kind: session
+metadata:
+  name: ship-digest
+spec:
+  profile: analyst
+  identity:
+    displayName: Ship Digest
+    username: ship-digest
+    description: Daily shipped-code digest - summarizes merged work, flags follow-ups, and posts the report to the channel.
+  initialPrompt: |
+    Produce the daily shipped-code digest for acme/widgets.
+
+    This run was scheduled at {{payload.heartbeat.scheduledAt}}. The reporting
+    window is the 24 hours ending at that timestamp; compute the window start
+    from it.
+
+    Gather what shipped in the window:
+    - merged PRs, with the search_pull_requests tool, query
+      `repo:acme/widgets is:pr is:merged merged:>=<window-start-ISO>`;
+      drop any whose merge timestamp falls outside the window
+    - commits that landed directly on main:
+      git log --since=<window-start-ISO> --until=<window-end-ISO> --first-parent HEAD
+      The checkout is shallow and detached; if history does not reach the
+      window start, run git fetch --shallow-since=<window-start-ISO> origin main
+      first so the scan does not under-report.
+    - for each merged PR, read the body and diff with pull_request_read
+      (methods `get` and `get_diff`) deeply enough to describe what changed
+    - CI runs on main in the window, with the actions_list tool, to say
+      whether what merged actually deployed and to flag failed runs
+
+    Write the digest with these sections:
+    1. Shipped - one entry per merged PR or direct commit; a line for
+       mechanical changes, a short paragraph for substantial ones. Link each
+       PR. Note whether the day's merges deployed cleanly.
+    2. Suggested follow-ups - concrete work the shipped changes imply:
+       missing tests, TODOs introduced, docs that now lag the code.
+    3. Quality watch - anything drifting from the repo's written conventions,
+       citing the PR and file; write "No drift observed." when clean.
+    4. In flight - open PRs (search_pull_requests, `is:pr is:open`), one line
+       each.
+
+    Send exactly one Slack message with chat.send, target provider `slack`,
+    target destination channel "#dev": a single sentence summarizing the day.
+    Then thread the full digest as one reply to that message. If nothing
+    shipped, still post - the in-flight and watch sections remain useful.
+  mounts:
+    - kind: git
+      repository: acme/widgets
+      mountPath: /workspace/widgets
+      ref: main
+      depth: 300
+      auth:
+        kind: githubApp
+        capabilities:
+          contents: read
+          pullRequests: read
+          issues: read
+          checks: read
+          actions: read
+  workingDirectory: /workspace/widgets
+  tools:
+    chat:
+      ref: slack-chat
+    github:
+      kind: github
+      tools:
+        - search_pull_requests
+        - pull_request_read
+        - actions_list
+        - actions_get
+  triggers:
+    - kind: heartbeat
+      cron: "0 8 * * *"
+      timezone: America/Los_Angeles
+      routing:
+        kind: spawn

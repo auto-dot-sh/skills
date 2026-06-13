@@ -1,0 +1,11 @@
+kind: tool
+metadata:
+  name: datadog
+spec:
+  kind: mcp_remote
+  description: Datadog logs, monitors, metrics, and dashboards.
+  url: https://mcp.datadoghq.com/api/unstable/mcp-server/mcp?toolsets=all
+  transport: streamable_http
+  auth:
+    kind: mcp_oauth
+    connection: datadog-acme

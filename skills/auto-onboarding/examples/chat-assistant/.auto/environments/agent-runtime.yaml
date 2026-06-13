@@ -1,0 +1,9 @@
+kind: environment
+metadata:
+  name: agent-runtime
+spec:
+  image:
+    kind: preset
+    name: node24
+  resources:
+    memoryMB: 4096

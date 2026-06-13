@@ -1,0 +1,42 @@
+kind: session
+metadata:
+  name: experimenter
+spec:
+  profile: experimenter
+  initialPrompt: |
+    The research coordinator dispatched you. This run's handoff message is
+    your experiment brief: the hypothesis, the exact variant to implement,
+    the measurement protocol, the baseline to compare against, the
+    coordinator's run id, and the reporting protocol.
+
+    If any of those are missing, send a blocked report to the coordinator's
+    run id with auto.runs.message naming exactly what is missing, then end
+    the run. If no coordinator run id is present at all, end the run with a
+    status note instead of guessing where to report.
+
+    Otherwise follow your profile: acknowledge, measure the baseline,
+    implement the one variant, measure it identically, and report the
+    verdict with the numbers.
+  mounts:
+    - kind: git
+      repository: acme/widgets
+      mountPath: /workspace/widgets
+      ref: main
+      auth:
+        kind: githubApp
+        capabilities:
+          contents: write
+          pullRequests: write
+          issues: none
+          checks: read
+          actions: read
+  workingDirectory: /workspace/widgets
+  tools:
+    auto:
+      kind: local
+      implementation: auto
+    github:
+      kind: github
+      tools:
+        - pull_request_read
+        - create_pull_request

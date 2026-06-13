@@ -1,0 +1,79 @@
+kind: session
+metadata:
+  name: pr-review
+spec:
+  profile: reviewer
+  identity:
+    displayName: PR Review
+    username: pr-review
+    description: Reviews each pull request and posts one comment with a merge recommendation.
+  initialPrompt: |
+    Review GitHub pull request #{{payload.github.pullRequest.number}} in
+    {{payload.github.repository.fullName}}.
+
+    Call checks.begin with { "name": "pr-review" } before doing anything else.
+
+    Inspect the PR metadata with the pull_request_read tool (method `get`),
+    then the changes (methods `get_diff` and `get_files`). Record the head
+    commit SHA you reviewed.
+
+    The local checkout is a shallow checkout of the PR head only. Fetch other
+    refs explicitly if you need them.
+
+    Post exactly one review comment with the add_issue_comment tool, following
+    the review posture and attribution marker from your instructions.
+
+    Then conclude the check: checks.success for a thumbs-up recommendation,
+    checks.failure for thumbs-down, including the reviewed SHA, the
+    recommendation, and the key findings.
+
+    Finally, follow the Slack protocol from your instructions to leave the
+    verdict in the #dev thread for this PR.
+  mounts:
+    - kind: git
+      repository: acme/widgets
+      mountPath: /workspace/widgets
+      ref: refs/pull/{{payload.github.pullRequest.number}}/head
+      depth: 1
+      auth:
+        kind: githubApp
+        capabilities:
+          contents: read
+          pullRequests: write
+          issues: write
+          checks: none
+          actions: read
+  workingDirectory: /workspace/widgets
+  tools:
+    chat:
+      ref: slack-chat
+    github:
+      kind: github
+      tools:
+        - pull_request_read
+        - add_issue_comment
+  triggers:
+    - events:
+        - github.pull_request.opened
+        - github.pull_request.reopened
+        - github.pull_request.synchronize
+      connection: github-acme
+      where:
+        $.github.repository.fullName: acme/widgets
+      checks:
+        - name: pr-review
+          displayName: Auto PR review
+          description: Auto reviews this pull request and reports whether blocking issues were found.
+          instructions: |
+            Call checks.begin with { "name": "pr-review" } before doing
+            anything else. After posting the review comment, call
+            checks.success for a thumbs-up recommendation or checks.failure
+            for thumbs-down, with a summary of the key findings.
+          beginTimeout:
+            seconds: 1200
+            conclusion: failure
+          completeTimeout:
+            seconds: 1200
+            conclusion: failure
+      routing:
+        kind: spawn

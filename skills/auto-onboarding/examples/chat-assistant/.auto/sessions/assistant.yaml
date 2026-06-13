@@ -1,0 +1,63 @@
+kind: session
+metadata:
+  name: assistant
+spec:
+  profile: assistant
+  identity:
+    displayName: Assistant
+    username: assistant
+    description: The team's channel assistant - mention @assistant for quick answers, summaries, and drafts.
+  initialPrompt: |
+    Someone mentioned you on {{payload.chat.provider}} and wants to chat.
+
+    Trigger context:
+    - Channel: {{payload.chat.channelId}}
+    - Thread: {{payload.chat.threadId}}
+    - Author: {{payload.message.author.userName}}
+    - Message: {{payload.message.text}}
+
+    Reply in that thread with chat.send (fall back to the triggering message
+    as the thread root when no thread id is present), then call
+    auto.chat.subscribe for the thread so the rest of the conversation routes
+    back to this run. Keep the conversation going for as long as people keep
+    talking to you.
+  tools:
+    auto:
+      kind: local
+      implementation: auto
+    chat:
+      ref: slack-chat
+  triggers:
+    - event: chat.message.mentioned
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.auto.authored: false
+        $.auto.attributions:
+          exists: false
+      routing:
+        kind: spawn
+    - events:
+        - chat.message.mentioned
+        - chat.message.subscribed
+      connection: slack
+      where:
+        $.chat.provider: slack
+        $.auto.authored: false
+        $.auto.attributions:
+          exists: true
+      message: |
+        {{message.author.userName}} replied in your conversation:
+
+        {{message.text}}
+
+        Channel: {{chat.channelId}}
+        Thread: {{chat.threadId}}
+
+        Reply in that thread with chat.send and keep the running context of
+        this conversation.
+      routing:
+        kind: deliver
+        routeBy:
+          kind: attributedRuns
+        onUnmatched: drop
