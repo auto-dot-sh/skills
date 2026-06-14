@@ -47,8 +47,6 @@ Connect flows wait (up to ~5 minutes) for the user to finish in the browser; `--
 auto apply --dry-run         # plan only — always run this first
 auto apply                   # apply .auto/ (prunes omitted resources)
 auto apply -f <file> --no-prune
-auto apply --connect         # then walk through OAuth for mcp_oauth tools
-auto tools connect <tool>    # OAuth a remote MCP tool (--manual prints the URL)
 auto sessions connect <session>   # realize a session's chat identity (per-workspace bot)
 ```
 

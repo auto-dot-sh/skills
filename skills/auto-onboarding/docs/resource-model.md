@@ -7,18 +7,17 @@
 ```
 .auto/
   environments/   # kind: environment
-  profiles/       # kind: profile
-  tools/          # kind: tool
+  identities/     # kind: identity
   sessions/       # kind: session
   assets/         # avatar images referenced by session identities
 ```
 
-Each YAML file under a kind directory must contain resources of that kind (a file may hold multiple `---`-separated documents). Resources are applied in dependency order: environments, then profiles, then tools, then sessions.
+Each YAML file under a kind directory must contain resources of that kind (a file may hold multiple `---`-separated documents). Resources are applied in dependency order: environments, then identities, then sessions.
 
 ## The resource envelope
 
 ```yaml
-kind: <environment | profile | tool | session>
+kind: <environment | identity | session>
 metadata:
   name: my-resource        # required: 1-128 chars of [A-Za-z0-9_.-]
   labels:                  # optional string map
@@ -28,7 +27,7 @@ spec:
   # kind-specific, validated strictly — unknown fields are rejected
 ```
 
-Names are the reference currency: sessions reference profiles by name, profiles reference environments by name, sessions reference tools by name, and tools/triggers reference connections by name.
+Names are the reference currency: sessions reference identities and environments by name, while inline tools and triggers reference connections by name.
 
 ## Apply semantics
 
@@ -38,7 +37,6 @@ auto apply                  # make the platform match .auto/ — omitted resourc
 auto apply --no-prune       # apply without archiving omitted resources
 auto apply -f path.yaml     # apply a single file (use with --no-prune for narrow experiments)
 auto apply --directory dir  # apply a different directory
-auto apply --connect        # after applying, walk through OAuth for any mcp_oauth tools
 auto apply --json           # machine-readable response
 ```
 

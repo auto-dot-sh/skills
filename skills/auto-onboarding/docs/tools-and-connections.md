@@ -22,48 +22,50 @@ auto allow <provider> [project]      # share an org-level connection with a proj
 
 Trigger `connection:` fields and chat-tool `auth.connection` fields reference these grants by name.
 
-## Tool resources
+## Tools
 
 ### Remote MCP tools
 
 Any MCP server reachable over HTTPS:
 
 ```yaml
-kind: tool
+kind: session
 metadata:
-  name: notion
+  name: notion-agent
 spec:
-  kind: mcp_remote
-  description: Notion pages, databases, and workspace search.
-  url: https://mcp.notion.com/mcp
-  transport: streamable_http
-  auth:
-    kind: mcp_oauth            # per-tool OAuth, completed via `auto tools connect`
-    connection: notion-workspace
+  harness: claude-code
+  environment: agent-runtime
+  tools:
+    notion:
+      kind: mcp_remote
+      description: Notion pages, databases, and workspace search.
+      url: https://mcp.notion.com/mcp
+      transport: streamable_http
+      auth:
+        kind: mcp_oauth
+        connection: notion-workspace
 ```
 
-Auth options: `mcp_oauth` (named connection, user completes OAuth once), `provider_oauth` (reference an existing provider connection by name), `bearer` (`token: { $secret: name }`), or `none`. After applying, run `auto tools connect <tool>` (or `auto apply --connect`) to complete OAuth flows.
+Auth options: `mcp_oauth` (named project-scoped MCP OAuth credential; create or refresh it with `auto apply --connect`), `provider_oauth` (reference an existing provider connection by name), `bearer` (`token: { $secret: name }`), or `none`.
 
 Real examples from production use: Linear (`https://mcp.linear.app/mcp`), Notion (`https://mcp.notion.com/mcp`), Vercel (`https://mcp.vercel.com`), Datadog (`https://mcp.us5.datadoghq.com/...`).
 
 ### Local tools
 
-Platform-implemented tools:
+Platform-implemented tools are declared inline under `session.spec.tools`:
 
 ```yaml
-kind: tool
-metadata:
-  name: slack-chat
-spec:
-  kind: local
-  implementation: chat         # chat | auto | ping
-  auth:
-    kind: connection
-    provider: slack
-    connection: slack          # the connection name from `auto connections list`
+tools:
+  slack:
+    kind: local
+    implementation: chat       # chat | auto | ping
+    auth:
+      kind: connection
+      provider: slack
+      connection: slack        # the connection name from `auto connections list`
 ```
 
-- **`chat`** — the unified messaging surface (below). One chat tool per provider connection; sessions can take several under one alias via `refs:`.
+- **`chat`** — the unified messaging surface (below). Sessions can bind several provider connections under one alias with `auth.kind: connections`.
 - **`auto`** — the platform-coordination surface (below). Needs no auth.
 - **`ping`** — connectivity smoke test.
 
@@ -72,11 +74,24 @@ spec:
 ```yaml
 tools:
   chat:
-    refs: [slack-chat, linear-chat]   # multiple providers under one alias
+    kind: local
+    implementation: chat
+    auth:
+      kind: connections               # multiple providers under one alias
+      connections:
+        - provider: slack
+          connection: slack
+        - provider: linear
+          connection: linear
   notion:
-    ref: notion                       # reference by tool resource name
+    kind: mcp_remote
+    url: https://mcp.notion.com/mcp
+    transport: streamable_http
+    auth:
+      kind: mcp_oauth
+      connection: notion-workspace
   auto:
-    kind: local                       # or define inline
+    kind: local
     implementation: auto
   github:                             # inline-only; auth comes from the session's mounts
     kind: github
