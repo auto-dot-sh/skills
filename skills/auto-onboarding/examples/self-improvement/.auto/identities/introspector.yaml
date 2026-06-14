@@ -1,0 +1,7 @@
+kind: identity
+metadata:
+  name: introspector
+spec:
+  displayName: Introspector
+  username: introspector
+  description: Sweeps the project's runs for failures and drift, and proposes session and prompt improvements.

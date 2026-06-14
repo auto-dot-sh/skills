@@ -1,0 +1,7 @@
+kind: identity
+metadata:
+  name: assistant
+spec:
+  displayName: Assistant
+  username: assistant
+  description: The team's channel assistant - mention @assistant for quick answers, summaries, and drafts.

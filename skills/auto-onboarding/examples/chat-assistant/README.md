@@ -17,7 +17,7 @@ This example is the canonical demonstration of the **spawn vs. deliver attributi
 - **Fresh mention → spawn**: `chat.message.mentioned` with `$.auto.attributions: { exists: false }` starts a new run.
 - **Thread reply → deliver**: the same event plus `chat.message.subscribed`, with `$.auto.attributions: { exists: true }` and `$.auto.authored: false`, delivers into the existing run via `attributedRuns` — the agent keeps its conversational memory.
 - The bridge between the two is the agent calling **`auto.chat.subscribe`** after its first reply, which attributes the thread to its run.
-- The `identity:` block plus `auto sessions connect assistant` realizes a real workspace bot the user can @mention directly.
+- The referenced `.auto/identities/assistant.yaml` resource plus `auto sessions connect assistant` realizes a real workspace bot the user can @mention directly.
 
 ## Customize
 

@@ -80,10 +80,13 @@ auth:
 
 ## Avatar assets
 
-A session identity may declare an avatar:
+An identity resource may declare an avatar:
 
 ```yaml
-identity:
+kind: identity
+metadata:
+  name: pr-review
+spec:
   displayName: PR Review
   avatar:
     asset: .auto/assets/pr-review.png

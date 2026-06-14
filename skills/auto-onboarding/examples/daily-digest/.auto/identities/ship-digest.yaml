@@ -1,0 +1,7 @@
+kind: identity
+metadata:
+  name: ship-digest
+spec:
+  displayName: Ship Digest
+  username: ship-digest
+  description: Daily shipped-code digest - summarizes merged work, flags follow-ups, and posts the report to the channel.

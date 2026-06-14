@@ -1,0 +1,7 @@
+kind: identity
+metadata:
+  name: research-coordinator
+spec:
+  displayName: Research Coordinator
+  username: research
+  description: Give @research a measurable objective and a budget; it runs experiment rounds on a fleet and reports the lab log.

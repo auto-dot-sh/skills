@@ -1,0 +1,7 @@
+kind: identity
+metadata:
+  name: issue-triage
+spec:
+  displayName: Issue Triage
+  username: issue-triage
+  description: Triages labeled issues - sets metadata, posts handoff context, and queues implementation-ready work for the coder.
