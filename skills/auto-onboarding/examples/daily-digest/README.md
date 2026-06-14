@@ -6,7 +6,6 @@ A scheduled reporter: every morning it reads the last 24 hours of merged PRs and
 .auto/
   environments/agent-runtime.yaml
   profiles/analyst.yaml
-  tools/slack-chat.yaml
   sessions/ship-digest.yaml
 ```
 

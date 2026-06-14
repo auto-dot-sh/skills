@@ -7,7 +7,6 @@ The flagship: an organized fleet of agents on long-horizon engineering work, and
   environments/agent-runtime.yaml
   profiles/chief-of-staff.yaml      # the orchestrator's standing orders
   profiles/staff-engineer.yaml      # the worker's standing orders
-  tools/slack-chat.yaml
   sessions/chief-of-staff.yaml      # singleton: mentions, thread replies, reactions, heartbeat
   sessions/staff-engineer.yaml      # spawn-only: woken by PR events on its owned artifact
 ```

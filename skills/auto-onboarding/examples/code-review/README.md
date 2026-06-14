@@ -6,7 +6,6 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
 .auto/
   environments/agent-runtime.yaml   # node24 sandbox
   profiles/reviewer.yaml            # the reviewer's standing orders
-  tools/slack-chat.yaml             # Slack via the workspace connection
   sessions/pr-review.yaml           # triggers + prompt + scoped GitHub access
 ```
 

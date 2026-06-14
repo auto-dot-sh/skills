@@ -6,8 +6,6 @@ A first responder for production alerts: any system that can POST JSON (PagerDut
 .auto/
   environments/agent-runtime.yaml
   profiles/responder.yaml
-  tools/slack-chat.yaml
-  tools/datadog.yaml                # optional: remote MCP observability tool
   sessions/incident-response.yaml
 ```
 
@@ -20,9 +18,9 @@ A first responder for production alerts: any system that can POST JSON (PagerDut
 
 ## Customize
 
-- Replace `acme/widgets`, `github-acme`, `slack`, `#incidents`, and the Datadog tool's `auth.connection` name (`datadog-acme` is a placeholder — the OAuth connection is created under that name when you run `auto tools connect datadog`).
+- Replace `acme/widgets`, `github-acme`, `slack`, `#incidents`, and the inline Datadog tool's `auth.connection` name (`datadog-acme` is a placeholder for the MCP OAuth connection name).
 - Match the prompt's payload fields to the actual alert JSON.
-- Swap or drop the Datadog tool for the team's observability stack (any remote MCP server works; see `docs/tools-and-connections.md`).
+- Swap or drop the inline Datadog tool for the team's observability stack (any remote MCP server works; see `docs/tools-and-connections.md`).
 - Severity routing (page a human for sev1, agent-only for sev3) is one `where:` filter away.
 - Fresh @mentions of the bot outside a triage thread are dropped by design — the chat triggers require `$.auto.attributions: { exists: true }` and only `deliver`, so the responder is webhook-driven. Add a mention trigger with `routing: { kind: spawn }` if you want it conversational on its own.
 

@@ -45,7 +45,12 @@ spec:
   workingDirectory: /workspace/widgets
   tools:
     chat:
-      ref: slack-chat
+      kind: local
+      implementation: chat
+      auth:
+        kind: connection
+        provider: slack
+        connection: slack
     github:
       kind: github
       tools:

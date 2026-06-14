@@ -25,9 +25,15 @@ spec:
       kind: local
       implementation: auto
     chat:
-      refs:
-        - linear-chat
-        - slack-chat
+      kind: local
+      implementation: chat
+      auth:
+        kind: connections
+        connections:
+          - provider: linear
+            connection: linear
+          - provider: slack
+            connection: slack
     github:
       kind: github
       tools:

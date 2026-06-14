@@ -40,7 +40,12 @@ spec:
       kind: local
       implementation: auto
     chat:
-      ref: slack-chat
+      kind: local
+      implementation: chat
+      auth:
+        kind: connection
+        provider: slack
+        connection: slack
     github:
       kind: github
       tools:

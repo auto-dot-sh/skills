@@ -6,7 +6,6 @@ An @mentionable Slack agent with its own identity: mention it to start a convers
 .auto/
   environments/agent-runtime.yaml
   profiles/assistant.yaml
-  tools/slack-chat.yaml
   sessions/assistant.yaml
 ```
 

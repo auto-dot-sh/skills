@@ -38,9 +38,20 @@ spec:
       kind: local
       implementation: auto
     chat:
-      ref: slack-chat
+      kind: local
+      implementation: chat
+      auth:
+        kind: connection
+        provider: slack
+        connection: slack
     datadog:
-      ref: datadog
+      kind: mcp_remote
+      description: Datadog logs, monitors, metrics, and dashboards.
+      url: https://mcp.datadoghq.com/api/unstable/mcp-server/mcp?toolsets=all
+      transport: streamable_http
+      auth:
+        kind: mcp_oauth
+        connection: datadog-acme
   triggers:
     - event: webhook.incident.opened
       endpoint: incident-webhook

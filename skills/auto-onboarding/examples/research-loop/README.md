@@ -7,7 +7,6 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
   environments/agent-runtime.yaml
   profiles/coordinator.yaml         # the scientist: hypotheses, rounds, lab log
   profiles/experimenter.yaml        # the lab tech: one variant, measured honestly
-  tools/slack-chat.yaml
   sessions/research-coordinator.yaml  # singleton; mention to start, heartbeat to advance
   sessions/experimenter.yaml          # spawn-only
 ```

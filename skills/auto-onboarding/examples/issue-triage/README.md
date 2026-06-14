@@ -7,8 +7,6 @@ Two cooperating agents: a **triage** agent that wakes when a Linear issue gets t
   environments/agent-runtime.yaml
   profiles/triage.yaml              # triage judgment + metadata hygiene rules
   profiles/coder.yaml               # implementation standing orders
-  tools/linear-chat.yaml            # Linear via the chat interface
-  tools/slack-chat.yaml
   sessions/issue-triage.yaml        # label-triggered triage
   sessions/issue-coder.yaml         # spawn-only implementation session
 ```

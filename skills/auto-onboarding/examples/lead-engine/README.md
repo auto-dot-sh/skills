@@ -6,7 +6,6 @@ The non-engineering archetype: an agentic BDR that turns raw signups and prospec
 .auto/
   environments/agent-runtime.yaml
   profiles/bdr.yaml
-  tools/slack-chat.yaml
   sessions/lead-researcher.yaml
 ```
 
