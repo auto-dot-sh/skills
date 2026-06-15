@@ -35,9 +35,10 @@ initialPrompt: |
 ```
 
 Imported fragments can define reusable fields like `harness`, `environment`,
-tools, mounts, or triggers. Inline environment objects are materialized into
-environment resources during apply, so reused runtimes should live in fragment
-imports rather than repeated in every agent.
+`identity`, tools, mounts, or triggers. Inline identity and environment objects
+are materialized into generated backend resources during apply, and the compiled
+agent references those generated resources by name. Reused runtimes should live
+in fragment imports rather than repeated in every agent.
 
 ## Apply semantics
 
@@ -88,7 +89,9 @@ auth:
 
 ## Avatar assets
 
-An inline agent identity may declare an avatar:
+An inline agent identity may declare an avatar. The authored identity is compiled
+into a generated identity resource, and `auto apply` validates the asset through
+that generated resource:
 
 ```yaml
 name: pr-review
