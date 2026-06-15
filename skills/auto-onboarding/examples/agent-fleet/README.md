@@ -7,8 +7,8 @@ The flagship: an organized fleet of agents on long-horizon engineering work, and
   environments/agent-runtime.yaml
   profiles/chief-of-staff.yaml      # the orchestrator's standing orders
   profiles/staff-engineer.yaml      # the worker's standing orders
-  sessions/chief-of-staff.yaml      # singleton: mentions, thread replies, reactions, heartbeat
-  sessions/staff-engineer.yaml      # spawn-only: woken by PR events on its owned artifact
+  agents/chief-of-staff.yaml      # singleton: mentions, thread replies, reactions, heartbeat
+  agents/staff-engineer.yaml      # spawn-only: woken by PR events on its owned artifact
 ```
 
 ## How it works
@@ -35,4 +35,4 @@ The staff engineer's definition of done includes "the pr-review check concluded 
 
 ## Smoke test
 
-Apply, run `auto sessions connect chief-of-staff` to realize the bot, then tag it with one trivial task ("add a TODO note to README"). Confirm the intake reaction and roster reply, watch the staff-engineer run with `auto runs list` / `auto runs conversation`, and confirm the packet arrives in the thread once the PR is green.
+Apply, run `auto agents connect chief-of-staff` to realize the bot, then tag it with one trivial task ("add a TODO note to README"). Confirm the intake reaction and roster reply, watch the staff-engineer run with `auto runs list` / `auto runs conversation`, and confirm the packet arrives in the thread once the PR is green.

@@ -1,4 +1,4 @@
-kind: session
+kind: agent
 metadata:
   name: experimenter
 spec:

@@ -8,16 +8,16 @@
 .auto/
   environments/   # kind: environment
   identities/     # kind: identity
-  sessions/       # kind: session
-  assets/         # avatar images referenced by session identities
+  agents/         # kind: agent
+  assets/         # avatar images referenced by agent identities
 ```
 
-Each YAML file under a kind directory must contain resources of that kind (a file may hold multiple `---`-separated documents). Resources are applied in dependency order: environments, then identities, then sessions.
+Each YAML file under a kind directory must contain resources of that kind (a file may hold multiple `---`-separated documents). Resources are applied in dependency order: environments, then identities, then agents.
 
 ## The resource envelope
 
 ```yaml
-kind: <environment | identity | session>
+kind: <environment | identity | agent>
 metadata:
   name: my-resource        # required: 1-128 chars of [A-Za-z0-9_.-]
   labels:                  # optional string map
@@ -27,7 +27,7 @@ spec:
   # kind-specific, validated strictly — unknown fields are rejected
 ```
 
-Names are the reference currency: sessions reference identities and environments by name, while inline tools and triggers reference connections by name.
+Names are the reference currency: agents reference identities and environments by name, while inline tools and triggers reference connections by name.
 
 ## Apply semantics
 
@@ -61,7 +61,7 @@ auto secrets remove my-webhook-secret
 Resources reference them with `$secret`:
 
 ```yaml
-# in an environment or session spec.env:
+# in an environment or agent spec.env:
 env:
   SOME_API_KEY:
     $secret: my-api-key

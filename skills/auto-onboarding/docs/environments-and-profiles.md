@@ -55,14 +55,14 @@ spec:
     ...
 ```
 
-What belongs in `instructions` (vs a session's `initialPrompt`):
+What belongs in `instructions` (vs an agent's `initialPrompt`):
 
 - **Persona and scope** — who the agent is, what it owns, what it must never do ("do not push commits, approve, or merge").
 - **House rules** — repo conventions to read first, test/typecheck expectations, communication norms (which channel, threading protocol, link formats).
 - **Tool protocols** — how to use the granted tools correctly (e.g. "pass the channel name directly; do not search to resolve it", Slack mrkdwn link syntax, the GitHub attribution marker).
 - **Failure posture** — what to do when blocked: stop and explain rather than invent.
 
-The session's `initialPrompt` then carries only the per-run task and the event context. Several sessions can share one profile (a "coder" profile can back an interactive session, a Linear-driven coder, and a handoff coder).
+The agent's `initialPrompt` then carries only the per-run task and the event context. Several agents can share one profile (a "coder" profile can back an interactive agent, a Linear-driven coder, and a handoff coder).
 
 Writing instructions that hold up in production:
 

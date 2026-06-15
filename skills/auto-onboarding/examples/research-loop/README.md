@@ -7,8 +7,8 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
   environments/agent-runtime.yaml
   profiles/coordinator.yaml         # the scientist: hypotheses, rounds, lab log
   profiles/experimenter.yaml        # the lab tech: one variant, measured honestly
-  sessions/research-coordinator.yaml  # singleton; mention to start, heartbeat to advance
-  sessions/experimenter.yaml          # spawn-only
+  agents/research-coordinator.yaml  # singleton; mention to start, heartbeat to advance
+  agents/experimenter.yaml          # spawn-only
 ```
 
 ## How it works
@@ -28,4 +28,4 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
 
 ## Smoke test
 
-Apply, `auto sessions connect research-coordinator`, then mention it with a toy objective and a budget of one round ("campaign: measure how long `npm install` takes cold vs warm-cached, 1 round, 2 hypotheses"). Confirm the campaign brief posts, experimenter runs spawn and report, and the round summary lands in the thread.
+Apply, `auto agents connect research-coordinator`, then mention it with a toy objective and a budget of one round ("campaign: measure how long `npm install` takes cold vs warm-cached, 1 round, 2 hypotheses"). Confirm the campaign brief posts, experimenter runs spawn and report, and the round summary lands in the thread.

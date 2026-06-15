@@ -1,4 +1,4 @@
-kind: session
+kind: agent
 metadata:
   name: incident-response
 spec:

@@ -7,15 +7,15 @@ Two cooperating agents: a **triage** agent that wakes when a Linear issue gets t
   environments/agent-runtime.yaml
   profiles/triage.yaml              # triage judgment + metadata hygiene rules
   profiles/coder.yaml               # implementation standing orders
-  sessions/issue-triage.yaml        # label-triggered triage
-  sessions/issue-coder.yaml         # spawn-only implementation session
+  agents/issue-triage.yaml        # label-triggered triage
+  agents/issue-coder.yaml         # spawn-only implementation agent
 ```
 
 ## How it works
 
 - **Label as request token**: the trigger fires on `linear.issue.created` with the label present, and on `linear.issue.updated` only when the label was just *added* (`$.linear.updatedFrom.labelNames.added: { contains: ... }`). The triage agent removes the label once it has acted, so re-labeling is how humans re-request triage.
 - **`chat.issue.*`**: the triage agent reads and mutates issue metadata (state, assignee, labels) through the unified chat tool — and is forbidden from *creating* metadata (labels, states, users) so it can't pollute the workspace.
-- **Agent-to-agent handoff**: for implementation-ready issues, triage calls `auto.runs.spawn` with `session: issue-coder` and a message carrying the issue context, acceptance criteria, and constraints. The coder session has **no triggers** — it only runs when spawned (or via `auto run issue-coder`).
+- **Agent-to-agent handoff**: for implementation-ready issues, triage calls `auto.runs.spawn` with `session: issue-coder` and a message carrying the issue context, acceptance criteria, and constraints. The coder agent has **no triggers** — it only runs when spawned (or via `auto run issue-coder`).
 - **Slack visibility**: handoffs get a brief top-level note in `#dev` with details threaded.
 
 ## Customize

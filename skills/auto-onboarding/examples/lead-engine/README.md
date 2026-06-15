@@ -6,13 +6,13 @@ The non-engineering archetype: an agentic BDR that turns raw signups and prospec
 .auto/
   environments/agent-runtime.yaml
   profiles/bdr.yaml
-  sessions/lead-researcher.yaml
+  agents/lead-researcher.yaml
 ```
 
 ## How it works
 
 - **Webhook intake**: `event: webhook.lead.created` on `endpoint: lead-webhook` with bearer-token auth. Wire any lead source that can POST JSON at the ingest URL from the apply receipt. The example payload shape is `{ "name", "email", "company", "source", "notes" }` — adapt the prompt to the real fields.
-- **No repo mount**: this workflow has nothing to do with code. The agent works from the lead payload, public research from its sandbox, and whatever tools you grant — a good reminder that auto sessions are general agents, not just coding agents.
+- **No repo mount**: this workflow has nothing to do with code. The agent works from the lead payload, public research from its sandbox, and whatever tools you grant — a good reminder that auto agents are general agents, not just coding agents.
 - **Human-in-the-loop by design**: the profile's hard limit is that the agent never contacts a prospect. Its output is a dossier + draft package in `#sales`; approval, edits, and sending stay with the team. Thread feedback routes back to the same run (`attributedRuns` + `auto.chat.subscribe`), so "make it shorter and mention the SOC2 page" produces a revision in seconds.
 - **Honest scoring**: the profile demands evidence-based fit scoring and explicitly allows "bad fit, skip" as a recommendation — an outbound engine that can say no is the one sales teams learn to trust.
 

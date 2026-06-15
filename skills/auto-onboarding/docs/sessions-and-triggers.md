@@ -1,11 +1,11 @@
-# Sessions and triggers
+# Agents and triggers
 
-A session is the runnable unit of a workflow: an agent (profile), what it knows at start (prompt), what it can touch (mounts, tools), an optional chat identity, and the triggers that start it or steer it.
+An agent is the runnable unit of a workflow: its reusable profile, what it knows at start (prompt), what it can touch (mounts, tools), an optional chat identity, and the triggers that start it or steer it.
 
-## Session spec
+## Agent spec
 
 ```yaml
-kind: session
+kind: agent
 metadata:
   name: pr-review
 spec:
@@ -51,7 +51,7 @@ Notes:
 - **`initialPrompt` is per-run context; profile `instructions` are standing orders.** Put the durable persona and rules in the profile, and the event-specific task in the prompt. Triggered runs render `{{payload.*}}` placeholders from the event payload.
 - **Mount capabilities are the permission boundary.** A `githubApp` mount mints installation tokens scoped to exactly the capabilities you declare (`none`/`read`/`write` for contents, pullRequests, issues, checks, actions, workflows). The brokered GitHub MCP tools and git pushes both run inside that scope. A reviewer that should never push gets `contents: read`.
 - **`commitAuthor`** on a mount sets the bot author for commits the agent pushes.
-- **Identity makes the session a first-class chat persona.** With an `identity:`, applying + `auto sessions connect <session>` realizes a real per-workspace bot app the user can @mention directly; mentions of that bot route only to this session.
+- **Identity makes the agent a first-class chat persona.** With an `identity:`, applying + `auto agents connect <agent>` realizes a real per-workspace bot app the user can @mention directly; mentions of that bot route only to this agent.
 
 ## Triggers
 
@@ -144,10 +144,10 @@ routing:
 
 `routeBy` options for `deliver`:
 
-- `singleton` — the session's one live run.
+- `singleton` — the agent's one live run.
 - `ownedArtifact` + `artifactType` (e.g. `github.pull_request`) — the run that recorded ownership of the artifact via `auto.artifacts.record`. This is how check failures, merge conflicts, and review comments on a PR route back to the run that owns it.
 - `attributedRuns` — runs attributed to the conversation (the agent's own messages and subscribed threads). This is how chat replies continue an existing conversation.
-- `allLiveRuns` — broadcast to every live run of the session.
+- `allLiveRuns` — broadcast to every live run of the agent.
 
 Deliver triggers should carry a `message:` template (same `{{...}}` placeholders) framing the event for the in-flight agent — include `{{message.text}}` for chat events so the human's actual words arrive.
 

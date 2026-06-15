@@ -47,13 +47,13 @@ Connect flows wait (up to ~5 minutes) for the user to finish in the browser; `--
 auto apply --dry-run         # plan only — always run this first
 auto apply                   # apply .auto/ (prunes omitted resources)
 auto apply -f <file> --no-prune
-auto sessions connect <session>   # realize a session's chat identity (per-workspace bot)
+auto agents connect <agent>     # realize an agent's chat identity (per-workspace bot)
 ```
 
 ## Inspecting and editing resources
 
 ```sh
-auto inspect <kind>/<name>   # show a resource spec, e.g. auto inspect session/code-review
+auto inspect <kind>/<name>   # show a resource spec, e.g. auto inspect agent/code-review
 auto edit <kind>/<name>      # edit and re-apply
 auto delete <kind>/<name>
 ```
@@ -61,9 +61,9 @@ auto delete <kind>/<name>
 ## Running and interacting
 
 ```sh
-auto run <session> [-m <message>] [--attach]   # launch a run; --attach streams it
-auto run-and-attach <session> [-m <message>]
-auto interactive <session>                     # launch, stream, and type messages
+auto run <agent> [-m <message>] [--attach]   # launch a run; --attach streams it
+auto run-and-attach <agent> [-m <message>]
+auto interactive <agent>                     # launch, stream, and type messages
 auto attach <run-id>                           # stream an existing run
 auto send <run-id> <message>                   # message a live run
 auto console <run-id>                          # interactive console on a live run

@@ -6,7 +6,7 @@ A scheduled reporter: every morning it reads the last 24 hours of merged PRs and
 .auto/
   environments/agent-runtime.yaml
   profiles/analyst.yaml
-  sessions/ship-digest.yaml
+  agents/ship-digest.yaml
 ```
 
 ## How it works

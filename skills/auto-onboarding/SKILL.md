@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, CI/CD, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: eaf9c9445a0503299097ff4292bd403aca9473b7
+  source-commit: 8389da69ceca8c1f459371ce4f74f990967ad757
 ---
 
 # Intent
@@ -45,7 +45,7 @@ This skill ships with documentation and worked examples. Read them before you on
 | --- | --- |
 | `docs/index.md` | The mental model: resources, events, triggers, runs. Start here. |
 | `docs/resource-model.md` | The `.auto/` directory, resource envelopes, and `auto apply` semantics. |
-| `docs/sessions-and-triggers.md` | Sessions, the trigger/event/routing vocabulary, filters, and PR checks. |
+| `docs/sessions-and-triggers.md` | Agents, the trigger/event/routing vocabulary, filters, and PR checks. |
 | `docs/environments-and-profiles.md` | Sandbox images, setup steps and caching, and reusable agent profiles. |
 | `docs/tools-and-connections.md` | MCP tools, chat tools, provider connections, secrets, and the runtime tool surface agents see. |
 | `docs/cli.md` | The `auto` CLI command reference. |
@@ -62,7 +62,7 @@ Hold these throughout the onboarding:
 - **Trust live command output over this document.** The CLI evolves; run `auto --help` early and whenever in doubt, and when a command's real output disagrees with anything written here, trust the command output over this document and adapt.
 - **Converse, don't lecture.** Short messages, one question at a time, and adapt your vocabulary to the user's technical level. The pitch should take seconds, not paragraphs.
 - **Ask before changing anything outside `.auto/`.** The onboarding's write surface is the `.auto/` directory (plus the CI workflow in Beat 7, which ships as a PR). Any other file in the user's repo gets touched only with their explicit go-ahead.
-- **Warn before browsers open, and surface the link either way.** `auto auth login`, `auto connect`, and `auto sessions connect` open a browser window *and* print the authorization URL. Give a one-sentence heads-up first ("this will open your browser to install the GitHub App") so it doesn't feel like something hijacked their machine. If the browser doesn't pop (some environments can't open one), don't leave the user hunting through command output — repeat the printed authorization URL back to them on its own line as a clickable fallback, one provider at a time, and tell them plainly to click it.
+- **Warn before browsers open, and surface the link either way.** `auto auth login`, `auto connect`, and `auto agents connect` open a browser window *and* print the authorization URL. Give a one-sentence heads-up first ("this will open your browser to install the GitHub App") so it doesn't feel like something hijacked their machine. If the browser doesn't pop (some environments can't open one), don't leave the user hunting through command output — repeat the printed authorization URL back to them on its own line as a clickable fallback, one provider at a time, and tell them plainly to click it.
 - **Signal before going quiet.** Deep repo exploration and waiting on async runs both involve silence. Say what you're about to do and roughly how long it will take.
 - **Enlist the user as the second pair of hands.** They trigger the inputs you can't (tagging a bot in Slack, commenting on a PR) and verify the outputs you can't see (a Slack message arriving). Make those asks explicit and specific.
 - **Hand off, don't hint.** When the user needs to do something, spell it out the *first* time — before they have to ask. Name the exact trigger (which label, which channel, which command), where to click, and what they'll see when it works. "Label the issue whenever you're ready" assumes they can see what's in your head and the YAML you wrote; a numbered "in Linear: create an issue → add the `auto-triage` label → that label is the trigger" does not. If you catch yourself about to post a one-line "go ahead and …", expand it.
@@ -103,7 +103,7 @@ If you are running inside a repo the user has indicated is their focus, tell the
 Spawn one general-purpose / Explore subagent (or a small fan-out of them for a large monorepo) and have it read **both**:
 
 - **The repo:** what the project does, how the team works (CI, review culture, issue-tracker and chat integrations), the conventions written down in `CLAUDE.md`/`AGENTS.md`/`docs/`, and — most importantly — where the recurring, automatable toil is.
-- **This skill's `docs/` and `examples/`**, so the ideas it returns are already expressed in auto's vocabulary (sessions, triggers, profiles) and mapped to a concrete archetype.
+- **This skill's `docs/` and `examples/`**, so the ideas it returns are already expressed in auto's vocabulary (agents, triggers, profiles) and mapped to a concrete archetype.
 
 Have the subagent return a structured shortlist: for each candidate workflow, a one-line description, the matching archetype, the trigger/event that would fire it, and the *specific evidence in this repo* that the toil is real (a file, a workflow, a documented rule, a past incident). That shortlist is the raw material for Beat 3.
 
@@ -123,7 +123,7 @@ Get the user from zero to a deployed, *hollow* version of the hero workflow — 
 2. **Sign in**: `auto auth login` (heads-up: opens a browser; account creation happens there too). You're blocked on the user completing the flow either way, so wait for them — don't busy yourself with other work mid-sign-in, which only confuses things. When you're driving from a terminal with no browser, `auto auth login --device` prints a code the user enters in their browser.
 3. **Create the org and project**: `auto orgs create` / `auto projects create`. Ask the user what they want to name them — don't pick names for them.
 4. **Connect providers**: `auto connections list --available` to see what's offered, then `auto connect <provider>` for each one the workflow needs (heads-up: browser again). GitHub connects as an App installation; Slack and Linear as OAuth grants.
-5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal resources — an environment, a profile, any tool definitions, and a session with the workflow's trigger. Copy from the matching example and strip it down.
+5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal resources — an environment, a profile, any tool definitions, and an agent with the workflow's trigger. Copy from the matching example and strip it down.
 6. **Apply**: `auto apply --dry-run` first, show the user the plan, then `auto apply`.
 
 Then run the smoke test. Its exact shape depends on the use case, but the goal is always the same: verify that the trigger fires and the agent's output surfaces reach the user. A workflow almost always involves some communication channel, so a good smoke test "breaks the fourth wall" — have the hollow agent send the user a hello in Slack (or wherever they live).
@@ -142,7 +142,7 @@ Then celebrate. This is the magic moment — act like it. 🎉
 
 ## Beat 6: Bring the user up to speed
 
-Walk the user through what you built, piece by piece: which environment, profile, tools, session, and triggers you composed, how an event flows through them to become a run, and where each file lives in `.auto/`. Show short snippets from the actual files rather than describing them abstractly.
+Walk the user through what you built, piece by piece: which environment, profile, tools, agent, and triggers you composed, how an event flows through them to become a run, and where each file lives in `.auto/`. Show short snippets from the actual files rather than describing them abstractly.
 
 Then ask: anything they want to dig into further, or shall we set up CI/CD?
 
@@ -161,7 +161,7 @@ When the merge lands, verify the apply ran cleanly in Actions, and congratulate 
 
 Tell the user there's one last step we've found high-leverage: a workflow that watches their auto system itself — sweeping recent runs for failures, bottlenecks, and drift, and proposing improvements. Explain that it's just another auto workflow, fully theirs to tune.
 
-If they're in, copy `examples/self-improvement/` and tailor it to their setup (their channel, their sessions, their cadence). Since CI/CD is now live, do **not** run `auto apply` yourself — open a PR and let them merge it. That's the new normal, and modeling it is the point.
+If they're in, copy `examples/self-improvement/` and tailor it to their setup (their channel, their agents, their cadence). Since CI/CD is now live, do **not** run `auto apply` yourself — open a PR and let them merge it. That's the new normal, and modeling it is the point.
 
 ## Beat 9: Conclusion
 
