@@ -4,11 +4,9 @@ The flagship: an organized fleet of agents on long-horizon engineering work, and
 
 ```
 .auto/
-  environments/agent-runtime.yaml
-  profiles/chief-of-staff.yaml      # the orchestrator's standing orders
-  profiles/staff-engineer.yaml      # the worker's standing orders
-  agents/chief-of-staff.yaml      # singleton: mentions, thread replies, reactions, heartbeat
-  agents/staff-engineer.yaml      # spawn-only: woken by PR events on its owned artifact
+  fragments/environments/agent-runtime.yaml # reusable sandbox runtime
+  agents/chief-of-staff.yaml       # singleton: persona, standing orders, mentions, replies, heartbeat
+  agents/staff-engineer.yaml       # spawn-only: standing orders, woken by PR events on its owned artifact
 ```
 
 ## How it works
@@ -25,13 +23,13 @@ This example composes nearly the whole trigger/routing vocabulary:
 
 ## Composes with the code-review example
 
-The staff engineer's definition of done includes "the pr-review check concluded thumbs-up" — that reviewer is the `code-review` example. Deploy both for the full loop (fleet writes, reviewer gates). Without it, drop the pr-review clauses from the staff-engineer profile and the aggregate-CI trigger message.
+The staff engineer's definition of done includes "the pr-review check concluded thumbs-up" — that reviewer is the `code-review` example. Deploy both for the full loop (fleet writes, reviewer gates). Without it, drop the pr-review clauses from the staff-engineer prompt and the aggregate-CI trigger message.
 
 ## Customize
 
 - Replace `acme/widgets`, `github-acme`, `slack`, and the staff-engineer mount's `commitAuthor` (your GitHub App's bot login and noreply email, so pushed commits attribute correctly); set the aggregate check name in the staff-engineer triggers (`All checks` here) to the repo's actual roll-up check, or remove that filter to react to every check.
 - Tune the heartbeat cadence to batch volume; 15 minutes suits an active repo.
-- Point both profiles at the repo's real contribution docs and test commands.
+- Point both agent prompts at the repo's real contribution docs and test commands.
 
 ## Smoke test
 

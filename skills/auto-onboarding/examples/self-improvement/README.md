@@ -4,8 +4,7 @@ The workflow Beat 8 of the onboarding installs: an introspector that periodicall
 
 ```
 .auto/
-  environments/agent-runtime.yaml
-  profiles/introspector.yaml
+  fragments/environments/agent-runtime.yaml
   agents/introspector.yaml
 ```
 

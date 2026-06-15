@@ -4,9 +4,8 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
 
 ```
 .auto/
-  environments/agent-runtime.yaml   # node24 sandbox
-  profiles/reviewer.yaml            # the reviewer's standing orders
-  agents/pr-review.yaml           # triggers + prompt + scoped GitHub access
+  fragments/environments/agent-runtime.yaml # node24 sandbox
+  agents/pr-review.yaml            # persona, standing orders, triggers, and scoped GitHub access
 ```
 
 ## How it works
@@ -20,7 +19,7 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
 ## Customize
 
 - Replace `acme/widgets`, `github-acme`, and the `#dev` channel.
-- Point the profile at the repo's real convention docs (`CONTRIBUTING.md`, style guides) — this is what makes the review *tailored*.
+- Point the agent prompt at the repo's real convention docs (`CONTRIBUTING.md`, style guides) — this is what makes the review *tailored*.
 - Adjust validation commands in the prompt to the repo's actual test/typecheck invocations.
 - If the user wants the check to be required, have them mark `Auto PR review` as a required status check in branch protection.
 

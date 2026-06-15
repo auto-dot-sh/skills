@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, CI/CD, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: 5ca0aa1fdea3be5c853422b2c34fff0cc27e90ca
+  source-commit: 730ddb991d442bcb747a839da9deb9bd0c4983a4
 ---
 
 # Intent
@@ -44,9 +44,9 @@ This skill ships with documentation and worked examples. Read them before you on
 | Path | What it covers |
 | --- | --- |
 | `docs/index.md` | The mental model: resources, events, triggers, runs. Start here. |
-| `docs/resource-model.md` | The `.auto/` directory, resource envelopes, and `auto apply` semantics. |
+| `docs/resource-model.md` | The `.auto/agents` directory, inline identities/environments, imports, and `auto apply` semantics. |
 | `docs/sessions-and-triggers.md` | Agents, the trigger/event/routing vocabulary, filters, and PR checks. |
-| `docs/environments-and-profiles.md` | Sandbox images, setup steps and caching, and reusable agent profiles. |
+| `docs/environments-and-profiles.md` | Sandbox images, setup steps and caching, environment fragments, and durable agent prompts. |
 | `docs/tools-and-connections.md` | MCP tools, chat tools, provider connections, secrets, and the runtime tool surface agents see. |
 | `docs/cli.md` | The `auto` CLI command reference. |
 | `docs/ci-cd.md` | Service accounts and GitHub Actions for apply-on-merge. |
@@ -103,7 +103,7 @@ If you are running inside a repo the user has indicated is their focus, tell the
 Spawn one general-purpose / Explore subagent (or a small fan-out of them for a large monorepo) and have it read **both**:
 
 - **The repo:** what the project does, how the team works (CI, review culture, issue-tracker and chat integrations), the conventions written down in `CLAUDE.md`/`AGENTS.md`/`docs/`, and — most importantly — where the recurring, automatable toil is.
-- **This skill's `docs/` and `examples/`**, so the ideas it returns are already expressed in auto's vocabulary (agents, triggers, profiles) and mapped to a concrete archetype.
+- **This skill's `docs/` and `examples/`**, so the ideas it returns are already expressed in auto's vocabulary (agents, triggers, inline tools, and fragments) and mapped to a concrete archetype.
 
 Have the subagent return a structured shortlist: for each candidate workflow, a one-line description, the matching archetype, the trigger/event that would fire it, and the *specific evidence in this repo* that the toil is real (a file, a workflow, a documented rule, a past incident). That shortlist is the raw material for Beat 3.
 
@@ -123,7 +123,7 @@ Get the user from zero to a deployed, *hollow* version of the hero workflow — 
 2. **Sign in**: `auto auth login` (heads-up: opens a browser; account creation happens there too). You're blocked on the user completing the flow either way, so wait for them — don't busy yourself with other work mid-sign-in, which only confuses things. When you're driving from a terminal with no browser, `auto auth login --device` prints a code the user enters in their browser.
 3. **Create the org and project**: `auto orgs create` / `auto projects create`. Ask the user what they want to name them — don't pick names for them.
 4. **Connect providers**: `auto connections list --available` to see what's offered, then `auto connect <provider>` for each one the workflow needs (heads-up: browser again). GitHub connects as an App installation; Slack and Linear as OAuth grants.
-5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal resources — an environment, a profile, any tool definitions, and an agent with the workflow's trigger. Copy from the matching example and strip it down.
+5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal agent files — an agent with the workflow's prompt, tools, inline identity, triggers, and any environment fragment it imports. Copy from the matching example and strip it down.
 6. **Apply**: `auto apply --dry-run` first, show the user the plan, then `auto apply`.
 
 Then run the smoke test. Its exact shape depends on the use case, but the goal is always the same: verify that the trigger fires and the agent's output surfaces reach the user. A workflow almost always involves some communication channel, so a good smoke test "breaks the fourth wall" — have the hollow agent send the user a hello in Slack (or wherever they live).
@@ -134,7 +134,7 @@ If a channel install is blocked — for example the Slack workspace requires adm
 
 ## Beat 5: Build the real thing
 
-With inputs and outputs proven, flesh the workflow out to its real form in `.auto/` — the full profile instructions, the real prompt, the filters and routing that make it production-shaped. Tell the user what you're changing, then apply it.
+With inputs and outputs proven, flesh the workflow out to its real form in `.auto/` — the full agent system prompt, the real initial prompt, the filters and routing that make it production-shaped. Tell the user what you're changing, then apply it.
 
 Test end to end: trigger the workflow for real, follow the run, and enlist the user again for out-of-band inputs and output verification. Iterate until you've witnessed one complete, successful run of the real workflow.
 
@@ -142,7 +142,7 @@ Then celebrate. This is the magic moment — act like it. 🎉
 
 ## Beat 6: Bring the user up to speed
 
-Walk the user through what you built, piece by piece: which environment, profile, tools, agent, and triggers you composed, how an event flows through them to become a run, and where each file lives in `.auto/`. Show short snippets from the actual files rather than describing them abstractly.
+Walk the user through what you built, piece by piece: which agent files, environment fragments, inline identity, tools, and triggers you composed, how an event flows through them to become a run, and where each file lives in `.auto/`. Show short snippets from the actual files rather than describing them abstractly.
 
 Then ask: anything they want to dig into further, or shall we set up CI/CD?
 

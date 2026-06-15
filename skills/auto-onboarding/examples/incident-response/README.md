@@ -4,8 +4,7 @@ A first responder for production alerts: any system that can POST JSON (PagerDut
 
 ```
 .auto/
-  environments/agent-runtime.yaml
-  profiles/responder.yaml
+  fragments/environments/agent-runtime.yaml
   agents/incident-response.yaml
 ```
 

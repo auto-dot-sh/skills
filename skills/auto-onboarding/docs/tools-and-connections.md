@@ -112,7 +112,7 @@ One interface across Slack, Linear, and Telegram; every call takes a `target` of
 - `chat.react` — add an emoji reaction to a message (cheap acknowledgement).
 - `chat.issue.get` / `chat.issue.update` — read and mutate issue metadata (Linear): state, assignee, labels.
 
-Slack notes worth baking into profiles: pass channel names like `"#dev"` directly; Slack renders mrkdwn links (`<https://url|text>`), not Markdown.
+Slack notes worth baking into agent prompts: pass channel names like `"#dev"` directly; Slack renders mrkdwn links (`<https://url|text>`), not Markdown.
 
 ### `auto.*` — platform coordination
 

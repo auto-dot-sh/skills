@@ -1,7 +1,0 @@
-kind: identity
-metadata:
-  name: pr-review
-spec:
-  displayName: PR Review
-  username: pr-review
-  description: Reviews each pull request and posts one comment with a merge recommendation.

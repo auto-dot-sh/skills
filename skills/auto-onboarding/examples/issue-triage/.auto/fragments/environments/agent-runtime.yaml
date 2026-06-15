@@ -1,7 +1,6 @@
-kind: environment
-metadata:
+harness: claude-code
+environment:
   name: agent-runtime
-spec:
   image:
     kind: preset
     name: node24

@@ -1,12 +1,10 @@
-kind: environment
-metadata:
+harness: claude-code
+environment:
   name: agent-runtime
-spec:
   image:
     kind: preset
     name: node24
   resources:
-    cpuCount: 2
     memoryMB: 8192
   setup:
     - name: install-dependencies

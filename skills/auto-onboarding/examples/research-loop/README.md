@@ -4,11 +4,9 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
 
 ```
 .auto/
-  environments/agent-runtime.yaml
-  profiles/coordinator.yaml         # the scientist: hypotheses, rounds, lab log
-  profiles/experimenter.yaml        # the lab tech: one variant, measured honestly
-  agents/research-coordinator.yaml  # singleton; mention to start, heartbeat to advance
-  agents/experimenter.yaml          # spawn-only
+  fragments/environments/agent-runtime.yaml # reusable sandbox runtime
+  agents/research-coordinator.yaml  # singleton; persona, standing orders, mention to start, heartbeat to advance
+  agents/experimenter.yaml          # spawn-only standing orders
 ```
 
 ## How it works
@@ -22,7 +20,7 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
 ## Customize
 
 - Replace `acme/widgets`, `github-acme`, `slack`.
-- The measurement protocol in the experimenter profile is the part to make rigorous for the user's domain: what command produces the metric, how many iterations, what counts as noise. A loop is only as good as its measurements.
+- The measurement protocol in the experimenter prompt is the part to make rigorous for the user's domain: what command produces the metric, how many iterations, what counts as noise. A loop is only as good as its measurements.
 - Heartbeat cadence bounds how fast rounds advance; 10 minutes suits experiments that run in minutes, hourly suits long benchmarks.
 - The same skeleton runs non-code research: swap the mount and measurement for document corpora, eval suites, or prompt-optimization runs.
 

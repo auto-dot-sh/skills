@@ -15,42 +15,40 @@ external event (PR opened, issue labeled, @mention, cron, webhook)
 
 Two halves to internalize:
 
-1. **The declarative half.** Everything is a resource in the `.auto/` directory of a repo. `auto apply` makes the platform match the directory. Merge-to-apply CI makes the repo the source of truth.
+1. **The declarative half.** Agent YAML in `.auto/agents/` is the source of truth. `auto apply` compiles inline identities and environments from those agents, then makes the platform match the directory. Merge-to-apply CI makes the repo the source of truth.
 2. **The event half.** Provider connections (GitHub, Slack, Linear, Telegram), custom webhooks, and cron heartbeats emit events. Agent triggers match events and either **spawn** a new run or **deliver** the event to a live one. Runs are durable, observable executions of an agent.
 
-## The four resource kinds
+## Agent YAML
 
-Applied in this order (dependencies point left):
+Every authored workflow lives under `.auto/agents/`. Agents can import shared
+fragments from `.auto/fragments/environments/` for reused runtime, mount, tool, or trigger
+configuration. Avatar images referenced by inline identities live in
+`.auto/assets/`.
 
-| Kind | Directory | What it is |
-| --- | --- | --- |
-| `environment` | `.auto/environments/` | The sandbox: base image, extra image steps, setup commands (cacheable), CPU/memory, env vars. |
-| `profile` | `.auto/profiles/` | A reusable agent: which harness (`claude-code`), which environment, and durable instructions — the agent's standing orders. |
-| `tool` | `.auto/tools/` | A capability: a remote MCP server (Linear, Notion, Datadog, Vercel, ...) or a local implementation (`chat`, `auto`, `ping`) bound to a provider connection. |
-| `agent` | `.auto/agents/` | The runnable workflow: binds a profile to an initial prompt, repo mounts, a tool set, an identity, and triggers. |
-
-A fifth directory, `.auto/assets/`, holds avatar images referenced by agent identities.
-
-Every resource file is YAML with the same envelope:
+An agent file uses the root-level facade format:
 
 ```yaml
-kind: agent
-metadata:
-  name: pr-review
-  labels:
-    purpose: pr-review
-spec:
-  # kind-specific fields
+name: pr-review
+labels:
+  purpose: pr-review
+imports:
+  - ../fragments/environments/agent-runtime.yaml
+identity:
+  displayName: PR Review
+  username: pr-review
+systemPrompt: |
+  You are the code review agent for acme/widgets.
 ```
 
 ## Agents are the center of gravity
 
 An agent answers five questions:
 
-- **Who is the agent?** `spec.profile` (instructions + environment), plus an optional `spec.identity` that gives it a name, avatar, and its own @mentionable presence in chat providers.
-- **What does it know at start?** `spec.initialPrompt`, a template with access to the triggering event via `{{payload.*}}` placeholders.
-- **What can it touch?** `spec.mounts` (git checkouts with scoped GitHub App permissions) and `spec.tools` (aliased tool references or inline definitions).
-- **When does it run?** `spec.triggers`: provider events, custom webhook endpoints, or cron heartbeats, each with `where:` filters and a routing decision.
+- **Who is the agent?** `systemPrompt` and optional inline `identity` fields that give it a name, avatar, and its own @mentionable presence in chat providers.
+- **Where does it run?** `harness` plus an inline or imported `environment` definition: base image, setup, resources, and env vars.
+- **What does it know at start?** `initialPrompt`, a template with access to the triggering event via `{{payload.*}}` placeholders.
+- **What can it touch?** `mounts` (git checkouts with scoped GitHub App permissions) and `tools` (inline local or remote MCP tool definitions).
+- **When does it run?** `triggers`: provider events, custom webhook endpoints, or cron heartbeats, each with `where:` filters and a routing decision.
 - **How do events route?** `routing.kind: spawn` starts a fresh run; `deliver` sends the event into an existing run, selected by `routeBy` (`singleton`, `ownedArtifact`, `attributedRuns`, `allLiveRuns`).
 
 `docs/sessions-and-triggers.md` covers all of this field by field.
@@ -63,13 +61,13 @@ Inside a run, the agent has its mounted repo, ordinary shell access in its sandb
 - **`auto.*`** — coordinate with the platform itself: spawn sibling agents, list and read other runs, subscribe to chat threads, record artifact ownership.
 - **`checks.*`** — report a GitHub check run (begin/success/failure) when a PR trigger declared one.
 - **GitHub MCP tools** — a curated, capability-scoped GitHub API surface brokered from the agent's mounts.
-- **Remote MCP tools** — whatever `tool` resources the agent references (Notion, Datadog, ...).
+- **Remote MCP tools** — whatever inline remote MCP tools the agent declares (Notion, Datadog, ...).
 
 `docs/tools-and-connections.md` has the full runtime surface.
 
 ## Operating it
 
-The `auto` CLI is the operator surface: auth and profiles, org/project management, provider connections, `auto apply`, run inspection (`auto runs list|show|conversation|tools|triggers`), live interaction (`auto run`, `auto send`, `auto attach`), secrets, and service accounts for CI. See `docs/cli.md` and `docs/ci-cd.md`.
+The `auto` CLI is the operator surface: auth/account profiles, org/project management, provider connections, `auto apply`, run inspection (`auto runs list|show|conversation|tools|triggers`), live interaction (`auto run`, `auto send`, `auto attach`), secrets, and service accounts for CI. See `docs/cli.md` and `docs/ci-cd.md`.
 
 ## Where to go next
 

@@ -1,7 +1,0 @@
-kind: identity
-metadata:
-  name: lead-researcher
-spec:
-  displayName: Lead Researcher
-  username: lead-researcher
-  description: Researches inbound leads, scores fit, and drafts outreach for human approval in the sales channel.

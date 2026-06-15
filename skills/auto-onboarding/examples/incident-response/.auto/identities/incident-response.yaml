@@ -1,7 +1,0 @@
-kind: identity
-metadata:
-  name: incident-response
-spec:
-  displayName: Incident Response
-  username: incident-response
-  description: First responder for production alerts - investigates, posts a triage thread, and answers follow-ups.

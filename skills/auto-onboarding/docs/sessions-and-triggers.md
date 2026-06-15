@@ -1,54 +1,61 @@
 # Agents and triggers
 
-An agent is the runnable unit of a workflow: its reusable profile, what it knows at start (prompt), what it can touch (mounts, tools), an optional chat identity, and the triggers that start it or steer it.
+An agent is the runnable unit of a workflow: its standing prompt, what it knows
+at start, what it can touch, an optional chat identity, and the triggers that
+start it or steer it.
 
 ## Agent spec
 
 ```yaml
-kind: agent
-metadata:
-  name: pr-review
-spec:
-  profile: code-analyzer            # required: profile name
-  identity:                         # optional: chat presence
-    displayName: PR Review          # ≤80 chars
-    username: pr-review             # ≤80 chars; @mention handle
-    avatar:
-      asset: .auto/assets/pr-review.png
-    description: Reviews each PR and posts a merge recommendation.   # ≤140 chars as Slack counts them
-  initialPrompt: |                  # optional, ≤20k chars; {{payload.*}} templating
-    Review pull request #{{payload.github.pullRequest.number}} ...
-  env:                              # optional env vars for the sandbox
-    MY_API_KEY:
-      $secret: my-api-key
-  mounts:                           # optional git checkouts
-    - kind: git
-      repository: acme/widgets
-      mountPath: /workspace/widgets
-      ref: main                     # or a template like refs/pull/{{payload.github.pullRequest.number}}/head
-      depth: 1
-      auth:
-        kind: githubApp
-        capabilities:
-          contents: read
-          pullRequests: write
-          issues: write
-          checks: none
-          actions: read
-          workflows: none
-  workingDirectory: /workspace/widgets
-  tools:                            # alias -> tool reference or inline definition
-    chat:
-      ref: slack-chat               # reference a tool resource by name
-    github:                         # or define inline (github kind is inline-only)
-      kind: github
-      tools: [pull_request_read, add_issue_comment]
-  triggers: []                      # see below
+name: pr-review
+imports:
+  - ../fragments/environments/agent-runtime.yaml      # reusable harness + environment fragment
+systemPrompt: |                      # durable persona and rules
+  You are the PR review agent for acme/widgets.
+identity:                            # optional: chat presence
+  displayName: PR Review             # <=80 chars
+  username: pr-review                # <=80 chars; @mention handle
+  avatar:
+    asset: .auto/assets/pr-review.png
+  description: Reviews each PR and posts a merge recommendation. # <=140 chars as Slack counts them
+initialPrompt: |                     # optional, <=20k chars; {{payload.*}} templating
+  Review pull request #{{payload.github.pullRequest.number}} ...
+env:                                 # optional env vars for the sandbox
+  MY_API_KEY:
+    $secret: my-api-key
+mounts:                              # optional git checkouts
+  - kind: git
+    repository: acme/widgets
+    mountPath: /workspace/widgets
+    ref: main                        # or refs/pull/{{payload.github.pullRequest.number}}/head
+    depth: 1
+    auth:
+      kind: githubApp
+      capabilities:
+        contents: read
+        pullRequests: write
+        issues: write
+        checks: none
+        actions: read
+        workflows: none
+workingDirectory: /workspace/widgets
+tools:                               # alias -> inline local or remote MCP definition
+  chat:
+    kind: chat
+    connection: slack
+    provider: slack
+  notion:
+    kind: mcp_remote
+    url: https://mcp.notion.com/mcp
+    auth:
+      kind: mcp_oauth
+      connection: notion
+triggers: []                         # see below
 ```
 
 Notes:
 
-- **`initialPrompt` is per-run context; profile `instructions` are standing orders.** Put the durable persona and rules in the profile, and the event-specific task in the prompt. Triggered runs render `{{payload.*}}` placeholders from the event payload.
+- **`initialPrompt` is per-run context; `systemPrompt` is standing orders.** Put the durable persona and rules in the agent's system prompt, and the event-specific task in the initial prompt. Triggered runs render `{{payload.*}}` placeholders from the event payload.
 - **Mount capabilities are the permission boundary.** A `githubApp` mount mints installation tokens scoped to exactly the capabilities you declare (`none`/`read`/`write` for contents, pullRequests, issues, checks, actions, workflows). The brokered GitHub MCP tools and git pushes both run inside that scope. A reviewer that should never push gets `contents: read`.
 - **`commitAuthor`** on a mount sets the bot author for commits the agent pushes.
 - **Identity makes the agent a first-class chat persona.** With an `identity:`, applying + `auto agents connect <agent>` realizes a real per-workspace bot app the user can @mention directly; mentions of that bot route only to this agent.
@@ -162,7 +169,7 @@ The complement on the output side: agents posting to GitHub append a hidden attr
 <!-- auto:v=1 run_id=$AUTO_RUN_ID session=$AUTO_SESSION_NAME -->
 ```
 
-Build that instruction into any profile that comments on GitHub.
+Build that instruction into any agent prompt that comments on GitHub.
 
 ### PR checks
 

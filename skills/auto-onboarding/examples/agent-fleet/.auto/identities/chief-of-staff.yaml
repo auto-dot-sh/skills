@@ -1,7 +1,0 @@
-kind: identity
-metadata:
-  name: chief-of-staff
-spec:
-  displayName: Chief of Staff Engineers
-  username: chief
-  description: Give @chief a task list; it dispatches coding agents, shepherds them to green, and reports back.

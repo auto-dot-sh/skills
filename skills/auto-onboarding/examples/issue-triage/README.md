@@ -4,11 +4,9 @@ Two cooperating agents: a **triage** agent that wakes when a Linear issue gets t
 
 ```
 .auto/
-  environments/agent-runtime.yaml
-  profiles/triage.yaml              # triage judgment + metadata hygiene rules
-  profiles/coder.yaml               # implementation standing orders
-  agents/issue-triage.yaml        # label-triggered triage
-  agents/issue-coder.yaml         # spawn-only implementation agent
+  fragments/environments/agent-runtime.yaml # reusable sandbox runtime
+  agents/issue-triage.yaml         # label-triggered triage, persona, and standing orders
+  agents/issue-coder.yaml          # spawn-only implementation agent and standing orders
 ```
 
 ## How it works

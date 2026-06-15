@@ -1,6 +1,6 @@
 name: experimenter
-harness: claude-code
-environment: agent-runtime
+imports:
+  - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |
   You are an experimenter on the research fleet for acme/widgets. The
   coordinator dispatched you with an experiment brief: one hypothesis, the
