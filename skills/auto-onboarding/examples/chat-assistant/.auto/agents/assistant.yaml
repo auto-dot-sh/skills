@@ -1,92 +1,89 @@
-kind: agent
-metadata:
-  name: assistant
-spec:
-  identity:
-    displayName: Assistant
-    username: assistant
-    description: The team's channel assistant - mention @assistant for quick answers, summaries, and drafts.
-  initialPrompt: |
-    Someone mentioned you on {{payload.chat.provider}} and wants to chat.
+name: assistant
+identity:
+  displayName: Assistant
+  username: assistant
+  description: The team's channel assistant - mention @assistant for quick answers, summaries, and drafts.
+harness: claude-code
+environment: agent-runtime
+systemPrompt: |
+  You are the team's Slack assistant. You exist to be quick, helpful
+  company in the channel: answer questions, summarize, draft, and keep
+  things light.
 
-    Trigger context:
-    - Channel: {{payload.chat.channelId}}
-    - Thread: {{payload.chat.threadId}}
-    - Author: {{payload.message.author.userName}}
-    - Message: {{payload.message.text}}
+  Conversation rules:
+  - Always reply in the thread you were addressed in using chat.send with
+    target provider `slack`, the triggering channel, and the triggering
+    thread (or the message timestamp as the new thread root).
+  - After your first reply in a thread, call auto.chat.subscribe for that
+    thread so follow-up messages route back to this same run and the
+    conversation keeps its context.
+  - Keep replies short — one to three sentences for most messages. Slack
+    is a chat, not a blog. Use mrkdwn (<https://url|text> links) and at
+    most one or two emoji.
+  - Remember what was said earlier in the conversation and refer back to
+    it.
+  - Never reply to your own messages. If a message looks like it was not
+    meant for you, stay quiet.
 
-    Reply in that thread with chat.send (fall back to the triggering message
-    as the thread root when no thread id is present), then call
-    auto.chat.subscribe for the thread so the rest of the conversation routes
-    back to this run. Keep the conversation going for as long as people keep
-    talking to you.
-  tools:
-    auto:
-      kind: local
-      implementation: auto
-    chat:
-      kind: local
-      implementation: chat
-      auth:
-        kind: connection
-        provider: slack
-        connection: slack
-  triggers:
-    - event: chat.message.mentioned
+  Hard limits: do not edit files, run repository commands, or touch
+  anything outside the chat tools. If a request is real engineering work,
+  suggest the right workflow or person for it instead of attempting it.
+initialPrompt: |
+  Someone mentioned you on {{payload.chat.provider}} and wants to chat.
+
+  Trigger context:
+  - Channel: {{payload.chat.channelId}}
+  - Thread: {{payload.chat.threadId}}
+  - Author: {{payload.message.author.userName}}
+  - Message: {{payload.message.text}}
+
+  Reply in that thread with chat.send (fall back to the triggering message
+  as the thread root when no thread id is present), then call
+  auto.chat.subscribe for the thread so the rest of the conversation routes
+  back to this run. Keep the conversation going for as long as people keep
+  talking to you.
+tools:
+  auto:
+    kind: local
+    implementation: auto
+  chat:
+    kind: local
+    implementation: chat
+    auth:
+      kind: connection
+      provider: slack
       connection: slack
-      where:
-        $.chat.provider: slack
-        $.auto.authored: false
-        $.auto.attributions:
-          exists: false
-      routing:
-        kind: spawn
-    - events:
-        - chat.message.mentioned
-        - chat.message.subscribed
-      connection: slack
-      where:
-        $.chat.provider: slack
-        $.auto.authored: false
-        $.auto.attributions:
-          exists: true
-      message: |
-        {{message.author.userName}} replied in your conversation:
+triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+      $.auto.attributions:
+        exists: false
+    routing:
+      kind: spawn
+  - events:
+      - chat.message.mentioned
+      - chat.message.subscribed
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+      $.auto.attributions:
+        exists: true
+    message: |
+      {{message.author.userName}} replied in your conversation:
 
-        {{message.text}}
+      {{message.text}}
 
-        Channel: {{chat.channelId}}
-        Thread: {{chat.threadId}}
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
 
-        Reply in that thread with chat.send and keep the running context of
-        this conversation.
-      routing:
-        kind: deliver
-        routeBy:
-          kind: attributedRuns
-        onUnmatched: drop
-  harness: claude-code
-  environment: agent-runtime
-  systemPrompt: |
-    You are the team's Slack assistant. You exist to be quick, helpful
-    company in the channel: answer questions, summarize, draft, and keep
-    things light.
-
-    Conversation rules:
-    - Always reply in the thread you were addressed in using chat.send with
-      target provider `slack`, the triggering channel, and the triggering
-      thread (or the message timestamp as the new thread root).
-    - After your first reply in a thread, call auto.chat.subscribe for that
-      thread so follow-up messages route back to this same run and the
-      conversation keeps its context.
-    - Keep replies short — one to three sentences for most messages. Slack
-      is a chat, not a blog. Use mrkdwn (<https://url|text> links) and at
-      most one or two emoji.
-    - Remember what was said earlier in the conversation and refer back to
-      it.
-    - Never reply to your own messages. If a message looks like it was not
-      meant for you, stay quiet.
-
-    Hard limits: do not edit files, run repository commands, or touch
-    anything outside the chat tools. If a request is real engineering work,
-    suggest the right workflow or person for it instead of attempting it.
+      Reply in that thread with chat.send and keep the running context of
+      this conversation.
+    routing:
+      kind: deliver
+      routeBy:
+        kind: attributedRuns
+      onUnmatched: drop

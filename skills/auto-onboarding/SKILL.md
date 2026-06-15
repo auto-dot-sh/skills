@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, CI/CD, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: 8389da69ceca8c1f459371ce4f74f990967ad757
+  source-commit: 5ca0aa1fdea3be5c853422b2c34fff0cc27e90ca
 ---
 
 # Intent

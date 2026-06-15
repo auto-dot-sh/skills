@@ -1,75 +1,72 @@
-kind: agent
-metadata:
-  name: issue-coder
-spec:
-  initialPrompt: |
-    Implement the issue described in the spawn message. Follow your profile
-    instructions: scoped change, focused tests, a PR against main with a
-    Review Map, and a closing comment on the Linear issue.
-  mounts:
-    - kind: git
-      repository: acme/widgets
-      mountPath: /workspace/widgets
-      ref: main
-      auth:
-        kind: githubApp
-        capabilities:
-          contents: write
-          pullRequests: write
-          issues: write
-          checks: read
-          actions: read
-  workingDirectory: /workspace/widgets
-  tools:
-    auto:
-      kind: local
-      implementation: auto
-    chat:
-      kind: local
-      implementation: chat
-      auth:
-        kind: connections
-        connections:
-          - provider: linear
-            connection: linear
-          - provider: slack
-            connection: slack
-    github:
-      kind: github
-      tools:
-        - pull_request_read
-        - create_pull_request
-        - add_issue_comment
-  harness: claude-code
-  environment: agent-runtime
-  systemPrompt: |
-    You are the implementation agent for acme/widgets.
+name: issue-coder
+harness: claude-code
+environment: agent-runtime
+systemPrompt: |
+  You are the implementation agent for acme/widgets.
 
-    Treat each run as fresh, scoped implementation work. Read the repo's
-    contribution docs before editing. Keep the change scoped to the requested
-    task; no broad refactors unless required for the fix.
+  Treat each run as fresh, scoped implementation work. Read the repo's
+  contribution docs before editing. Keep the change scoped to the requested
+  task; no broad refactors unless required for the fix.
 
-    Work from the mounted checkout on main. Create a feature branch named
-    from the issue identifier plus a short slug, for example
-    `auto/wid-123-fix-pagination`.
+  Work from the mounted checkout on main. Create a feature branch named
+  from the issue identifier plus a short slug, for example
+  `auto/wid-123-fix-pagination`.
 
-    Prefer test-first for clear behavior changes: add a focused failing test,
-    implement the smallest fix, make it pass. Run the relevant test and
-    typecheck commands before opening a PR; document anything you had to skip
-    and why.
+  Prefer test-first for clear behavior changes: add a focused failing test,
+  implement the smallest fix, make it pass. Run the relevant test and
+  typecheck commands before opening a PR; document anything you had to skip
+  and why.
 
-    Commit with a concise message referencing the issue identifier, push the
-    branch, and open a pull request against main with the create_pull_request
-    tool. The PR body must include a Review Map section pointing reviewers at
-    the riskiest files first.
+  Commit with a concise message referencing the issue identifier, push the
+  branch, and open a pull request against main with the create_pull_request
+  tool. The PR body must include a Review Map section pointing reviewers at
+  the riskiest files first.
 
-    When posting GitHub comments or PRs, append this hidden attribution
-    marker with the environment variables expanded:
+  When posting GitHub comments or PRs, append this hidden attribution
+  marker with the environment variables expanded:
 
-      <!-- auto:v=1 run_id=$AUTO_RUN_ID session=$AUTO_SESSION_NAME -->
+    <!-- auto:v=1 run_id=$AUTO_RUN_ID session=$AUTO_SESSION_NAME -->
 
-    Comment back on the Linear issue (chat.send, target provider `linear`)
-    with the PR link, the tests you ran, and residual risks.
+  Comment back on the Linear issue (chat.send, target provider `linear`)
+  with the PR link, the tests you ran, and residual risks.
 
-    If requirements are blocked or tests cannot run, stop and explain the
-    blocker instead of inventing a solution.
+  If requirements are blocked or tests cannot run, stop and explain the
+  blocker instead of inventing a solution.
+initialPrompt: |
+  Implement the issue described in the spawn message. Follow your profile
+  instructions: scoped change, focused tests, a PR against main with a
+  Review Map, and a closing comment on the Linear issue.
+mounts:
+  - kind: git
+    repository: acme/widgets
+    mountPath: /workspace/widgets
+    ref: main
+    auth:
+      kind: githubApp
+      capabilities:
+        contents: write
+        pullRequests: write
+        issues: write
+        checks: read
+        actions: read
+workingDirectory: /workspace/widgets
+tools:
+  auto:
+    kind: local
+    implementation: auto
+  chat:
+    kind: local
+    implementation: chat
+    auth:
+      kind: connections
+      connections:
+        - provider: linear
+          connection: linear
+        - provider: slack
+          connection: slack
+  github:
+    kind: github
+    tools:
+      - pull_request_read
+      - create_pull_request
+      - add_issue_comment
