@@ -85,5 +85,5 @@ triggers:
     routing:
       kind: deliver
       routeBy:
-        kind: attributedRuns
+        kind: attributedSessions
       onUnmatched: drop

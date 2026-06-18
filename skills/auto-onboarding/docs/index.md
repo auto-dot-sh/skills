@@ -16,7 +16,7 @@ external event (PR opened, issue labeled, @mention, cron, webhook)
 Two halves to internalize:
 
 1. **The declarative half.** Agent YAML in `.auto/agents/` is the source of truth. `auto apply` compiles inline identities and environments from those agents, then makes the platform match the directory. Merge-to-apply CI makes the repo the source of truth.
-2. **The event half.** Provider connections (GitHub, Slack, Linear, Telegram), custom webhooks, and cron heartbeats emit events. Agent triggers match events and either **spawn** a new run or **deliver** the event to a live one. Runs are durable, observable executions of an agent.
+2. **The event half.** Provider connections (GitHub, Slack, Linear, Telegram), custom webhooks, and cron heartbeats emit events. Agent triggers match events and either **spawn** a new run or **deliver** the event to a live one. Sessions are durable, observable executions of an agent.
 
 ## Agent YAML
 
@@ -49,16 +49,16 @@ An agent answers five questions:
 - **What does it know at start?** `initialPrompt`, a template with access to the triggering event via `{{payload.*}}` placeholders.
 - **What can it touch?** `mounts` (git checkouts with scoped GitHub App permissions) and `tools` (inline local or remote MCP tool definitions).
 - **When does it run?** `triggers`: provider events, custom webhook endpoints, or cron heartbeats, each with `where:` filters and a routing decision.
-- **How do events route?** `routing.kind: spawn` starts a fresh run; `deliver` sends the event into an existing run, selected by `routeBy` (`singleton`, `ownedArtifact`, `attributedRuns`, `allLiveRuns`).
+- **How do events route?** `routing.kind: spawn` starts a fresh session; `deliver` sends the event into an existing session, selected by `routeBy` (`singleton`, `ownedArtifact`, `attributedSessions`, `allLiveRuns`).
 
-`docs/sessions-and-triggers.md` covers all of this field by field.
+`docs/agents-and-triggers.md` covers all of this field by field.
 
 ## What an agent can do at runtime
 
 Inside a run, the agent has its mounted repo, ordinary shell access in its sandbox, and the tools granted to it:
 
 - **`chat.*`** — send/read messages and manage issues across the connected chat providers (Slack, Linear, Telegram) through one interface.
-- **`auto.*`** — coordinate with the platform itself: spawn sibling agents, list and read other runs, subscribe to chat threads, record artifact ownership.
+- **`auto.*`** — coordinate with the platform itself: spawn sibling agents, list and read other sessions, subscribe to chat threads, record artifact ownership.
 - **`checks.*`** — report a GitHub check run (begin/success/failure) when a PR trigger declared one.
 - **GitHub MCP tools** — a curated, capability-scoped GitHub API surface brokered from the agent's mounts.
 - **Remote MCP tools** — whatever inline remote MCP tools the agent declares (Notion, Datadog, ...).
@@ -67,12 +67,12 @@ Inside a run, the agent has its mounted repo, ordinary shell access in its sandb
 
 ## Operating it
 
-The `auto` CLI is the operator surface: auth/account profiles, org/project management, provider connections, `auto apply`, run inspection (`auto runs list|show|conversation|tools|triggers`), live interaction (`auto run`, `auto send`, `auto attach`), secrets, and service accounts for CI. See `docs/cli.md` and `docs/ci-cd.md`.
+The `auto` CLI is the operator surface: auth/account profiles, org/project management, provider connections, `auto apply`, session inspection (`auto sessions list|show|conversation|tools|triggers`), live interaction (`auto start`, `auto send`, `auto attach`), secrets, and service accounts for CI. See `docs/cli.md` and `docs/ci-cd.md`.
 
 ## Where to go next
 
 - `docs/resource-model.md` — the `.auto/` directory and apply semantics
-- `docs/sessions-and-triggers.md` — the trigger/event/routing vocabulary
+- `docs/agents-and-triggers.md` — the trigger/event/routing vocabulary
 - `docs/environments-and-profiles.md` — sandboxes and reusable agents
 - `docs/tools-and-connections.md` — capabilities, connections, secrets
 - `docs/cli.md` — command reference

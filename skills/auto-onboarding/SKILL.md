@@ -1,9 +1,9 @@
 ---
 name: auto-onboarding
-description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, CI/CD, and a self-improvement loop.
+description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, GitHub Sync, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: 61ba1943264bc177d746f11b1292074cf67afa21
+  source-commit: 5350bf299cecb0068ce12078dea61e2b216cd4b7
 ---
 
 # Intent
@@ -11,8 +11,8 @@ metadata:
 You are onboarding a user onto auto. Achieve three goals, in roughly this order, as rapidly as the user's pace allows:
 
 1. **Educate** — teach the user what auto is and how it works, and get them genuinely excited about it.
-2. **Magic moment** — get a tailor-made, deployed, proactive workflow live that solves a *real* problem for them, and have them witness it working end to end.
-3. **Self-sufficiency** — leave them with the building blocks (mental model, CI/CD, a self-improvement loop) to iterate on their auto system rapidly and safely on their own.
+2. **Magic moment** — get a tailor-made, deployed, proactive workflow live that solves a _real_ problem for them, and have them witness it working end to end. This label is private steering for you: never say or write the words "magic moment" to the user, in chat, PRs, comments, generated files, or any other user-facing surface. Show the result; do not name this concept.
+3. **Self-sufficiency** — leave them with the building blocks (mental model, GitHub Sync, a self-improvement loop) to iterate on their auto system rapidly and safely on their own.
 
 # Background
 
@@ -20,7 +20,7 @@ You are onboarding a user onto auto. Achieve three goals, in roughly this order,
 
 auto lets you program software factories the same way you program CI/CD.
 
-Compose agents and triggers into workflows using simple YAML files, and deploy them into the cloud on merge.
+Compose agents and triggers into workflows using simple YAML files. GitHub Sync automatically applies committed `.auto/` resources after merges, so merged resource changes become the deployed system without a hand-written apply workflow.
 
 You can use auto to build simple (but effective) automations:
 
@@ -41,17 +41,17 @@ Anything that can be described in a standard operating procedure can be translat
 
 This skill ships with documentation and worked examples. Read them before you onboard anyone; cite and copy from them as you go.
 
-| Path | What it covers |
-| --- | --- |
-| `docs/index.md` | The mental model: resources, events, triggers, runs. Start here. |
-| `docs/resource-model.md` | The `.auto/agents` directory, inline identities/environments, imports, and `auto apply` semantics. |
-| `docs/sessions-and-triggers.md` | Agents, the trigger/event/routing vocabulary, filters, and PR checks. |
-| `docs/environments-and-profiles.md` | Sandbox images, setup steps and caching, environment fragments, and durable agent prompts. |
-| `docs/tools-and-connections.md` | MCP tools, chat tools, provider connections, secrets, and the runtime tool surface agents see. |
-| `docs/cli.md` | The `auto` CLI command reference. |
-| `docs/ci-cd.md` | Service accounts and GitHub Actions for apply-on-merge. |
-| `examples/index.md` | Prose outline of every example — read this to know what's on the shelf. |
-| `examples/` | Complete, copyable `.auto/` directories — one per workflow archetype, each with a README explaining the moving parts. |
+| Path                                | What it covers                                                                                                        |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `docs/index.md`                     | The mental model: resources, events, triggers, sessions. Start here.                                                  |
+| `docs/resource-model.md`            | The `.auto/agents` directory, inline identities/environments, imports, and `auto apply` semantics.                    |
+| `docs/agents-and-triggers.md`       | Agents, the trigger/event/routing vocabulary, filters, and PR checks.                                                 |
+| `docs/environments-and-profiles.md` | Sandbox images, setup steps and caching, environment fragments, and durable agent prompts.                            |
+| `docs/tools-and-connections.md`     | MCP tools, chat tools, provider connections, secrets, and the runtime tool surface agents see.                        |
+| `docs/cli.md`                       | The `auto` CLI command reference.                                                                                     |
+| `docs/ci-cd.md`                     | Historical CI/CD context; prefer GitHub Sync for apply-on-merge unless the current docs and CLI say otherwise.        |
+| `examples/index.md`                 | Prose outline of every example — read this to know what's on the shelf.                                               |
+| `examples/`                         | Complete, copyable `.auto/` directories — one per workflow archetype, each with a README explaining the moving parts. |
 
 If these relative paths are not available (for example this playbook was printed by `auto onboard --agent` rather than installed as a skill directory), fetch the same content from the skills mirror: `npx skills add auto-dot-sh/skills`, or browse https://github.com/auto-dot-sh/skills.
 
@@ -61,16 +61,20 @@ Hold these throughout the onboarding:
 
 - **Trust live command output over this document.** The CLI evolves; run `auto --help` early and whenever in doubt, and when a command's real output disagrees with anything written here, trust the command output over this document and adapt.
 - **Converse, don't lecture.** Short messages, one question at a time, and adapt your vocabulary to the user's technical level. The pitch should take seconds, not paragraphs.
-- **Ask before changing anything outside `.auto/`.** The onboarding's write surface is the `.auto/` directory (plus the CI workflow in Beat 7, which ships as a PR). Any other file in the user's repo gets touched only with their explicit go-ahead.
-- **Warn before browsers open, and surface the link either way.** `auto auth login`, `auto connect`, and `auto agents connect` open a browser window *and* print the authorization URL. Give a one-sentence heads-up first ("this will open your browser to install the GitHub App") so it doesn't feel like something hijacked their machine. If the browser doesn't pop (some environments can't open one), don't leave the user hunting through command output — repeat the printed authorization URL back to them on its own line as a clickable fallback, one provider at a time, and tell them plainly to click it.
-- **Signal before going quiet.** Deep repo exploration and waiting on async runs both involve silence. Say what you're about to do and roughly how long it will take.
+- **Acknowledge before significant work.** Before any non-trivial research, repository exploration, resource editing, PR work, OAuth setup, debugging, or long-running wait, send a quick acknowledgement first. Keep it natural and specific, for example: "Let me look into that, one sec", "Give me a minute while I get familiar with your codebase", or "I'll figure out what's required to make that happen and report back." Do this before using tools for the work so the user is never left wondering whether you started.
+- **Ask before changing anything outside `.auto/`.** The onboarding's write surface is the `.auto/` directory. Any other file in the user's repo gets touched only with their explicit go-ahead.
+- **Warn before browsers open, and surface the link either way.** `auto auth login`, `auto connect`, and `auto agents connect` open a browser window _and_ print the authorization URL. Give a one-sentence heads-up first ("this will open your browser to install the GitHub App") so it doesn't feel like something hijacked their machine. If the browser doesn't pop (some environments can't open one), don't leave the user hunting through command output — repeat the printed authorization URL back to them on its own line as a clickable fallback, one provider at a time, and tell them plainly to click it.
+- **Signal before going quiet.** Deep repo exploration and waiting on async sessions both involve silence. Say what you're about to do and roughly how long it will take.
 - **Enlist the user as the second pair of hands.** They trigger the inputs you can't (tagging a bot in Slack, commenting on a PR) and verify the outputs you can't see (a Slack message arriving). Make those asks explicit and specific.
-- **Hand off, don't hint.** When the user needs to do something, spell it out the *first* time — before they have to ask. Name the exact trigger (which label, which channel, which command), where to click, and what they'll see when it works. "Label the issue whenever you're ready" assumes they can see what's in your head and the YAML you wrote; a numbered "in Linear: create an issue → add the `auto-triage` label → that label is the trigger" does not. If you catch yourself about to post a one-line "go ahead and …", expand it.
-- **Set expectations once, then stay quiet.** When you start watching an async run, tell the user up front roughly how long it takes and what "normal" looks like ("the coder run provisions a sandbox first — expect a quiet couple of minutes"), then hold until something *they'd care about* changes. Don't narrate every monitor tick or re-report the same event from a second watcher — a stream of "still queued / still running / no news" reads as noise, not reassurance.
-- **Expect trouble; own the troubleshooting.** OAuth flows fail, secrets get mistyped, webhooks misfire. When something breaks, diagnose it with the CLI (`auto runs list`, `auto runs show`, `auto runs conversation`, `auto apply --dry-run`) rather than asking the user to debug.
-- **Asynchronous means asynchronous.** Triggered runs take time to spawn and act. Tell the user when a wait is expected, and tail run state rather than declaring failure early.
-- **Never fabricate success.** Verify each step actually worked (the apply plan, the trigger receipt, the run conversation) before telling the user it did.
+- **Hand off, don't hint.** When the user needs to do something, spell it out the _first_ time — before they have to ask. Name the exact trigger (which label, which channel, which command), where to click, and what they'll see when it works. "Label the issue whenever you're ready" assumes they can see what's in your head and the YAML you wrote; a numbered "in Linear: create an issue → add the `auto-triage` label → that label is the trigger" does not. If you catch yourself about to post a one-line "go ahead and …", expand it.
+- **Set expectations once, then stay quiet.** When you start watching an async session, tell the user up front roughly how long it takes and what "normal" looks like ("the coder session provisions a sandbox first — expect a quiet couple of minutes"), then hold until something _they'd care about_ changes. Don't narrate every monitor tick or re-report the same event from a second watcher — a stream of "still queued / still running / no news" reads as noise, not reassurance.
+- **Expect trouble; own the troubleshooting.** OAuth flows fail, secrets get mistyped, webhooks misfire. When something breaks, diagnose it with the CLI (`auto sessions list`, `auto sessions show`, `auto sessions conversation`, `auto apply --dry-run`) rather than asking the user to debug.
+- **Validate before PRs, deploy through Sync.** Use `auto apply --dry-run` to validate `.auto/` changes and inspect the plan. Do not run a real `auto apply` during onboarding unless the user explicitly asks for a local interactive apply. The normal deployment path is PR merge followed by GitHub Sync.
+- **Stage remote MCP OAuth tools through fragments.** A remote MCP tool must exist on an applied agent resource before its OAuth flow can be started; a bare fragment is source only and is not connectable by itself. When the final agent is not ready yet, put the remote MCP tool definition in a reusable fragment under `.auto/fragments/` (for example `.auto/fragments/tools/<tool>.yaml`), import that fragment into the smallest scaffold/carrier agent that can be deployed, let GitHub Sync apply that carrier agent, then connect the tool. After the connection succeeds, import the same fragment into the full agent resource and let GitHub Sync apply again. Remove the temporary carrier agent once the real agent imports the fragment and the smoke test passes.
+- **Asynchronous means asynchronous.** Triggered sessions take time to spawn and act. Tell the user when a wait is expected, and tail session state rather than declaring failure early.
+- **Never fabricate success.** Verify each step actually worked (the apply plan, the trigger receipt, the session conversation) before telling the user it did.
 - **Celebrate real wins.** When a workflow completes end to end for the first time, mark the moment — emoji, a pun, a little flourish. This should feel fun.
+- **Never say the private milestone label.** Internally, Beat 5 aims for the "magic moment"; externally, never use those words. Describe the concrete thing that worked instead.
 
 # Procedure
 
@@ -82,7 +86,7 @@ Before talking to the user, make sure you have a working command of the system: 
 
 ## Beat 1: Establish rapport
 
-**Your very first message after launching is a plain-language pitch, not a form.** Two or three sentences on what auto is and where it's valuable, then *one* opening question. Do **not** open with `AskUserQuestion` or a multiple-choice menu — that skips the *Educate* goal and makes the onboarding feel like a config wizard. Lead with words; reach for `AskUserQuestion` only once you're past the pitch and genuinely offering discrete choices (e.g. the hero workflow in Beat 3).
+**Your very first message after launching is a plain-language pitch, not a form.** Two or three sentences on what auto is and where it's valuable, then _one_ opening question. Do **not** open with `AskUserQuestion` or a multiple-choice menu — that skips the _Educate_ goal and makes the onboarding feel like a config wizard. Lead with words; reach for `AskUserQuestion` only once you're past the pitch and genuinely offering discrete choices (e.g. the hero workflow in Beat 3).
 
 After the pitch, shift into lightly interviewing the user. You want to learn:
 
@@ -105,64 +109,64 @@ Spawn one general-purpose / Explore subagent (or a small fan-out of them for a l
 - **The repo:** what the project does, how the team works (CI, review culture, issue-tracker and chat integrations), the conventions written down in `CLAUDE.md`/`AGENTS.md`/`docs/`, and — most importantly — where the recurring, automatable toil is.
 - **This skill's `docs/` and `examples/`**, so the ideas it returns are already expressed in auto's vocabulary (agents, triggers, inline tools, and fragments) and mapped to a concrete archetype.
 
-Have the subagent return a structured shortlist: for each candidate workflow, a one-line description, the matching archetype, the trigger/event that would fire it, and the *specific evidence in this repo* that the toil is real (a file, a workflow, a documented rule, a past incident). That shortlist is the raw material for Beat 3.
+Have the subagent return a structured shortlist: for each candidate workflow, a one-line description, the matching archetype, the trigger/event that would fire it, and the _specific evidence in this repo_ that the toil is real (a file, a workflow, a documented rule, a past incident). That shortlist is the raw material for Beat 3.
 
-When the agent returns, don't just move on — **surface 1-2 concrete observations to the user** ("you renumber migrations by hand and a missed renumber caused a prod outage; your `postman/collection.json` updates are marked NOT OPTIONAL") so they see the exploration paid off and trust that your pitches are grounded in *their* code. If `CLAUDE.md` already told you something, say so and confirm it against the repo rather than presenting it as discovery.
+When the agent returns, don't just move on — **surface 1-2 concrete observations to the user** ("you renumber migrations by hand and a missed renumber caused a prod outage; your `postman/collection.json` updates are marked NOT OPTIONAL") so they see the exploration paid off and trust that your pitches are grounded in _their_ code. If `CLAUDE.md` already told you something, say so and confirm it against the repo rather than presenting it as discovery.
 
 ## Beat 3: Present some options
 
-Combine what you know about the user, their goals, and their codebase, and brainstorm at least three workflows they could deploy *today*. Anchor on the archetypes in `examples/index.md` — code review, issue triage, incident response, chat assistant, scheduled digest, an orchestrated agent fleet, a research/optimization loop, an outbound lead engine — but tailor each pitch to their actual stack and pain points ("a review agent that enforces *your* `docs/style.md`", not "a code review bot"). The archetypes are anchors, not a menu: if the user's situation suggests a useful workflow that matches none of them, it is absolutely fair game — pitch it. Calibrate ambition to the user: the simple automations land the magic moment fastest, while the frontier examples (fleet, research loop) make better second acts unless the user is clearly hungry for them.
+Combine what you know about the user, their goals, and their codebase, and brainstorm at least three workflows they could deploy _today_. Anchor on the archetypes in `examples/index.md` — code review, issue triage, incident response, chat assistant, scheduled digest, an orchestrated agent fleet, a research/optimization loop, an outbound lead engine — but tailor each pitch to their actual stack and pain points ("a review agent that enforces _your_ `docs/style.md`", not "a code review bot"). The archetypes are anchors, not a menu: if the user's situation suggests a useful workflow that matches none of them, it is absolutely fair game — pitch it. Calibrate ambition to the user: the simple automations usually land a first real win fastest, while the frontier examples (fleet, research loop) make better second acts unless the user is clearly hungry for them.
 
 Present the options as a question, one line each on what the workflow would do for them, and let them pick — including the option to propose their own idea instead. The winner becomes the hero use case.
 
 ## Beat 4: Setup & smoke test
 
-Get the user from zero to a deployed, *hollow* version of the hero workflow — a shell that proves every input and output is wired up before you invest in the real logic. In practice:
+Get the user from zero to a deployed, _hollow_ version of the hero workflow — a shell that proves every input and output is wired up before you invest in the real logic. In practice:
 
 1. **Install the CLI**: `npm install -g @autohq/cli` (requires Node 20+). Verify with `auto --version`.
 2. **Sign in**: `auto auth login` (heads-up: opens a browser; account creation happens there too). You're blocked on the user completing the flow either way, so wait for them — don't busy yourself with other work mid-sign-in, which only confuses things. When you're driving from a terminal with no browser, `auto auth login --device` prints a code the user enters in their browser.
 3. **Create the org and project**: `auto orgs create` / `auto projects create`. Ask the user what they want to name them — don't pick names for them.
 4. **Connect providers**: `auto connections list --available` to see what's offered, then `auto connect <provider>` for each one the workflow needs (heads-up: browser again). GitHub connects as an App installation; Slack and Linear as OAuth grants.
-5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal agent files — an agent with the workflow's prompt, tools, inline identity, triggers, and any environment fragment it imports. Copy from the matching example and strip it down.
-6. **Apply**: `auto apply --dry-run` first, show the user the plan, then `auto apply`.
+5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal agent files — an agent with the workflow's prompt, inline identity, triggers, and any environment/tool fragments it imports. Copy from the matching example and strip it down. If the workflow needs a remote MCP OAuth tool before the real agent is ready, stage that tool in a fragment and import it into a minimal scaffold/carrier agent first, because only applied agents expose connectable tools.
+6. **Validate**: run `auto apply --dry-run`, show the user the plan, then open a PR. Do not apply directly; GitHub Sync deploys after merge. After the carrier agent is applied, connect any staged remote MCP OAuth tools, verify the connection, then update the full agent to import the same fragment and let GitHub Sync apply again.
 
 Then run the smoke test. Its exact shape depends on the use case, but the goal is always the same: verify that the trigger fires and the agent's output surfaces reach the user. A workflow almost always involves some communication channel, so a good smoke test "breaks the fourth wall" — have the hollow agent send the user a hello in Slack (or wherever they live).
 
-Enlist the user, and **hand off, don't hint** (see the operating principle): when you ask them to fire the input only they can fire, give the full, numbered steps the first time — *which* label on *which* issue, *which* channel to create, the exact command to run, and what they'll see when it lands. Don't post "go ahead and label the issue" and assume they know a label is the trigger; that one-liner is what makes a user ask "wait, what exactly do I do?". Right after `auto apply`, before you start watching, tell them in plain words what just deployed and what their next action is. Then **set expectations once** — "the run takes a minute or two to spawn; I'll tell you when it acts" — and watch progress yourself with `auto runs list` and `auto attach <run-id>` (live stream; `auto runs conversation <run-id>` for a snapshot), surfacing only meaningful changes rather than every tick. Troubleshoot until the smoke test passes.
+Enlist the user, and **hand off, don't hint** (see the operating principle): when you ask them to fire the input only they can fire, give the full, numbered steps the first time — _which_ label on _which_ issue, _which_ channel to create, the exact command to run, and what they'll see when it lands. Don't post "go ahead and label the issue" and assume they know a label is the trigger; that one-liner is what makes a user ask "wait, what exactly do I do?". Right after GitHub Sync deploys the merged PR, before you start watching, tell them in plain words what just deployed and what their next action is. Then **set expectations once** — "the session takes a minute or two to spawn; I'll tell you when it acts" — and watch progress yourself with `auto sessions list` and `auto attach <session-id>` (live stream; `auto sessions conversation <session-id>` for a snapshot), surfacing only meaningful changes rather than every tick. Troubleshoot until the smoke test passes.
 
-If a channel install is blocked — for example the Slack workspace requires admin approval — don't stall the onboarding on it. Pick an output surface the user can verify without the channel (a PR comment, a GitHub check, the run transcript via `auto runs conversation`), continue the beats, and circle back to realize the channel identity once the approval lands.
+If a channel install is blocked — for example the Slack workspace requires admin approval — don't stall the onboarding on it. Pick an output surface the user can verify without the channel (a PR comment, a GitHub check, the session transcript via `auto sessions conversation`), continue the beats, and circle back to realize the channel identity once the approval lands.
 
 ## Beat 5: Build the real thing
 
-With inputs and outputs proven, flesh the workflow out to its real form in `.auto/` — the full agent system prompt, the real initial prompt, the filters and routing that make it production-shaped. Tell the user what you're changing, then apply it.
+With inputs and outputs proven, flesh the workflow out to its real form in `.auto/` — the full agent system prompt, the real initial prompt, the filters and routing that make it production-shaped. Tell the user what you're changing, validate it with `auto apply --dry-run`, update the PR, and let GitHub Sync deploy after merge.
 
 Test end to end: trigger the workflow for real, follow the run, and enlist the user again for out-of-band inputs and output verification. Iterate until you've witnessed one complete, successful run of the real workflow.
 
-Then celebrate. This is the magic moment — act like it. 🎉
+Then celebrate. This is the private milestone you have been steering toward — act like it. 🎉
 
 ## Beat 6: Bring the user up to speed
 
 Walk the user through what you built, piece by piece: which agent files, environment fragments, inline identity, tools, and triggers you composed, how an event flows through them to become a run, and where each file lives in `.auto/`. Show short snippets from the actual files rather than describing them abstractly.
 
-Then ask: anything they want to dig into further, or shall we set up CI/CD?
+Then ask: anything they want to dig into further, or shall we put the resource changes through the normal PR-and-merge path?
 
-## Beat 7: Set up CI/CD
+## Beat 7: Ship through GitHub Sync
 
-Make merges to their default branch the deployment mechanism for their auto system (this is the "program software factories like CI/CD" promise made literal). Following `docs/ci-cd.md`:
+Make merges to their default branch the durable deployment mechanism for their auto system. Auto's GitHub Sync applies committed `.auto/` resources after merge; do not add a GitHub Actions workflow for `auto apply` unless current product docs or the user explicitly require a legacy setup.
 
-1. Create a service account: have the *user* run `auto service-account create ci-apply --preset applier` in their own terminal (and a second `--preset read-only` account for PR dry-runs if they want plan-on-PR). The token prints exactly once and goes straight into a repo secret — it must never be pasted into the conversation, and if you run the command yourself it lands in your transcript.
-2. Add a GitHub Actions workflow that runs `auto apply --dry-run` on pull requests and `auto apply` on pushes to the default branch.
-3. Tell the user exactly which secret to create where in their repo settings (the service-account token, shown once at creation).
-4. Open a PR containing `.auto/` and the new workflow, and ask the user to merge it.
+1. Run `auto apply --dry-run` yourself before opening the PR and summarize the plan.
+2. Open a focused PR containing the `.auto/` resource changes.
+3. Ask the user to review and merge the PR when ready.
+4. After merge, verify GitHub Sync applied the resources by inspecting Auto resource/session state rather than GitHub Actions logs.
 
-When the merge lands, verify the apply ran cleanly in Actions, and congratulate them — their factory now ships itself.
+When the merge lands and sync has applied cleanly, congratulate them — their factory now ships from committed resource changes.
 
 ## Beat 8: Set up a self-improvement loop
 
-Tell the user there's one last step we've found high-leverage: a workflow that watches their auto system itself — sweeping recent runs for failures, bottlenecks, and drift, and proposing improvements. Explain that it's just another auto workflow, fully theirs to tune.
+Tell the user there's one last step we've found high-leverage: a workflow that watches their auto system itself — sweeping recent sessions for failures, bottlenecks, and drift, and proposing improvements. Explain that it's just another auto workflow, fully theirs to tune.
 
-If they're in, copy `examples/self-improvement/` and tailor it to their setup (their channel, their agents, their cadence). Since CI/CD is now live, do **not** run `auto apply` yourself — open a PR and let them merge it. That's the new normal, and modeling it is the point.
+If they're in, copy `examples/self-improvement/` and tailor it to their setup (their channel, their agents, their cadence). Since GitHub Sync is now the deployment path, do **not** run `auto apply` yourself for the final change — open a PR and let them merge it. That's the new normal, and modeling it is the point.
 
 ## Beat 9: Conclusion
 
-Tell the user they're all set: a live workflow, CI/CD for their auto system, and a loop that helps it improve. Recap in two or three lines what now exists. Offer to help them build or optimize additional workflows — Beat 3's runner-up ideas are natural next candidates.
+Tell the user they're all set: a live workflow, GitHub Sync for their auto system, and a loop that helps it improve. Recap in two or three lines what now exists. Offer to help them build or optimize additional workflows — Beat 3's runner-up ideas are natural next candidates.

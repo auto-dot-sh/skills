@@ -2,7 +2,7 @@
 
 ## Environments
 
-An environment defines the cloud sandbox runs execute in: base image, image build steps, cached setup commands, resource limits, and env vars. Environments are authored inline on agents, usually through a fragment import when more than one agent uses the same runtime.
+An environment defines the cloud sandbox sessions execute in: base image, image build steps, cached setup commands, resource limits, and env vars. Environments are authored inline on agents, usually through a fragment import when more than one agent uses the same runtime.
 
 ```yaml
 # .auto/fragments/environments/agent-runtime.yaml
@@ -35,7 +35,7 @@ environment:
 
 Guidance:
 
-- **`steps` vs `setup`**: `steps` bake into the image (system packages, global CLIs — slow-changing, shared across runs). `setup` runs against the mounted workspace at sandbox start (dependency installs — repo-specific, cacheable by lockfile).
+- **`steps` vs `setup`**: `steps` bake into the image (system packages, global CLIs — slow-changing, shared across sessions). `setup` sessions against the mounted workspace at sandbox start (dependency installs — repo-specific, cacheable by lockfile).
 - Start minimal. The `node24` preset plus a dependency-install setup step covers most JS/TS repos; add `steps` only when the agent needs system binaries.
 - Mirror local development: if the team needs `psql` or `redis-cli` to debug, the agent probably does too.
 
@@ -78,4 +78,4 @@ Writing instructions that hold up in production:
 - Be explicit about output discipline: exactly one PR comment, exactly one top-level Slack message per artifact, details in threads. Agents repeat what you tolerate.
 - Encode idempotency: "look for an existing thread for this PR before creating one."
 - Bound side effects: enumerate what the agent must never create or mutate (labels, statuses, users) when metadata hygiene matters.
-- Require the GitHub attribution marker on anything the agent posts to GitHub (see `sessions-and-triggers.md`).
+- Require the GitHub attribution marker on anything the agent posts to GitHub (see `agents-and-triggers.md`).

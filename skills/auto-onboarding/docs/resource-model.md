@@ -57,7 +57,7 @@ Habits that keep applies safe:
 - **Directory apply prunes.** If a resource exists on the platform but not in `.auto/`, a full-directory apply archives it. Use `-f <agent-file> --no-prune` when experimenting so you don't clobber the rest of the project.
 - **Apply is idempotent.** Re-applying an unchanged directory reports every resource `unchanged`.
 
-The apply response also includes **trigger receipts** for webhook triggers — each `endpoint:` trigger gets an ingest URL you can POST events to (see `sessions-and-triggers.md`).
+The apply response also includes **trigger receipts** for webhook triggers — each `endpoint:` trigger gets an ingest URL you can POST events to (see `agents-and-triggers.md`).
 
 ## Secrets
 

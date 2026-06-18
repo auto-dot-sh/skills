@@ -61,30 +61,30 @@ auto delete <kind>/<name>
 ## Running and interacting
 
 ```sh
-auto run <agent> [-m <message>] [--attach]   # launch a run; --attach streams it
-auto run-and-attach <agent> [-m <message>]
+auto start <agent> [-m <message>] [--attach]   # launch a run; --attach streams it
+auto start <agent> --attach [-m <message>]
 auto interactive <agent>                     # launch, stream, and type messages
-auto attach <run-id>                           # stream an existing run
-auto send <run-id> <message>                   # message a live run
-auto console <run-id>                          # interactive console on a live run
-auto runs stop <run-id> [--reason <reason>]
+auto attach <session-id>                           # stream an existing run
+auto send <session-id> <message>                   # message a live run
+auto console <session-id>                          # interactive console on a live run
+auto sessions stop <session-id> [--reason <reason>]
 ```
 
-## Observing runs
+## Observing sessions
 
 ```sh
-auto runs list [--session <name>] [--status <s>] [--since <iso>] [--limit <n>]
-auto runs show <run-id>                  # lifecycle, timing, behavior summary
-auto runs conversation <run-id> [--tail <n>] [--full]   # snapshot; `auto attach` streams live
-auto runs search <run-id> <query...>     # grep a transcript
-auto runs tools <run-id> [--errors]      # paired tool calls/results with timing
-auto runs triggers <run-id>              # what spawned the run, events delivered
-auto runs artifacts <run-id>             # artifacts the run owns
-auto runs commands <run-id>              # inbound command history
-auto runs archive|unarchive <run-ids...>
+auto sessions list [--agent <name>] [--status <s>] [--since <iso>] [--limit <n>]
+auto sessions show <session-id>                  # lifecycle, timing, behavior summary
+auto sessions conversation <session-id> [--tail <n>] [--full]   # snapshot; `auto attach` streams live
+auto sessions search <session-id> <query...>     # grep a transcript
+auto sessions tools <session-id> [--errors]      # paired tool calls/results with timing
+auto sessions triggers <session-id>              # what spawned the session, events delivered
+auto sessions artifacts <session-id>             # artifacts the session owns
+auto sessions commands <session-id>              # inbound command history
+auto sessions archive|unarchive <session-ids...>
 ```
 
-This is your debugging kit during onboarding: `runs list` to confirm a trigger fired, `attach` to stream progress live (`runs conversation` for a snapshot), `runs triggers` when a trigger didn't match, `runs tools --errors` when a tool misbehaves.
+This is your debugging kit during onboarding: `sessions list` to confirm a trigger fired, `attach` to stream progress live (`sessions conversation` for a snapshot), `sessions triggers` when a trigger didn't match, `sessions tools --errors` when a tool misbehaves.
 
 ## Secrets and service accounts
 

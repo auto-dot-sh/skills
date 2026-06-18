@@ -25,4 +25,4 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
 
 ## Smoke test
 
-Apply, then open a trivial PR. Confirm: a run appears (`auto runs list --session pr-review`), the check shows on the PR, a review comment lands, and a Slack thread appears in `#dev`.
+Apply, then open a trivial PR. Confirm: a session appears (`auto sessions list --agent pr-review`), the check shows on the PR, a review comment lands, and a Slack thread appears in `#dev`.

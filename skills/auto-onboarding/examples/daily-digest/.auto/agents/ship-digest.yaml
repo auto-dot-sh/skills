@@ -41,8 +41,8 @@ initialPrompt: |
     first so the scan does not under-report.
   - for each merged PR, read the body and diff with pull_request_read
     (methods `get` and `get_diff`) deeply enough to describe what changed
-  - CI runs on main in the window, with the actions_list tool, to say
-    whether what merged actually deployed and to flag failed runs
+  - CI sessions on main in the window, with the actions_list tool, to say
+    whether what merged actually deployed and to flag failed sessions
 
   Write the digest with these sections:
   1. Shipped - one entry per merged PR or direct commit; a line for

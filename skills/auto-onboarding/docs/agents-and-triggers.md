@@ -55,7 +55,7 @@ triggers: []                         # see below
 
 Notes:
 
-- **`initialPrompt` is per-run context; `systemPrompt` is standing orders.** Put the durable persona and rules in the agent's system prompt, and the event-specific task in the initial prompt. Triggered runs render `{{payload.*}}` placeholders from the event payload.
+- **`initialPrompt` is per-run context; `systemPrompt` is standing orders.** Put the durable persona and rules in the agent's system prompt, and the event-specific task in the initial prompt. Triggered sessions render `{{payload.*}}` placeholders from the event payload.
 - **Mount capabilities are the permission boundary.** A `githubApp` mount mints installation tokens scoped to exactly the capabilities you declare (`none`/`read`/`write` for contents, pullRequests, issues, checks, actions, workflows). The brokered GitHub MCP tools and git pushes both run inside that scope. A reviewer that should never push gets `contents: read`.
 - **`commitAuthor`** on a mount sets the bot author for commits the agent pushes.
 - **Identity makes the agent a first-class chat persona.** With an `identity:`, applying + `auto agents connect <agent>` realizes a real per-workspace bot app the user can @mention directly; mentions of that bot route only to this agent.
@@ -140,7 +140,7 @@ routing:
 routing:
   kind: deliver                      # send the event into an existing run
   routeBy:
-    kind: attributedRuns             # the run(s) attributed to this conversation
+    kind: attributedSessions         # the session(s) attributed to this conversation
   onUnmatched: drop                  # or warn | error
 
 routing:
@@ -153,20 +153,20 @@ routing:
 
 - `singleton` — the agent's one live run.
 - `ownedArtifact` + `artifactType` (e.g. `github.pull_request`) — the run that recorded ownership of the artifact via `auto.artifacts.record`. This is how check failures, merge conflicts, and review comments on a PR route back to the run that owns it.
-- `attributedRuns` — runs attributed to the conversation (the agent's own messages and subscribed threads). This is how chat replies continue an existing conversation.
+- `attributedSessions` — sessions attributed to the conversation (the agent's own messages and subscribed threads). This is how chat replies continue an existing conversation.
 - `allLiveRuns` — broadcast to every live run of the agent.
 
 Deliver triggers should carry a `message:` template (same `{{...}}` placeholders) framing the event for the in-flight agent — include `{{message.text}}` for chat events so the human's actual words arrive.
 
 ### The two attribution rules (validation will enforce them)
 
-1. A chat-message `deliver`/`attributedRuns` trigger must filter `$.auto.authored: false`, or the agent will react to its own messages.
-2. When the same chat event has both a `spawn` trigger and an `attributedRuns` deliver trigger, they must be mutually exclusive on `$.auto.attributions`: spawn requires `{ exists: false }`, deliver requires `{ exists: true }`. Fresh mentions start runs; thread replies continue them.
+1. A chat-message `deliver`/`attributedSessions` trigger must filter `$.auto.authored: false`, or the agent will react to its own messages.
+2. When the same chat event has both a `spawn` trigger and an `attributedSessions` deliver trigger, they must be mutually exclusive on `$.auto.attributions`: spawn requires `{ exists: false }`, deliver requires `{ exists: true }`. Fresh mentions start sessions; thread replies continue them.
 
 The complement on the output side: agents posting to GitHub append a hidden attribution marker so the platform can recognize their own side effects:
 
 ```
-<!-- auto:v=1 run_id=$AUTO_RUN_ID session=$AUTO_SESSION_NAME -->
+<!-- auto:v=1 run_id=$AUTO_RUN_ID agent=$AUTO_AGENT_NAME -->
 ```
 
 Build that instruction into any agent prompt that comments on GitHub.

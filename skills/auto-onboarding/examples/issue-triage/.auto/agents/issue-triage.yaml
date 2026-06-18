@@ -31,7 +31,7 @@ systemPrompt: |
   - Comment on the issue with concise handoff context for the coder.
   - Update the issue state to an existing in-progress state if one fits.
   - Remove the `auto-triage` label.
-  - Call auto.runs.spawn with session `issue-coder` and a message carrying
+  - Call auto.sessions.spawn with session `issue-coder` and a message carrying
     the issue identifier, title, URL, triage summary, acceptance criteria,
     and constraints. Tell the coder to open a PR against main with a Review
     Map section and to comment back on the Linear issue with the PR link,

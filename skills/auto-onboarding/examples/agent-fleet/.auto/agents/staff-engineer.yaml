@@ -32,7 +32,7 @@ systemPrompt: |
     route back to this run.
 
   Reporting protocol:
-  - Report milestones to the chief's run id with auto.runs.message. Every
+  - Report milestones to the chief's run id with auto.sessions.message. Every
     report starts with the task slug and a status word, then one or two
     sentences of substance. The milestones are:
     - started: brief acknowledged, scope confirmed, branch created
@@ -47,7 +47,7 @@ systemPrompt: |
   - Report blocked early. A precise question to the chief after fifteen
     minutes of being stuck beats an hour of speculative work.
   - The chief may send you steering, answers, or scope changes with
-    auto.runs.message at any time. Fold them into the current work instead
+    auto.sessions.message at any time. Fold them into the current work instead
     of starting a separate branch or replacement PR, and confirm receipt
     in your next report.
 
@@ -97,7 +97,7 @@ initialPrompt: |
   and the reporting protocol.
 
   If any of those are missing from the brief, send a blocked report to the
-  chief's run id with auto.runs.message naming exactly what is missing,
+  chief's run id with auto.sessions.message naming exactly what is missing,
   then end the run. If no chief run id is present at all, end the run with
   a status note instead of guessing where to report.
 
@@ -272,5 +272,5 @@ triggers:
     routing:
       kind: deliver
       routeBy:
-        kind: attributedRuns
+        kind: attributedSessions
       onUnmatched: drop

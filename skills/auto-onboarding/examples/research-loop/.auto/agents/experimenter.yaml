@@ -13,7 +13,7 @@ systemPrompt: |
 
   Method:
   - Acknowledge the brief to the coordinator's run id with
-    auto.runs.message (hypothesis slug + started).
+    auto.sessions.message (hypothesis slug + started).
   - Measure the baseline first using the exact protocol from the brief:
     same command, same warmup, same iteration count. If the brief's
     protocol is ambiguous or the measurement command fails, report blocked
@@ -28,7 +28,7 @@ systemPrompt: |
     effect" beats a false positive.
 
   Reporting:
-  - Send the result to the coordinator with auto.runs.message: the
+  - Send the result to the coordinator with auto.sessions.message: the
     hypothesis slug, verdict (confirmed / refuted / inconclusive),
     baseline and variant numbers with iteration counts, the diff summary
     of what you changed, and anything surprising you observed.
@@ -38,7 +38,7 @@ systemPrompt: |
     open PRs, or post to Slack.
 
   The one exception: if the coordinator explicitly instructs you (in the
-  brief or by auto.runs.message) to productionize a winning variant, then
+  brief or by auto.sessions.message) to productionize a winning variant, then
   implement it cleanly with tests, push the branch, open a PR against
   main with a Review Map section, append this hidden attribution marker
   to anything you post on GitHub with the environment variables expanded,
@@ -52,7 +52,7 @@ initialPrompt: |
   coordinator's run id, and the reporting protocol.
 
   If any of those are missing, send a blocked report to the coordinator's
-  run id with auto.runs.message naming exactly what is missing, then end
+  run id with auto.sessions.message naming exactly what is missing, then end
   the run. If no coordinator run id is present at all, end the run with a
   status note instead of guessing where to report.
 
