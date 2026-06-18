@@ -4,12 +4,13 @@
 
 A connection is a credential grant the platform holds and resolves at runtime — never a token in YAML.
 
-| Provider   | How it connects                   | What it powers                                                        |
-| ---------- | --------------------------------- | --------------------------------------------------------------------- |
-| `github`   | App installation on the org/repos | Git mounts, brokered GitHub MCP tools, PR/issue/check events          |
-| `slack`    | Workspace OAuth                   | `chat` tools, mention/reply/reaction events, per-agent bot identities |
-| `linear`   | Workspace OAuth                   | `chat` tools against issues, issue created/updated events             |
-| `telegram` | Manager bot token                 | `chat` tools, mention/DM events, per-agent bots                       |
+| Provider                                                                  | How it connects                   | What it powers                                                        |
+| ------------------------------------------------------------------------- | --------------------------------- | --------------------------------------------------------------------- |
+| `github`                                                                  | App installation on the org/repos | Git mounts, brokered GitHub MCP tools, PR/issue/check events          |
+| `slack`                                                                   | Workspace OAuth                   | `chat` tools, mention/reply/reaction events, per-agent bot identities |
+| `linear`                                                                  | Workspace OAuth                   | `chat` tools against issues, issue created/updated events             |
+| `telegram`                                                                | Manager bot token                 | `chat` tools, mention/DM events, per-agent bots                       |
+| Built-in MCP providers (`notion`, `vercel`, `sentry`, `datadog-us5`, ...) | MCP OAuth                         | Connection-backed MCP tools                                           |
 
 CLI flow:
 
@@ -24,7 +25,28 @@ Trigger `connection:` fields and chat-tool `auth.connection` fields reference th
 
 ## Tools
 
-### Remote MCP tools
+### Connection-backed MCP tools
+
+For built-in hosted MCP providers, connect first and keep agent YAML at the
+connection level:
+
+```sh
+auto connections list --available
+auto connect notion --allow <project>
+```
+
+```yaml
+tools:
+  notion:
+    kind: connection
+    provider: notion
+    connection: notion
+```
+
+Auto resolves the connection, injects the hosted MCP server and OAuth bearer
+token at runtime, and the agent sees `mcp__notion__*`.
+
+### Raw remote MCP tools
 
 Any MCP server reachable over HTTPS:
 
@@ -46,7 +68,7 @@ spec:
         connection: notion-workspace
 ```
 
-Auth options: `mcp_oauth` (named project-scoped MCP OAuth credential; create or refresh it with `auto apply --connect`), `provider_oauth` (reference an existing provider connection by name), `bearer` (`token: { $secret: name }`), or `none`.
+Auth options: `mcp_oauth` (named project-scoped MCP OAuth credential; create or refresh it with `auto apply --connect`), `bearer` (`token: { $secret: name }`), or `none`. Prefer `kind: connection` for built-in hosted MCP providers.
 
 For onboarding, stage OAuth-backed remote MCP tools through fragments before building the full agent. A full agent that imports an `mcp_oauth` tool validates only after that tool connection exists, so do the work in phases:
 
@@ -106,12 +128,9 @@ tools:
         - provider: linear
           connection: linear
   notion:
-    kind: mcp_remote
-    url: https://mcp.notion.com/mcp
-    transport: streamable_http
-    auth:
-      kind: mcp_oauth
-      connection: notion-workspace
+    kind: connection
+    provider: notion
+    connection: notion
   auto:
     kind: local
     implementation: auto
