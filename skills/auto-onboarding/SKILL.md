@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto end-to-end — pitch, interview, repo recon, a first deployed workflow, GitHub Sync, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: 5350bf299cecb0068ce12078dea61e2b216cd4b7
+  source-commit: 2245016ca2de99d24e854c5d489b26cdd63b38c4
 ---
 
 # Intent
@@ -39,7 +39,7 @@ Anything that can be described in a standard operating procedure can be translat
 
 # Reference material
 
-This skill ships with documentation and worked examples. Read them before you onboard anyone; cite and copy from them as you go.
+This skill ships with documentation and worked examples. Read only what the current onboarding step needs; cite and copy from them as you go. Start with the mental model and examples index, then open the specific example or doc page that matches the user's chosen workflow.
 
 | Path                                | What it covers                                                                                                        |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -66,11 +66,12 @@ Hold these throughout the onboarding:
 - **Warn before browsers open, and surface the link either way.** `auto auth login`, `auto connect`, and `auto agents connect` open a browser window _and_ print the authorization URL. Give a one-sentence heads-up first ("this will open your browser to install the GitHub App") so it doesn't feel like something hijacked their machine. If the browser doesn't pop (some environments can't open one), don't leave the user hunting through command output — repeat the printed authorization URL back to them on its own line as a clickable fallback, one provider at a time, and tell them plainly to click it.
 - **Signal before going quiet.** Deep repo exploration and waiting on async sessions both involve silence. Say what you're about to do and roughly how long it will take.
 - **Enlist the user as the second pair of hands.** They trigger the inputs you can't (tagging a bot in Slack, commenting on a PR) and verify the outputs you can't see (a Slack message arriving). Make those asks explicit and specific.
+- **Use the routed agent handle in Slack examples.** Slack mentions route by the agent's identity, not by a generic workspace bot. When you describe how a user should trigger an agent, use the handle implied by the agent you built, such as `@auto.coder`, and not just `@auto`.
 - **Hand off, don't hint.** When the user needs to do something, spell it out the _first_ time — before they have to ask. Name the exact trigger (which label, which channel, which command), where to click, and what they'll see when it works. "Label the issue whenever you're ready" assumes they can see what's in your head and the YAML you wrote; a numbered "in Linear: create an issue → add the `auto-triage` label → that label is the trigger" does not. If you catch yourself about to post a one-line "go ahead and …", expand it.
 - **Set expectations once, then stay quiet.** When you start watching an async session, tell the user up front roughly how long it takes and what "normal" looks like ("the coder session provisions a sandbox first — expect a quiet couple of minutes"), then hold until something _they'd care about_ changes. Don't narrate every monitor tick or re-report the same event from a second watcher — a stream of "still queued / still running / no news" reads as noise, not reassurance.
-- **Expect trouble; own the troubleshooting.** OAuth flows fail, secrets get mistyped, webhooks misfire. When something breaks, diagnose it with the CLI (`auto sessions list`, `auto sessions show`, `auto sessions conversation`, `auto apply --dry-run`) rather than asking the user to debug.
-- **Validate before PRs, deploy through Sync.** Use `auto apply --dry-run` to validate `.auto/` changes and inspect the plan. Do not run a real `auto apply` during onboarding unless the user explicitly asks for a local interactive apply. The normal deployment path is PR merge followed by GitHub Sync.
-- **Stage remote MCP OAuth tools through fragments.** A remote MCP tool must exist on an applied agent resource before its OAuth flow can be started; a bare fragment is source only and is not connectable by itself. When the final agent is not ready yet, put the remote MCP tool definition in a reusable fragment under `.auto/fragments/` (for example `.auto/fragments/tools/<tool>.yaml`), import that fragment into the smallest scaffold/carrier agent that can be deployed, let GitHub Sync apply that carrier agent, then connect the tool. After the connection succeeds, import the same fragment into the full agent resource and let GitHub Sync apply again. Remove the temporary carrier agent once the real agent imports the fragment and the smoke test passes.
+- **Expect trouble; own the troubleshooting.** OAuth flows fail, secrets get mistyped, webhooks misfire. When something breaks, diagnose it with the local Auto MCP tools (`auto.sessions.*`, `auto.resources.dry_run`, `auto.agent_tools.connect`) rather than asking the user to debug.
+- **Validate before PRs, deploy through Sync.** Use `mcp__auto__auto_resources_dry_run` to validate `.auto/` changes and inspect the plan. Do not run a real apply during onboarding unless the user explicitly asks for a local interactive apply. The normal deployment path is PR merge followed by GitHub Sync.
+- **Stage remote MCP OAuth tools through fragments.** When a workflow needs a remote MCP OAuth tool such as Notion, Datadog, or Vercel, create the tool first as a reusable source fragment under `.auto/fragments/tools/<tool>.yaml`. Dry-run that fragment as source if you need to validate its YAML; do not import it into the full agent yet. After the fragment PR merges, connect the tool from that fragment source. The connect tool reports whether the fragment is already backed by a live connection; if not, it returns the authorization URL. Only after the connection succeeds should you import the same fragment into the real agent. Full agents that import an `mcp_oauth` tool must still validate against an existing connected tool.
 - **Asynchronous means asynchronous.** Triggered sessions take time to spawn and act. Tell the user when a wait is expected, and tail session state rather than declaring failure early.
 - **Never fabricate success.** Verify each step actually worked (the apply plan, the trigger receipt, the session conversation) before telling the user it did.
 - **Celebrate real wins.** When a workflow completes end to end for the first time, mark the moment — emoji, a pun, a little flourish. This should feel fun.
@@ -82,7 +83,7 @@ Work through the following beats in order. They are a roadmap, not a script — 
 
 ## Beat 0: Learn auto
 
-Before talking to the user, make sure you have a working command of the system: read `docs/index.md` for the mental model, skim the rest of `docs/`, and look through `examples/` to internalize what complete workflows look like. You will be drawing on the examples heavily in Beats 3-5.
+Before deeper setup work, make sure you have a working command of the system without disappearing into a docs crawl. Read `docs/index.md` for the mental model and `examples/index.md` to know the available archetypes. Do **not** skim every doc or every example up front. When the user chooses a workflow, open the matching example README and only the supporting docs you need for that workflow (for example `docs/tools-and-connections.md` when adding a tool).
 
 ## Beat 1: Establish rapport
 
@@ -127,8 +128,8 @@ Get the user from zero to a deployed, _hollow_ version of the hero workflow — 
 2. **Sign in**: `auto auth login` (heads-up: opens a browser; account creation happens there too). You're blocked on the user completing the flow either way, so wait for them — don't busy yourself with other work mid-sign-in, which only confuses things. When you're driving from a terminal with no browser, `auto auth login --device` prints a code the user enters in their browser.
 3. **Create the org and project**: `auto orgs create` / `auto projects create`. Ask the user what they want to name them — don't pick names for them.
 4. **Connect providers**: `auto connections list --available` to see what's offered, then `auto connect <provider>` for each one the workflow needs (heads-up: browser again). GitHub connects as an App installation; Slack and Linear as OAuth grants.
-5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal agent files — an agent with the workflow's prompt, inline identity, triggers, and any environment/tool fragments it imports. Copy from the matching example and strip it down. If the workflow needs a remote MCP OAuth tool before the real agent is ready, stage that tool in a fragment and import it into a minimal scaffold/carrier agent first, because only applied agents expose connectable tools.
-6. **Validate**: run `auto apply --dry-run`, show the user the plan, then open a PR. Do not apply directly; GitHub Sync deploys after merge. After the carrier agent is applied, connect any staged remote MCP OAuth tools, verify the connection, then update the full agent to import the same fragment and let GitHub Sync apply again.
+5. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal agent files — an agent with the workflow's prompt, inline identity, triggers, and any environment/tool fragments it imports. Copy from the matching example and strip it down. If the workflow needs a remote MCP OAuth tool, split setup into phases: first add only `.auto/fragments/tools/<tool>.yaml` and validate the fragment as source; after that lands, connect the tool from the fragment source; after OAuth succeeds, import the fragment into the real agent. For Slack-triggered workflows, make the agent's `identity.username` match the handle you tell the user to mention, for example `@auto.coder`.
+6. **Validate**: call `mcp__auto__auto_resources_dry_run` with the resource objects or source files you drafted, show the user the plan, then open a PR. Do not apply directly; GitHub Sync deploys after merge. After a staged tool fragment lands, connect it from the fragment source and verify that the connect tool reports a live connection, then update the full agent to import the same fragment and let GitHub Sync apply again.
 
 Then run the smoke test. Its exact shape depends on the use case, but the goal is always the same: verify that the trigger fires and the agent's output surfaces reach the user. A workflow almost always involves some communication channel, so a good smoke test "breaks the fourth wall" — have the hollow agent send the user a hello in Slack (or wherever they live).
 
@@ -138,7 +139,7 @@ If a channel install is blocked — for example the Slack workspace requires adm
 
 ## Beat 5: Build the real thing
 
-With inputs and outputs proven, flesh the workflow out to its real form in `.auto/` — the full agent system prompt, the real initial prompt, the filters and routing that make it production-shaped. Tell the user what you're changing, validate it with `auto apply --dry-run`, update the PR, and let GitHub Sync deploy after merge.
+With inputs and outputs proven, flesh the workflow out to its real form in `.auto/` — the full agent system prompt, the real initial prompt, the filters and routing that make it production-shaped. Tell the user what you're changing, validate it with `mcp__auto__auto_resources_dry_run`, update the PR, and let GitHub Sync deploy after merge.
 
 Test end to end: trigger the workflow for real, follow the run, and enlist the user again for out-of-band inputs and output verification. Iterate until you've witnessed one complete, successful run of the real workflow.
 
@@ -154,7 +155,7 @@ Then ask: anything they want to dig into further, or shall we put the resource c
 
 Make merges to their default branch the durable deployment mechanism for their auto system. Auto's GitHub Sync applies committed `.auto/` resources after merge; do not add a GitHub Actions workflow for `auto apply` unless current product docs or the user explicitly require a legacy setup.
 
-1. Run `auto apply --dry-run` yourself before opening the PR and summarize the plan.
+1. Run `mcp__auto__auto_resources_dry_run` before opening the PR and summarize the plan.
 2. Open a focused PR containing the `.auto/` resource changes.
 3. Ask the user to review and merge the PR when ready.
 4. After merge, verify GitHub Sync applied the resources by inspecting Auto resource/session state rather than GitHub Actions logs.

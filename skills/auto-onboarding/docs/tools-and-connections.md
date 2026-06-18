@@ -48,7 +48,27 @@ spec:
 
 Auth options: `mcp_oauth` (named project-scoped MCP OAuth credential; create or refresh it with `auto apply --connect`), `provider_oauth` (reference an existing provider connection by name), `bearer` (`token: { $secret: name }`), or `none`.
 
-For onboarding, stage OAuth-backed remote MCP tools through fragments when the final agent is not ready yet. Put the reusable `tools:` entry in `.auto/fragments/tools/<tool>.yaml`, import that fragment into a minimal scaffold/carrier agent, deploy that carrier agent, complete the MCP OAuth connection, then import the same fragment into the real agent and deploy again. A bare fragment is only source; the OAuth flow can start only after the tool exists on an applied agent resource.
+For onboarding, stage OAuth-backed remote MCP tools through fragments before building the full agent. A full agent that imports an `mcp_oauth` tool validates only after that tool connection exists, so do the work in phases:
+
+1. Add the reusable tool fragment by itself and validate it as source:
+
+```yaml
+# .auto/fragments/tools/notion.yaml
+tools:
+  notion:
+    kind: mcp_remote
+    description: Notion pages, databases, and workspace search.
+    url: https://mcp.notion.com/mcp
+    transport: streamable_http
+    auth:
+      kind: mcp_oauth
+      connection: notion
+```
+
+2. After that fragment is merged and GitHub Sync has seen it, run the tool OAuth connect flow from the fragment source. The connect tool reports whether the fragment is already backed by a live connection; if it is not, it returns an authorization URL.
+3. After the connection succeeds, import `../fragments/tools/notion.yaml` into the full agent.
+
+A bare fragment is source only; it is useful for review, validation, and tool connection setup before the full agent exists.
 
 Real examples from production use: Linear (`https://mcp.linear.app/mcp`), Notion (`https://mcp.notion.com/mcp`), Vercel (`https://mcp.vercel.com`), Datadog (`https://mcp.us5.datadoghq.com/...`).
 
