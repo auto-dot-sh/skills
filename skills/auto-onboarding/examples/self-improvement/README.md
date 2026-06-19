@@ -21,8 +21,8 @@ The workflow Beat 8 of the onboarding installs: an introspector that periodicall
 
 - Replace `slack`, `#dev`; pick the sweep cadence.
 - Tailor "what counts as actionable" to the user's workflows — for a code-review-only system, prompt-quality drift matters more than queue times.
-- Since this is installed after CI/CD (Beat 8), deliver it as a PR and let the user merge — don't `auto apply` it directly.
+- Since this is installed after GitHub Sync is active (Beat 8), deliver it as a PR and let the user merge.
 
 ## Smoke test
 
-`auto start introspector --attach -m "Do a manual sweep of the last 24 hours and report what you find."` Confirm it lists sessions, picks sensible deep-dives, and either posts a finding thread or correctly reports nothing actionable.
+Spawn the introspector with `mcp__auto__auto_sessions_spawn` and the message "Do a manual sweep of the last 24 hours and report what you find." Confirm it lists sessions, picks sensible deep-dives, and either posts a finding thread or correctly reports nothing actionable.

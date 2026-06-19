@@ -4,19 +4,23 @@ The end state: `.auto/` is committed to the user's repo, pull requests show an
 Auto Sync plan, and merging to the default branch applies the committed
 resources automatically. The repo becomes the source of truth for the factory.
 
-Do not add a hand-written GitHub Actions workflow for `auto apply` during normal
-onboarding. GitHub Sync is the default deployment path.
+Use merge-to-apply for updating agent resources: open a PR with `.auto/`
+changes, let the user merge it, then verify GitHub Sync applied the resources.
+Use Auto MCP connection tools for updating provider grants and MCP tool
+connections; those are platform connection state, not `.auto/` resource
+changes.
 
 ## 1. Bind the repo to the project
 
-Use the product setup flow or CLI surface that creates a GitHub Sync binding for
-the user's project and repository. The binding is what lets Auto observe merged
-`.auto/` changes and apply them without storing a service-account token in the
-repo.
+Hosted onboarding starts with the user's GitHub repository already connected to
+the Auto project. Identify it from the mounted checkout and
+`git remote get-url origin`; do not ask the user which repo this is unless they
+explicitly ask to switch repos. The GitHub Sync binding is what lets Auto
+observe merged `.auto/` changes and apply them without storing a service-account
+token in the repo.
 
 Before opening a resource PR, validate the intended resources with
-`auto apply --dry-run` or the local dry-run tool exposed to the onboarding
-agent.
+`mcp__auto__auto_resources_dry_run`.
 
 ## 2. Open the resource PR
 
@@ -33,10 +37,3 @@ After merge, verify that GitHub Sync applied the resources by inspecting Auto
 resource/session state, not GitHub Actions logs. For a smoke test, trigger the
 new workflow and watch the resulting session until the user sees the expected
 output.
-
-## Legacy manual apply workflows
-
-Only use a GitHub Actions `auto apply` workflow if current product behavior or
-the user explicitly requires a legacy setup. In that case, use service accounts
-rather than user tokens, keep PR planning read-only, and never ask the user to
-paste tokens into chat.

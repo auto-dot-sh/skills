@@ -23,4 +23,4 @@ A scheduled reporter: every morning it reads the last 24 hours of merged PRs and
 
 ## Smoke test
 
-Cron triggers are awkward to wait for, so smoke test by launching manually: `auto start ship-digest --attach`. A manual run has no heartbeat payload, so expect the agent to treat "now" as the window end — fine for a smoke test. Confirm the digest message lands in the channel.
+Cron triggers are awkward to wait for, so smoke test by spawning the agent with `mcp__auto__auto_sessions_spawn` and a message asking for an immediate digest. A manual run has no heartbeat payload, so expect the agent to treat "now" as the window end — fine for a smoke test. Confirm the digest message lands in the channel.

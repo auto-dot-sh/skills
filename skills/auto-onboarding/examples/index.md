@@ -2,7 +2,7 @@
 
 Each example here is a complete, copyable `.auto/` directory for one workflow archetype, plus a README explaining the moving parts, what to customize, and how to smoke test it. They are distilled from workflows running in production on the auto repo itself, or modeled directly on the use cases auto pitches on its landing page. Together they cover the platform's whole vocabulary — if you understand all nine, you understand auto.
 
-Every example uses the same placeholders, which must be replaced before applying: `acme/widgets` for the user's `org/repo`, `github-acme` / `slack` / `linear` for their connection names (from `auto connections list`), and `#dev` / `#sales` / `#incidents` for their channels. Apply by copying an example's `.auto/` into the repo root, replacing placeholders, then `auto apply --dry-run` followed by `auto apply`.
+Every example uses the same placeholders, which must be replaced before opening a resource PR: `acme/widgets` for the user's connected `org/repo`, `github-acme` / `slack` / `linear` for their connection names (from `mcp__auto__auto_connections_list`), and `#dev` / `#sales` / `#incidents` for their channels. Copy an example's `.auto/` into the repo root, replace placeholders, validate with `mcp__auto__auto_resources_dry_run`, then open a PR and let GitHub Sync deploy after merge.
 
 ## The simple (but effective) automations
 

@@ -33,4 +33,4 @@ The staff engineer's definition of done includes "the pr-review check concluded 
 
 ## Smoke test
 
-Apply, run `auto agents connect chief-of-staff` to realize the bot, then tag it with one trivial task ("add a TODO note to README"). Confirm the intake reaction and roster reply, watch the staff-engineer session with `auto sessions list` / `auto sessions conversation`, and confirm the packet arrives in the thread once the PR is green.
+After the PR merges and GitHub Sync applies the resources, tag the chief with one trivial task ("add a TODO note to README"). Confirm the intake reaction and roster reply, watch the staff-engineer session with `mcp__auto__auto_sessions_list` / `mcp__auto__auto_sessions_conversation`, and confirm the packet arrives in the thread once the PR is green.

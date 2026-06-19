@@ -1,4 +1,11 @@
-# The `auto` CLI
+# The `auto` CLI, as user-facing reference
+
+Hosted onboarding agents operate Auto through Auto MCP tools, not through the
+CLI. Use this page only as reference material when you need to explain how the
+user can interact with Auto from their own terminal, or when a secret must be
+entered without exposing it in Slack. For your own setup, inspection,
+connection, resource validation, session inspection, and PR ownership work, use
+`docs/auto-mcp.md` and the `mcp__auto__auto_*` tools instead.
 
 Install: `npm install -g @autohq/cli` (Node 20+). Bare `auto` in a terminal opens the TUI dashboard; `auto --help` lists everything. Most commands accept `--json` or a global `--format` for machine-readable output, and `--api-url` to target a non-default API.
 
@@ -28,7 +35,9 @@ auto projects list
 auto projects use <project>  # set the active project — resources and applies are project-scoped
 ```
 
-Ask the user what to name their org and project; don't invent names for them.
+Hosted onboarding already starts after the user has an Auto account and project.
+Explain these commands only when the user asks how to manage accounts, orgs, or
+projects from their own terminal.
 
 ## Connections
 
@@ -40,7 +49,10 @@ auto allow <provider> [project]   # share a connection with a project (defaults 
 auto connections remove <provider>
 ```
 
-Connect flows wait (up to ~5 minutes) for the user to finish in the browser; `--no-wait` is fire-and-forget.
+Connect flows wait (up to ~5 minutes) for the user to finish in the browser;
+`--no-wait` is fire-and-forget. During hosted onboarding, start and inspect
+connection flows with Auto MCP tools instead; use these commands only to explain
+the equivalent user-facing terminal workflow.
 
 ## Applying resources
 
@@ -50,6 +62,10 @@ auto apply                   # apply .auto/ (prunes omitted resources)
 auto apply -f <file> --no-prune
 auto agents connect <agent>     # realize an agent's chat identity (per-workspace bot)
 ```
+
+During hosted onboarding, agent resource updates should go through PR merge and
+GitHub Sync, not agent-run CLI applies. Use this section as background when
+explaining what merge-to-apply replaces.
 
 ## Inspecting and editing resources
 
@@ -85,7 +101,11 @@ auto sessions commands <session-id>              # inbound command history
 auto sessions archive|unarchive <session-ids...>
 ```
 
-This is your debugging kit during onboarding: `sessions list` to confirm a trigger fired, `attach` to stream progress live (`sessions conversation` for a snapshot), `sessions triggers` when a trigger didn't match, `sessions tools --errors` when a tool misbehaves.
+This is the user's terminal debugging kit. During hosted onboarding, inspect
+sessions with the matching Auto MCP tools (`mcp__auto__auto_sessions_list`,
+`mcp__auto__auto_sessions_get`, `mcp__auto__auto_sessions_conversation`,
+`mcp__auto__auto_sessions_triggers`, and
+`mcp__auto__auto_sessions_tools`) instead of running CLI commands yourself.
 
 ## Secrets and service accounts
 
@@ -97,7 +117,17 @@ auto service-account update <name> --scope <scope>
 auto service-account rotate <name>
 ```
 
-`service-account create` prints the token exactly once — hand it straight to a CI secret (see `ci-cd.md`).
+When a workflow needs a secret value, ask the user to run the CLI from their own
+terminal so the value never appears in Slack:
+
+```sh
+read -rsp "SENTRY_TOKEN: " SENTRY_TOKEN
+printf %s "$SENTRY_TOKEN" | auto secrets set sentry-token --stdin
+unset SENTRY_TOKEN
+```
+
+`service-account create` prints the token exactly once — hand it straight to a
+CI secret if the user is setting up a separate CI workflow.
 
 ## Onboarding entry points
 
@@ -105,3 +135,7 @@ auto service-account rotate <name>
 auto onboard            # human quickstart text
 auto onboard --agent    # prints this skill's playbook for coding agents
 ```
+
+Hosted onboarding agents already receive the mounted onboarding package and
+should read it from `/workspace/auto-docs/` rather than asking the user to print
+or install the skill.

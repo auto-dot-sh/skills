@@ -15,7 +15,7 @@ This example is the canonical demonstration of the **spawn vs. deliver attributi
 - **Fresh mention → spawn**: `chat.message.mentioned` with `$.auto.attributions: { exists: false }` starts a new run.
 - **Thread reply → deliver**: the same event plus `chat.message.subscribed`, with `$.auto.attributions: { exists: true }` and `$.auto.authored: false`, delivers into the existing session via `attributedSessions` — the agent keeps its conversational memory.
 - The bridge between the two is the agent calling **`auto.chat.subscribe`** after its first reply, which attributes the thread to its run.
-- The inline `identity:` block plus `auto agents connect assistant` realizes a real workspace bot the user can @mention directly.
+- The inline `identity:` block and the connected Slack workspace realize an @mentionable agent handle the user can tag directly.
 
 ## Customize
 
@@ -25,4 +25,4 @@ This example is the canonical demonstration of the **spawn vs. deliver attributi
 
 ## Smoke test
 
-Apply, run `auto agents connect assistant` (guided browser flow to realize the bot), invite the bot to a channel, and @mention it. Confirm it replies in-thread; reply again and confirm it remembers the conversation.
+After the PR merges and GitHub Sync applies the resources, invite the agent handle to a channel and @mention it. Confirm it replies in-thread; reply again and confirm it remembers the conversation.

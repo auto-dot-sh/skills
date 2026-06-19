@@ -1,8 +1,9 @@
-# The resource model and `auto apply`
+# The Resource Model and GitHub Sync
 
 ## Directory layout
 
-`auto apply` (with no flags) reads `./.auto` and treats it as the authoritative declaration of the project's resources:
+GitHub Sync reads the committed `.auto/` directory after merge and treats it as
+the authoritative declaration of the project's resources:
 
 ```
 .auto/
@@ -40,33 +41,32 @@ are materialized into generated backend resources during apply, and the compiled
 agent references those generated resources by name. Reused runtimes should live
 in fragment imports rather than repeated in every agent.
 
-## Apply semantics
+## Sync semantics
 
-```sh
-auto apply --dry-run        # print the plan (create/update/unchanged/archive) without changing anything
-auto apply                  # make the platform match .auto/ — omitted resources are pruned
-auto apply --no-prune       # apply without archiving omitted resources
-auto apply -f path.yaml     # apply a single file (use with --no-prune for narrow experiments)
-auto apply --directory dir  # apply a different directory
-auto apply --json           # machine-readable response
-```
+Use `mcp__auto__auto_resources_dry_run` to validate drafted resources before a
+PR. The dry-run result reports which resources will be created, updated,
+unchanged, or archived when GitHub Sync applies the merged `.auto/` directory.
 
-Habits that keep applies safe:
+Habits that keep sync safe:
 
-- **Always dry-run first.** The plan output shows exactly what will be created, updated, or archived. Show it to the user before a real apply.
-- **Directory apply prunes.** If a resource exists on the platform but not in `.auto/`, a full-directory apply archives it. Use `-f <agent-file> --no-prune` when experimenting so you don't clobber the rest of the project.
-- **Apply is idempotent.** Re-applying an unchanged directory reports every resource `unchanged`.
+- **Always dry-run first.** Show the plan to the user before opening or updating the PR.
+- **Merged directory state is authoritative.** If a resource exists on the platform but no longer exists in `.auto/`, GitHub Sync archives it. Say that out loud when a PR removes resources.
+- **Sync is idempotent.** Re-syncing an unchanged directory reports every resource `unchanged`.
 
-The apply response also includes **trigger receipts** for webhook triggers — each `endpoint:` trigger gets an ingest URL you can POST events to (see `agents-and-triggers.md`).
+The dry-run/sync response also includes **trigger receipts** for webhook triggers
+— each `endpoint:` trigger gets an ingest URL you can POST events to (see
+`agents-and-triggers.md`).
 
 ## Secrets
 
-Secrets live on the platform, never in YAML. Set them with the CLI:
+Secrets live on the platform, never in YAML or chat. Have the user enter secret
+values from their own terminal with the Auto CLI, then reference only the secret
+name in resources:
 
 ```sh
-auto secrets set my-webhook-secret      # prompts for the value; never echoes it
-auto secrets list
-auto secrets remove my-webhook-secret
+read -rsp "SENTRY_TOKEN: " SENTRY_TOKEN
+printf %s "$SENTRY_TOKEN" | auto secrets set sentry-token --stdin
+unset SENTRY_TOKEN
 ```
 
 Resources reference them with `$secret`:
@@ -90,7 +90,7 @@ auth:
 ## Avatar assets
 
 An inline agent identity may declare an avatar. The authored identity is compiled
-into a generated identity resource, and `auto apply` validates the asset through
+into a generated identity resource, and GitHub Sync validates the asset through
 that generated resource:
 
 ```yaml
@@ -101,4 +101,4 @@ identity:
     asset: .auto/assets/pr-review.png
 ```
 
-Rules: the path must be relative, under `.auto/assets/`, end in `.png`/`.jpg`/`.jpeg`, be ≤2MB, and be a square between 512x512 and 2000x2000 pixels (Slack's app-icon constraints — the strictest provider). `auto apply` validates, uploads, and content-addresses the image; the platform serves it publicly and stamps agent messages with it.
+Rules: the path must be relative, under `.auto/assets/`, end in `.png`/`.jpg`/`.jpeg`, be ≤2MB, and be a square between 512x512 and 2000x2000 pixels (Slack's app-icon constraints — the strictest provider). GitHub Sync validates, uploads, and content-addresses the image; the platform serves it publicly and stamps agent messages with it.

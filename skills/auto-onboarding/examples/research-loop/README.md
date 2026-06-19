@@ -26,4 +26,4 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
 
 ## Smoke test
 
-Apply, `auto agents connect research-coordinator`, then mention it with a toy objective and a budget of one round ("campaign: measure how long `npm install` takes cold vs warm-cached, 1 round, 2 hypotheses"). Confirm the campaign brief posts, experimenter sessions spawn and report, and the round summary lands in the thread.
+After the PR merges and GitHub Sync applies the resources, mention the coordinator with a toy objective and a budget of one round ("campaign: measure how long `npm install` takes cold vs warm-cached, 1 round, 2 hypotheses"). Confirm the campaign brief posts, experimenter sessions spawn and report, and the round summary lands in the thread.

@@ -58,7 +58,7 @@ Notes:
 - **`initialPrompt` is per-run context; `systemPrompt` is standing orders.** Put the durable persona and rules in the agent's system prompt, and the event-specific task in the initial prompt. Triggered sessions render `{{payload.*}}` placeholders from the event payload.
 - **Mount capabilities are the permission boundary.** A `githubApp` mount mints installation tokens scoped to exactly the capabilities you declare (`none`/`read`/`write` for contents, pullRequests, issues, checks, actions, workflows). The brokered GitHub MCP tools and git pushes both run inside that scope. A reviewer that should never push gets `contents: read`.
 - **`commitAuthor`** on a mount sets the bot author for commits the agent pushes.
-- **Identity makes the agent a first-class chat persona.** With an `identity:`, applying + `auto agents connect <agent>` realizes a real per-workspace bot app the user can @mention directly; mentions of that bot route only to this agent.
+- **Identity makes the agent a first-class chat persona.** With an `identity:`, GitHub Sync and the connected Slack workspace realize an @mentionable agent handle such as `@auto.pr-review`; mentions of that handle route to this agent.
 
 ## Triggers
 
@@ -78,7 +78,7 @@ triggers:
 
 ### Event sources
 
-- **Provider connections** (`connection: <name>`): GitHub App installations, Slack/Linear/Telegram grants. The connection name comes from `auto connections list`.
+- **Provider connections** (`connection: <name>`): GitHub App installations, Slack/Linear/Telegram grants. The connection name comes from `mcp__auto__auto_connections_list`.
 - **Custom webhooks** (`endpoint: <name>` + `auth`): the apply response returns an ingest URL per endpoint; POST JSON to it to emit the event.
 
   ```yaml

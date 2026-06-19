@@ -10,7 +10,7 @@ The non-engineering archetype: an agentic BDR that turns raw signups and prospec
 
 ## How it works
 
-- **Webhook intake**: `event: webhook.lead.created` on `endpoint: lead-webhook` with bearer-token auth. Wire any lead source that can POST JSON at the ingest URL from the apply receipt. The example payload shape is `{ "name", "email", "company", "source", "notes" }` — adapt the prompt to the real fields.
+- **Webhook intake**: `event: webhook.lead.created` on `endpoint: lead-webhook` with bearer-token auth. Before the PR merges, have the user enter the shared secret from their own terminal, for example `read -rsp "LEAD_WEBHOOK_SECRET: " LEAD_WEBHOOK_SECRET; printf %s "$LEAD_WEBHOOK_SECRET" | auto secrets set lead-webhook-secret --stdin; unset LEAD_WEBHOOK_SECRET`. Wire any lead source that can POST JSON at the ingest URL from the GitHub Sync receipt. The example payload shape is `{ "name", "email", "company", "source", "notes" }` — adapt the prompt to the real fields.
 - **No repo mount**: this workflow has nothing to do with code. The agent works from the lead payload, public research from its sandbox, and whatever tools you grant — a good reminder that auto agents are general agents, not just coding agents.
 - **Human-in-the-loop by design**: the agent's hard limit is that the agent never contacts a prospect. Its output is a dossier + draft package in `#sales`; approval, edits, and sending stay with the team. Thread feedback routes back to the same session (`attributedSessions` + `auto.chat.subscribe`), so "make it shorter and mention the SOC2 page" produces a revision in seconds.
 - **Honest scoring**: the agent prompt demands evidence-based fit scoring and explicitly allows "bad fit, skip" as a recommendation — an outbound engine that can say no is the one sales teams learn to trust.
@@ -25,9 +25,10 @@ The non-engineering archetype: an agentic BDR that turns raw signups and prospec
 
 ## Smoke test
 
+After the PR merges and GitHub Sync applies the resources, copy the webhook
+ingest URL from the trigger receipt and POST a smoke payload to it:
+
 ```sh
-auto secrets set lead-webhook-secret
-auto apply        # note the ingest URL in the trigger receipt
 curl -X POST <ingest-url> \
   -H "Authorization: Bearer <secret>" \
   -H "Content-Type: application/json" \

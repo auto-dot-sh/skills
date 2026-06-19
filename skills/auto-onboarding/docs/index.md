@@ -1,11 +1,11 @@
 # auto: the mental model
 
-auto lets you program software factories the same way you program CI/CD: declare agents and triggers in YAML, apply them to the cloud, and let events do the rest.
+auto lets you program software factories the same way you program CI/CD: declare agents and triggers in YAML, merge them through GitHub Sync, and let events do the rest.
 
 ## The loop
 
 ```
-.auto/ YAML  --auto apply-->  deployed resources
+.auto/ YAML  --GitHub Sync after merge-->  deployed resources
 external event (PR opened, issue labeled, @mention, cron, webhook)
         --> trigger match --> run spawned (or delivered to an existing run)
         --> agent works in a cloud sandbox with its tools
@@ -15,7 +15,7 @@ external event (PR opened, issue labeled, @mention, cron, webhook)
 
 Two halves to internalize:
 
-1. **The declarative half.** Agent YAML in `.auto/agents/` is the source of truth. `auto apply` compiles inline identities and environments from those agents, then makes the platform match the directory. Merge-to-apply CI makes the repo the source of truth.
+1. **The declarative half.** Agent YAML in `.auto/agents/` is the source of truth. GitHub Sync compiles inline identities and environments from those agents after merge, then makes the platform match the directory.
 2. **The event half.** Provider connections (GitHub, Slack, Linear, Telegram), custom webhooks, and cron heartbeats emit events. Agent triggers match events and either **spawn** a new run or **deliver** the event to a live one. Sessions are durable, observable executions of an agent.
 
 ## Agent YAML
@@ -65,9 +65,12 @@ Inside a run, the agent has its mounted repo, ordinary shell access in its sandb
 
 `docs/tools-and-connections.md` has the full runtime surface.
 
-## Operating it
+## Operating it during onboarding
 
-The `auto` CLI is the operator surface: auth/account profiles, org/project management, provider connections, `auto apply`, session inspection (`auto sessions list|show|conversation|tools|triggers`), live interaction (`auto start`, `auto send`, `auto attach`), secrets, and service accounts for CI. See `docs/cli.md` and `docs/ci-cd.md`.
+Hosted onboarding starts with the user's GitHub repo and Slack workspace already
+connected. Use the Auto MCP tools for connection discovery, additional provider
+consent flows, resource dry-runs, session inspection, chat subscription, and PR
+ownership. See `docs/auto-mcp.md` and `docs/ci-cd.md`.
 
 ## Where to go next
 
@@ -75,6 +78,7 @@ The `auto` CLI is the operator surface: auth/account profiles, org/project manag
 - `docs/agents-and-triggers.md` — the trigger/event/routing vocabulary
 - `docs/environments-and-profiles.md` — sandboxes and reusable agents
 - `docs/tools-and-connections.md` — capabilities, connections, secrets
-- `docs/cli.md` — command reference
-- `docs/ci-cd.md` — apply-on-merge
+- `docs/auto-mcp.md` — Auto MCP tools for setup, validation, and observation
+- `docs/cli.md` — user-facing CLI reference for explaining terminal workflows
+- `docs/ci-cd.md` — GitHub Sync after merge
 - `../examples/index.md` — prose outline of nine complete `.auto/` example directories you can copy

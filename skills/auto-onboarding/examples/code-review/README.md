@@ -25,4 +25,4 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
 
 ## Smoke test
 
-Apply, then open a trivial PR. Confirm: a session appears (`auto sessions list --agent pr-review`), the check shows on the PR, a review comment lands, and a Slack thread appears in `#dev`.
+After the PR merges and GitHub Sync applies the resources, open a trivial PR. Confirm: a session appears via `mcp__auto__auto_sessions_list`, the check shows on the PR, a review comment lands, and a Slack thread appears in `#dev`.
