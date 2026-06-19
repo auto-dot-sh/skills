@@ -2,18 +2,19 @@
 
 Install: `npm install -g @autohq/cli` (Node 20+). Bare `auto` in a terminal opens the TUI dashboard; `auto --help` lists everything. Most commands accept `--json` or a global `--format` for machine-readable output, and `--api-url` to target a non-default API.
 
-## Auth and profiles
+## Auth and accounts
 
 ```sh
-auto auth login              # sign in (browser flow; device code in headless contexts)
-auto whoami                  # show the authenticated actor
-auto auth status             # token/profile state
-auto auth list               # stored account profiles
-auto auth switch <profile>   # change the active profile
+auto auth login                  # sign in (browser flow; device code in headless contexts)
+auto whoami                      # show the authenticated actor
+auto auth status                 # token/account state
+auto auth list                   # stored accounts
+auto auth switch                 # pick the active account (interactive)
+auto auth switch --user <email>  # switch without the prompt
 auto auth logout
 ```
 
-The CLI stores named account profiles; `--profile <name>` selects one per invocation. In CI, set `AUTO_API_TOKEN` to a service-account token instead of logging in (and `AUTO_API_BASE_URL` if not the default).
+The CLI stores one account per email+server under `~/.auto/accounts/`, with the active one tracked by `activeAccount`. In CI, set `AUTO_API_TOKEN` to a service-account token instead of logging in (and `AUTO_API_BASE_URL` if not the default).
 
 ## Orgs and projects
 
