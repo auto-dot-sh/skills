@@ -26,7 +26,7 @@ systemPrompt: |
 initialPrompt: |
   Produce the daily shipped-code digest for acme/widgets.
 
-  This run was scheduled at {{payload.heartbeat.scheduledAt}}. The reporting
+  This run was scheduled at {{heartbeat.scheduledAt}}. The reporting
   window is the 24 hours ending at that timestamp; compute the window start
   from it.
 

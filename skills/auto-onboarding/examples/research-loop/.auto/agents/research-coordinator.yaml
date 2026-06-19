@@ -72,12 +72,12 @@ systemPrompt: |
   - Multiple campaigns may run at once; track each by its thread and never
     mix lab logs.
 initialPrompt: |
-  {{payload.message.author.userName}} mentioned you on Slack.
+  {{message.author.userName}} mentioned you on Slack.
 
   Trigger context:
-  - Channel: {{payload.chat.channelId}}
-  - Thread: {{payload.chat.threadId}}
-  - Message text: {{payload.message.text}}
+  - Channel: {{chat.channelId}}
+  - Thread: {{chat.threadId}}
+  - Message text: {{message.text}}
 
   You are starting as a fresh singleton run. Before acting, check whether
   a campaign is already in flight: list recent experimenter sessions with
@@ -160,7 +160,7 @@ triggers:
   - kind: heartbeat
     cron: "*/10 * * * *"
     message: |
-      Heartbeat campaign review, scheduled at {{payload.heartbeat.scheduledAt}}.
+      Heartbeat campaign review, scheduled at {{heartbeat.scheduledAt}}.
 
       Review every in-flight campaign: sweep experimenter sessions with
       auto.sessions.list, nudge quiet experiments, respawn dead ones once,

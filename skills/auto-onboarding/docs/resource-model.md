@@ -32,7 +32,7 @@ identity:                  # optional @mentionable persona
 systemPrompt: |
   You are the code review agent for acme/widgets.
 initialPrompt: |
-  Review PR #{{payload.github.pullRequest.number}}.
+  Review PR #{{github.pullRequest.number}}.
 ```
 
 Imported fragments can define reusable fields like `harness`, `environment`,

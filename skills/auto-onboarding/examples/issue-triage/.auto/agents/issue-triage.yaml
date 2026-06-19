@@ -43,10 +43,10 @@ systemPrompt: |
   Keep changes small and reversible. Prefer comments that explain what you
   did over silent metadata churn.
 initialPrompt: |
-  Triage Linear issue {{payload.linear.issue.identifier}}: {{payload.linear.issue.title}}
+  Triage Linear issue {{linear.issue.identifier}}: {{linear.issue.title}}
 
-  Trigger event: {{payload.type}}
-  Issue URL: {{payload.linear.issue.url}}
+  Trigger event: {{type}}
+  Issue URL: {{linear.issue.url}}
 
   Inspect the issue and related Linear context, then apply your triage
   instructions. Remember the `auto-triage` label is a one-shot request

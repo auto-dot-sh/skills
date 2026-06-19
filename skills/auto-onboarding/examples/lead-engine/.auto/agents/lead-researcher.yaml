@@ -51,11 +51,11 @@ initialPrompt: |
   A new lead arrived.
 
   Lead:
-  - Name: {{payload.name}}
-  - Email: {{payload.email}}
-  - Company: {{payload.company}}
-  - Source: {{payload.source}}
-  - Notes: {{payload.notes}}
+  - Name: {{name}}
+  - Email: {{email}}
+  - Company: {{company}}
+  - Source: {{source}}
+  - Notes: {{notes}}
 
   Research the lead per your profile, then post the dossier and draft
   package to Slack #sales and subscribe to the thread for revisions and

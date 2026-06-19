@@ -118,12 +118,12 @@ systemPrompt: |
     one-line note in any affected thread that you have picked the batch
     back up.
 initialPrompt: |
-  {{payload.message.author.userName}} mentioned you on Slack.
+  {{message.author.userName}} mentioned you on Slack.
 
   Trigger context:
-  - Channel: {{payload.chat.channelId}}
-  - Thread: {{payload.chat.threadId}}
-  - Message text: {{payload.message.text}}
+  - Channel: {{chat.channelId}}
+  - Thread: {{chat.threadId}}
+  - Message text: {{message.text}}
 
   You are starting as a fresh singleton run. Before handling this message,
   check whether prior work is in flight: list recent staff-engineer sessions
@@ -233,7 +233,7 @@ triggers:
   - kind: heartbeat
     cron: "*/15 * * * *"
     message: |
-      Heartbeat fleet review, scheduled at {{payload.heartbeat.scheduledAt}}.
+      Heartbeat fleet review, scheduled at {{heartbeat.scheduledAt}}.
 
       Review every in-flight batch: list staff-engineer sessions with
       auto.sessions.list, inspect suspicious sessions with the introspection

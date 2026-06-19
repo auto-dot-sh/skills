@@ -29,13 +29,13 @@ systemPrompt: |
   anything outside the chat tools. If a request is real engineering work,
   suggest the right workflow or person for it instead of attempting it.
 initialPrompt: |
-  Someone mentioned you on {{payload.chat.provider}} and wants to chat.
+  Someone mentioned you on {{chat.provider}} and wants to chat.
 
   Trigger context:
-  - Channel: {{payload.chat.channelId}}
-  - Thread: {{payload.chat.threadId}}
-  - Author: {{payload.message.author.userName}}
-  - Message: {{payload.message.text}}
+  - Channel: {{chat.channelId}}
+  - Thread: {{chat.threadId}}
+  - Author: {{message.author.userName}}
+  - Message: {{message.text}}
 
   Reply in that thread with chat.send (fall back to the triggering message
   as the thread root when no thread id is present), then call

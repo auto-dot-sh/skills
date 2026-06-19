@@ -38,11 +38,11 @@ initialPrompt: |
   A production alert arrived.
 
   Alert:
-  - Title: {{payload.title}}
-  - Severity: {{payload.severity}}
-  - Service: {{payload.service}}
-  - Description: {{payload.description}}
-  - Link: {{payload.link}}
+  - Title: {{title}}
+  - Severity: {{severity}}
+  - Service: {{service}}
+  - Description: {{description}}
+  - Link: {{link}}
 
   Investigate following your responder instructions, then post the triage
   to Slack #incidents and subscribe to the thread for follow-ups.

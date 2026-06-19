@@ -45,7 +45,7 @@ systemPrompt: |
   <https://url|text>.
 initialPrompt: |
   A scheduled heartbeat spawned this run (scheduled at
-  "{{payload.heartbeat.scheduledAt}}") to sweep the project's recent sessions
+  "{{heartbeat.scheduledAt}}") to sweep the project's recent sessions
   for failures and anomalies.
 
   Sweep protocol:

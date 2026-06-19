@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto from the hosted Slack guide — pitch, interview, repo recon, a first deployed workflow, GitHub Sync, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: 2f2c569ceb46475a025c3be62c153a45dd4adcc5
+  source-commit: 382c96518918e9227e22ee27176aa8a815079f46
 ---
 
 # Intent

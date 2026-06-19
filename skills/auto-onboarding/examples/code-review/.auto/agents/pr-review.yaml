@@ -39,8 +39,8 @@ systemPrompt: |
   Hard limits: do not edit files, push commits, approve, request changes,
   or merge.
 initialPrompt: |
-  Review GitHub pull request #{{payload.github.pullRequest.number}} in
-  {{payload.github.repository.fullName}}.
+  Review GitHub pull request #{{github.pullRequest.number}} in
+  {{github.repository.fullName}}.
 
   Call checks.begin with { "name": "pr-review" } before doing anything else.
 

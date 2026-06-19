@@ -11,7 +11,7 @@ A first responder for production alerts: any system that can POST JSON (PagerDut
 ## How it works
 
 - **Custom webhook trigger**: `event: webhook.incident.opened` on `endpoint: incident-webhook` with `auth.kind: bearer_token`. Before the PR merges, have the user enter the shared secret from their own terminal, for example `read -rsp "INCIDENT_WEBHOOK_SECRET: " INCIDENT_WEBHOOK_SECRET; printf %s "$INCIDENT_WEBHOOK_SECRET" | auto secrets set incident-webhook-secret --stdin; unset INCIDENT_WEBHOOK_SECRET`. The GitHub Sync receipt contains the **ingest URL**; wire the alerting system to POST there with `Authorization: Bearer <secret>`.
-- **Payload is yours**: whatever JSON the alert source posts arrives as `{{payload.*}}`. The example assumes `{ "title": ..., "severity": ..., "service": ..., "description": ..., "link": ... }` — adapt the template to the real alert shape.
+- **Payload is yours**: the JSON the alert source posts is the event payload, and the trigger `message` template references its top-level keys directly (`{{title}}`, `{{severity}}`, … — no `payload.` prefix). The example assumes `{ "title": ..., "severity": ..., "service": ..., "description": ..., "link": ... }` — adapt the template to the real alert shape.
 - **Investigation surface**: a read-only mount of the repo (to correlate the alert with recent commits) plus an optional Datadog MCP tool for logs and metrics.
 - **Conversation**: the agent posts a triage thread in `#incidents`, then calls `auto.chat.subscribe` so responder questions in the thread route back to the same session (`attributedSessions` delivery with the mandatory `$.auto.authored: false` filter).
 
