@@ -1,0 +1,8 @@
+harness: claude-code
+environment:
+  name: agent-runtime
+  image:
+    kind: preset
+    name: node24
+  resources:
+    memoryMB: 8192

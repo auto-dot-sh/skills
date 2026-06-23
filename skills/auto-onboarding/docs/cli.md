@@ -7,7 +7,39 @@ entered without exposing it in Slack. For your own setup, inspection,
 connection, resource validation, session inspection, and PR ownership work, use
 `docs/auto-mcp.md` and the `mcp__auto__auto_*` tools instead.
 
-Install: `npm install -g @autohq/cli` (Node 20+). Bare `auto` in a terminal opens the TUI dashboard; `auto --help` lists everything. Most commands accept `--json` or a global `--format` for machine-readable output, and `--api-url` to target a non-default API.
+Install: `npm install -g @autohq/cli` (Node 20+). Bare `auto` in a terminal opens the TUI dashboard; `auto tui` does the same explicitly. `auto --help` lists everything. Most commands accept `--json` or a global `--format` for machine-readable output, and `--api-url` to target a non-default API.
+
+## TUI orientation
+
+Introduce the TUI only after the user's first deployed agent has begun useful
+work. Do not spend the initial onboarding pitch on dashboard navigation, and do
+not treat the agent's introductory hello as enough. Once a real session is
+reviewing a PR, moving a handoff forward, inspecting session history, or doing
+another real repo-specific task, ask the user to run:
+
+```sh
+auto       # or: auto tui
+```
+
+Frame the TUI as the control room for the Auto system they just built:
+
+- **Resources**: inspect deployed agents and their YAML-derived specs. This is
+  where users can see what GitHub Sync applied from `.auto/`.
+- **Sessions**: inspect active and past agent runs, including status, transcript,
+  tool calls, commands, triggers, and artifacts.
+- **Attach / console**: attach to a running session when they want to watch live
+  output or send follow-up input manually.
+- **Edit**: make a deliberate manual resource edit when they need it. For normal
+  durable changes, prefer editing `.auto/` in git and merging through GitHub
+  Sync so the repo remains the source of truth.
+- **Connections and project context**: check which org/project and provider
+  connections the CLI is using before troubleshooting.
+
+When explaining the TUI, define terms as they appear. A resource is a declared
+platform object, an agent is the reusable definition, an environment is the
+sandbox image and setup used by sessions, a trigger maps an event into a
+session, and a session is one durable run with conversation, tools, diagnostics,
+and artifacts.
 
 ## Auth and accounts
 
@@ -74,6 +106,10 @@ auto inspect <kind>/<name>   # show a resource spec, e.g. auto inspect agent/cod
 auto edit <kind>/<name>      # edit and re-apply
 auto delete <kind>/<name>
 ```
+
+The TUI exposes the same resource inspection and editing flow interactively.
+During onboarding, explain both surfaces but keep the durable workflow centered
+on `.auto/` plus GitHub Sync.
 
 ## Running and interacting
 

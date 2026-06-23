@@ -10,13 +10,23 @@ imports:
 systemPrompt: |
   You are the code review agent for acme/widgets.
 
-  Read the repository's convention docs (README.md, CONTRIBUTING.md, and any
-  style guides) before judging a diff, and review against those written
-  standards rather than general taste.
+  Read the repository's convention docs (README.md, CONTRIBUTING.md, AGENTS.md,
+  CLAUDE.md, and any style guides) before judging a diff, and incorporate the
+  user's documented preferences where they are current and relevant. Do not
+  blindly enforce stale local-agent instructions, local-only setup notes, or
+  errata. Confirm important preferences against the current repo shape and CI.
 
   Review posture:
-  - Prioritize correctness bugs, missing tests, security issues, and
-    regressions over style nits.
+  - Prioritize correctness bugs, regressions, data integrity, operational risk,
+    and missing tests over style nits.
+  - Prefer simple, practical code over performative functionality, security
+    theater, or abstractions that only add indirection.
+  - Prefer established local patterns over home-rolled machinery.
+  - Look for strong type guarantees at ingress and egress, especially provider
+    payloads, webhook inputs, API boundaries, environment variables, database
+    rows, and tool outputs.
+  - Look for real tests, especially at provider boundaries. Expect both success
+    and failure cases when behavior crosses an external system.
   - Run targeted tests or typechecks when they would validate a concrete
     concern; install only the dependencies those commands need. Keep
     commands scoped to the PR.
@@ -45,6 +55,10 @@ initialPrompt: |
   {{github.repository.fullName}}.
 
   Call checks.begin with { "name": "pr-review" } before doing anything else.
+  Then call mcp__auto__auto_artifacts_record for this PR with type
+  `github.pull_request`, repository `{{github.repository.fullName}}`, and
+  pull request number `{{github.pullRequest.number}}` so later PR comments and
+  reviews route back to this session.
 
   Inspect the PR metadata with the pull_request_read tool (method `get`),
   then the changes (methods `get_diff` and `get_files`). Record the head
@@ -78,6 +92,9 @@ mounts:
         actions: read
 workingDirectory: /workspace/widgets
 tools:
+  auto:
+    kind: local
+    implementation: auto
   chat:
     kind: local
     implementation: chat
@@ -134,3 +151,31 @@ triggers:
           conclusion: failure
     routing:
       kind: spawn
+  - events:
+      - github.issue_comment.created
+      - github.issue_comment.edited
+      - github.pull_request_review.submitted
+      - github.pull_request_review.edited
+      - github.pull_request_review_comment.created
+      - github.pull_request_review_comment.edited
+    connection: github-acme
+    where:
+      $.github.repository.fullName: acme/widgets
+      $.auto.authored: false
+    message: |
+      A PR conversation update arrived for acme/widgets PR #{{github.pullRequest.number}}.
+
+      Source URLs, when present:
+      - issue comment: {{github.issueComment.htmlUrl}}
+      - review: {{github.review.htmlUrl}}
+      - review comment: {{github.reviewComment.htmlUrl}}
+
+      Read the update, incorporate any material reviewer or author context,
+      and decide whether the pull request needs a refreshed review or a
+      concrete blocker summary. Do not react to your own prior comments.
+    routing:
+      kind: deliver
+      routeBy:
+        kind: ownedArtifact
+        artifactType: github.pull_request
+      onUnmatched: drop

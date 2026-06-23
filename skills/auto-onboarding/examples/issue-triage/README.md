@@ -11,8 +11,8 @@ Two cooperating agents: a **triage** agent that wakes when a Linear issue gets t
 
 ## How it works
 
-- **Label as request token**: the trigger fires on `linear.issue.created` with the label present, and on `linear.issue.updated` only when the label was just *added* (`$.linear.updatedFrom.labelNames.added: { contains: ... }`). The triage agent removes the label once it has acted, so re-labeling is how humans re-request triage.
-- **`chat.issue.*`**: the triage agent reads and mutates issue metadata (state, assignee, labels) through the unified chat tool — and is forbidden from *creating* metadata (labels, states, users) so it can't pollute the workspace.
+- **Label as request token**: the trigger fires on `linear.issue.created` with the label present, and on `linear.issue.updated` only when the label was just _added_ (`$.linear.updatedFrom.labelNames.added: { contains: ... }`). The triage agent removes the label once it has acted, so re-labeling is how humans re-request triage.
+- **`chat.issue.*`**: the triage agent reads and mutates issue metadata (state, assignee, labels) through the unified chat tool — and is forbidden from _creating_ metadata (labels, states, users) so it can't pollute the workspace.
 - **Agent-to-agent handoff**: for implementation-ready issues, triage calls `auto.sessions.spawn` with `agent: issue-coder` and a message carrying the issue context, acceptance criteria, and constraints. The coder's real work starts from that handoff; its Slack mention trigger is only a friendly "here is what I do" path.
 - **Slack visibility**: handoffs get a brief top-level note in `#dev` with details threaded.
 
@@ -24,4 +24,4 @@ Two cooperating agents: a **triage** agent that wakes when a Linear issue gets t
 
 ## Smoke test
 
-After the PR merges and GitHub Sync applies the resources, add the `auto-triage` label to a test issue. Confirm a triage session spawns, the issue gets a triage comment, and the label is removed. Then label a genuinely ready issue and watch the handoff spawn a coder session that opens a PR.
+After the PR merges and GitHub Sync applies the resources, add the `auto-triage` label to a test issue. Confirm a triage session spawns, the issue gets a triage comment, and the label is removed. Then label an implementation-ready issue and watch the handoff spawn a coder session that opens a PR.

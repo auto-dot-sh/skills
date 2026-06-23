@@ -1,6 +1,10 @@
-# Self-improvement loop
+# Self-improvement agent
 
-The workflow Beat 8 of the onboarding installs: an introspector that periodically sweeps the project's own sessions for failures, anomalies, and drift, and reports actionable findings — with proposed fixes to agents, prompts, and triggers — to the team's channel. The auto system watching the auto system.
+An introspector that periodically reviews real evidence from the project and
+reports concrete improvements. It can inspect PR feedback, read-only operational
+or product data sources, and the project's own Auto session history. Findings
+can target either the user's application itself or the Auto agents, prompts,
+triggers, and processes that support it.
 
 ```
 .auto/
@@ -11,18 +15,24 @@ The workflow Beat 8 of the onboarding installs: an introspector that periodicall
 ## How it works
 
 - **Heartbeat sweep**: every 2 hours (tune the cadence to run volume), `routing: spawn`.
-- **The `auto` tool is the whole game**: `auto.sessions.list` to triage recent sessions, `auto.sessions.conversation` / `auto.sessions.tools` / `auto.sessions.triggers` to deep-dive, `auto.sessions.search` to find patterns. No mount needed — the system itself is the subject.
-- **Stateful across sweeps without state**: each sweep starts by finding its *own previous report* (`auto.sessions.list` for its own agent, read the last run's final message) and only reports what changed since. Closed loops get closures; recurring problems get escalated, not re-announced.
+- **Session history**: `auto.sessions.list` to triage recent sessions, `auto.sessions.conversation` / `auto.sessions.tools` / `auto.sessions.triggers` to deep-dive, `auto.sessions.search` to find patterns.
+- **PR feedback**: use the GitHub tools to inspect recent PRs, especially review comments, expressed preferences, repeated friction, unresolved blockers, and CI failures.
+- **Read-only data sources**: connect logs, metrics, traces, incidents, docs, support, or analytics MCP tools when the user's environment has them. Keep them read-only unless the user explicitly asks for an agent that changes external systems.
+- **Stateful across sweeps without state**: each sweep starts by finding its _own previous report_ (`auto.sessions.list` for its own agent, read the last run's final message) and only reports what changed since. Closed loops get closures; recurring problems get escalated, not re-announced.
 - **Bounded depth**: at most three deep-dives per sweep — one well-evidenced diagnosis beats many shallow ones.
-- **Quiet by default**: nothing actionable means no Slack message at all. When there are findings: one short top-level line, full detail threaded.
+- **Conservative cadence, high-signal reports**: run often enough to catch useful patterns without becoming noise. Lead with high-leverage improvements the agent has strong evidence for, especially changes that can be automated going forward.
+- **Concrete proposals**: every finding names the evidence, the affected surface, and the recommended change. The change may be application code/tests/docs or Auto resources/prompts/triggers/process.
 - **Self-scrutiny included**: its own past sessions are in scope.
 
 ## Customize
 
-- Replace `slack`, `#dev`; pick the sweep cadence.
-- Tailor "what counts as actionable" to the user's workflows — for a code-review-only system, prompt-quality drift matters more than queue times.
-- Since this is installed after GitHub Sync is active (Beat 8), deliver it as a PR and let the user merge.
+- Replace `slack`, `github-acme`, `acme/widgets`, and `#dev`; pick the sweep cadence.
+- Keep the example identity unless the user wants a different persona:
+  `identity.username: introspector` with `identity.avatar.asset:
+  .auto/assets/introspector.png`.
+- Tailor "what counts as actionable" to the user's goals. A code-review-heavy team may care most about review feedback, expressed preferences, and missing tests; an ops-heavy team may care more about incident patterns, logs, and flaky handoffs.
+- Add only read-only MCP tools for external data sources during onboarding. If the user later wants the agent to create issues or PRs from findings, make that an explicit follow-up workflow.
 
 ## Smoke test
 
-Spawn the introspector with `mcp__auto__auto_sessions_spawn` and the message "Do a manual sweep of the last 24 hours and report what you find." Confirm it lists sessions, picks sensible deep-dives, and either posts a finding thread or correctly reports nothing actionable.
+Spawn the introspector with `mcp__auto__auto_sessions_spawn` and the message "Do a manual sweep of the last 24 hours: inspect sessions, recent PR feedback, and any connected read-only data sources, then report the highest-leverage concrete improvements you have evidence for." Confirm it reads real evidence, picks sensible deep-dives, and posts a finding thread with concrete recommendations or explains why the highest-confidence opportunities should wait for more data.
