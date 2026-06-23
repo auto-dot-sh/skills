@@ -11,6 +11,7 @@ Use these tools as the operator surface during onboarding:
 | See available providers | `mcp__auto__auto_connections_providers_list` |
 | List existing provider grants | `mcp__auto__auto_connections_list` |
 | Start an additional provider consent flow | `mcp__auto__auto_connections_start` |
+| List or enable Sync bindings | `mcp__auto__auto_sync_list`, `mcp__auto__auto_sync_enable` |
 | Validate drafted `.auto/` resources | `mcp__auto__auto_resources_dry_run` |
 | Connect a remote MCP OAuth tool from proposed agent source | `mcp__auto__auto_agent_tools_connect` |
 | Spawn a manual smoke-test session | `mcp__auto__auto_sessions_spawn` |
@@ -57,6 +58,48 @@ to merge when ready.
 GitHub Sync applies committed resources after merge. Inspect Auto resource and
 session state through MCP after merge instead of relying on terminal output or
 GitHub Actions logs.
+
+## Sync bindings
+
+Use `mcp__auto__auto_sync_list` and `mcp__auto__auto_sync_enable` for GitHub
+Sync setup from hosted agents. Both tools use a provider discriminator so the
+shape can grow beyond GitHub later.
+
+List GitHub Sync bindings:
+
+```json
+{ "kind": "github" }
+```
+
+Enable or update a GitHub Sync binding:
+
+```json
+{
+  "kind": "github",
+  "connection": "github-acme",
+  "repo": "acme/widgets",
+  "branch": "main"
+}
+```
+
+To configure the CI watchdog for required GitHub Actions workflows, include
+`ciWatchdog`:
+
+```json
+{
+  "kind": "github",
+  "connection": "github-acme",
+  "repo": "acme/widgets",
+  "branch": "main",
+  "ciWatchdog": {
+    "workflows": [{ "workflowId": "ci.yml" }]
+  }
+}
+```
+
+Use `ciWatchdog` only for required Actions workflows that support
+`workflow_dispatch`. Check triggers are passive event routing; the watchdog
+actively dispatches a missing workflow run.
 
 ## Remote MCP OAuth tools
 

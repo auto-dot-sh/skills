@@ -6,7 +6,7 @@ Every example uses the same placeholders, which must be replaced before opening 
 
 Every example agent has a Slack-backed `chat` tool. Agents whose main workflow starts from GitHub, Linear, a webhook, or a heartbeat still include a basic direct-mention trigger so a user can tag the agent, get a short hello, and learn what it does.
 
-For repositories with required GitHub Actions checks, consider adding GitHub Sync CI watchdog workflows during setup (`auto sync enable github ... --ci-watchdog-workflow ci.yml`). This is separate from `github.check_run.completed` triggers: triggers react to existing check events, while the watchdog actively dispatches a missing workflow run and should only be configured for dispatchable required Actions workflows.
+For repositories with required GitHub Actions checks, consider adding GitHub Sync CI watchdog workflows during setup with `mcp__auto__auto_sync_enable` and a GitHub `ciWatchdog` config. This is separate from `github.check_run.completed` triggers: triggers react to existing check events, while the watchdog actively dispatches a missing workflow run and should only be configured for dispatchable required Actions workflows.
 
 ## The simple (but effective) automations
 

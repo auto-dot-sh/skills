@@ -19,13 +19,19 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
 ## CI watchdog
 
 If the repo has required GitHub Actions workflows, configure GitHub Sync to
-watchdog those workflow files separately from the review trigger:
+watchdog those workflow files separately from the review trigger with
+`mcp__auto__auto_sync_enable`:
 
-```sh
-auto sync enable github acme/widgets \
-  --connection github-acme \
-  --branch main \
-  --ci-watchdog-workflow ci.yml
+```json
+{
+  "kind": "github",
+  "connection": "github-acme",
+  "repo": "acme/widgets",
+  "branch": "main",
+  "ciWatchdog": {
+    "workflows": [{ "workflowId": "ci.yml" }]
+  }
+}
 ```
 
 This is only for required GitHub Actions workflows that support

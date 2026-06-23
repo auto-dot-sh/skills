@@ -29,19 +29,25 @@ re-run CI. The CI watchdog is an explicit Sync binding setting for workflows
 that must produce a PR-head run and can be dispatched with GitHub's
 `workflow_dispatch`.
 
-Configure it when enabling or updating Sync:
+Configure it when enabling or updating Sync with `mcp__auto__auto_sync_enable`:
 
-```sh
-auto sync enable github acme/widgets \
-  --connection github-acme \
-  --branch main \
-  --ci-watchdog-workflow ci.yml
+```json
+{
+  "kind": "github",
+  "connection": "github-acme",
+  "repo": "acme/widgets",
+  "branch": "main",
+  "ciWatchdog": {
+    "workflows": [{ "workflowId": "ci.yml" }]
+  }
+}
 ```
 
-Repeat `--ci-watchdog-workflow` for each required GitHub Actions workflow that
-Auto should rescue when GitHub misses a PR-head run. Do not configure it for
-external checks such as Vercel or CodeQL app checks, or for deploy/release
-workflows that should not run on PR heads.
+Add one `workflows` entry for each required GitHub Actions workflow that Auto
+should rescue when GitHub misses a PR-head run. Do not configure it for external
+checks such as Vercel or CodeQL app checks, or for deploy/release workflows that
+should not run on PR heads. The equivalent human CLI flow is
+`auto sync enable github acme/widgets --connection github-acme --branch main --ci-watchdog-workflow ci.yml`.
 
 ## 2. Open the resource PR
 
