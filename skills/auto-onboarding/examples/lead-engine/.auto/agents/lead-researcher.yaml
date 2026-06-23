@@ -74,6 +74,28 @@ tools:
       provider: slack
       connection: slack
 triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+      $.auto.attributions:
+        exists: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If the user provides lead details
+      or clearly asks for lead research, handle it. If required context is
+      missing, ask for the lead details. Otherwise, briefly explain that you
+      research inbound leads, score fit, draft outreach, and post packages to
+      #sales for human approval.
+    routing:
+      kind: spawn
   - event: webhook.lead.created
     endpoint: lead-webhook
     auth:

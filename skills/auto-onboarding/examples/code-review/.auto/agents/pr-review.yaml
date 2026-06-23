@@ -91,6 +91,25 @@ tools:
       - pull_request_read
       - add_issue_comment
 triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If the user clearly links or names
+      a PR, review it. If required context is missing, ask for the PR. Otherwise,
+      briefly explain that you review pull requests for acme/widgets, post one
+      PR comment, report a check, and leave a short Slack verdict.
+    routing:
+      kind: spawn
   - events:
       - github.pull_request.opened
       - github.pull_request.reopened

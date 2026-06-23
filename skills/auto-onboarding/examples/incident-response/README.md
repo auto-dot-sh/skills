@@ -21,7 +21,7 @@ A first responder for production alerts: any system that can POST JSON (PagerDut
 - Match the prompt's payload fields to the actual alert JSON.
 - Swap or drop the inline Datadog tool for the team's observability stack (any remote MCP server works; see `docs/tools-and-connections.md`).
 - Severity routing (page a human for sev1, agent-only for sev3) is one `where:` filter away.
-- Fresh @mentions of the bot outside a triage thread are dropped by design — the chat triggers require `$.auto.attributions: { exists: true }` and only `deliver`, so the responder is webhook-driven. Add a mention trigger with `routing: { kind: spawn }` if you want it conversational on its own.
+- Fresh @mentions of the bot outside a triage thread get a short hello that explains the responder's job. Real investigations still start from the incident webhook or from a user who provides alert details clearly.
 
 ## Smoke test
 

@@ -149,6 +149,26 @@ tools:
       - add_issue_comment
       - search_pull_requests
 triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If this is a clear chief handoff,
+      handle it. If required context is missing, ask for the task brief and
+      reporting run id. Otherwise, briefly explain that you implement one
+      scoped task dispatched by the chief, open a PR, and report milestones
+      back to the chief.
+    routing:
+      kind: spawn
   - event: github.check_run.completed
     connection: github-acme
     where:

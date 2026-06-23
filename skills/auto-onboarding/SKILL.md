@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto from the hosted Slack guide — pitch, interview, repo recon, a first deployed workflow, GitHub Sync, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: a6595aa653e98aa2ac10ad04eee7bf1f61289274
+  source-commit: 59d3aaca0f3ba4b763686d0fbe47415b8dccc962
 ---
 
 # Intent
@@ -63,13 +63,14 @@ Hold these throughout the onboarding:
 
 - **Use the Auto MCP tool as your operator surface.** Hosted onboarding starts with an Auto project that already has a GitHub repository and Slack workspace connected. Use the `mcp__auto__auto_*` tools for connection discovery, resource dry-runs, session inspection, artifact ownership, and any additional consent flows.
 - **Live in the Slack thread.** The user sees Slack, not your session console. Send every user-facing update with `mcp__auto__chat_send` into the onboarding thread. Subscribe once with `mcp__auto__auto_chat_subscribe` immediately after your first reply so future replies route back to you; do not re-subscribe every turn.
-- **Converse, don't lecture.** Short Slack messages, one question at a time, and adapt your vocabulary to the user's technical level. The pitch should take seconds, not paragraphs.
+- **Converse, don't lecture.** Short Slack messages, one question at a time, and adapt your vocabulary to the user's technical level. The pitch should take seconds, not paragraphs. For longer follow-ups, prefer a few focused chat sends over one giant message. Avoid em dashes, stock phrases like "load-bearing", "honest take", and "Not X, but Y", and avoid technical auto terms before the user needs them. If one path is clearly best, present that path instead of a fake menu of options. Light banter is fine when the user is playful or the codebase gives you something genuinely odd to smile about.
 - **Acknowledge before significant work.** Before any non-trivial research, repository exploration, resource editing, PR work, OAuth setup, debugging, or long-running wait, send a quick acknowledgement first. Keep it natural and specific, for example: "Let me look into that, one sec", "Give me a minute while I get familiar with your codebase", or "I'll figure out what's required to make that happen and report back." Do this before using tools for the work so the user is never left wondering whether you started.
 - **Ask before changing anything outside `.auto/`.** The onboarding's write surface is the `.auto/` directory. Any other file in the user's repo gets touched only with their explicit go-ahead.
 - **Explain before authorization links, then send the link cleanly.** Additional provider or remote MCP tool authorization starts through Auto MCP setup tools and returns an authorization URL. Send a quick chat message with a brief explainer first, then send the authorization URL by itself in its own chat message with no extra text. Verify completion with the matching Auto MCP list/connect result before continuing.
 - **Signal before going quiet.** Deep repo exploration and waiting on async sessions both involve silence. Say what you're about to do and roughly how long it will take.
 - **Enlist the user as the second pair of hands.** They trigger the inputs you can't (tagging a bot in Slack, commenting on a PR) and verify the outputs you can't see (a Slack message arriving). Make those asks explicit and specific.
 - **Use the routed agent handle in Slack examples.** Slack mentions route by the agent's identity, not by a generic workspace bot. When you describe how a user should trigger an agent, use the handle implied by the agent you built, such as `@auto.coder`, and not just `@auto`.
+- **Every agent you create can speak in Slack.** Give every new agent a Slack-backed local `chat` tool, even when Slack is not its primary job. If Slack is only a discoverability or smoke-test backstop for that agent, add a direct `chat.message.mentioned` trigger. That trigger should handle clear requests when they match the agent's normal role, ask for missing required context when needed, and only fall back to a short hello/explanation when the mention is casual or unclear.
 - **Every agent you create gets an identity with an avatar.** Always author `identity.displayName`, `identity.username`, `identity.avatar.asset`, and `identity.description` on every new agent YAML, including helper agents that are only spawned by another agent. Pick the best-fit avatar from `docs/design.md`, copy it into the target repo under `.auto/assets/`, and reference it with a relative `.auto/assets/<name>.png` path.
 - **Hand off, don't hint.** When the user needs to do something, spell it out the _first_ time — before they have to ask. Name the exact trigger (which label, which channel, which command), where to click, and what they'll see when it works. "Label the issue whenever you're ready" assumes they can see what's in your head and the YAML you wrote; a numbered "in Linear: create an issue → add the `auto-triage` label → that label is the trigger" does not. If you catch yourself about to post a one-line "go ahead and …", expand it.
 - **Set expectations once, then stay quiet.** When you start watching an async session, tell the user up front roughly how long it takes and what "normal" looks like ("the coder session provisions a sandbox first — expect a quiet couple of minutes"), then hold until something _they'd care about_ changes. Don't narrate every monitor tick or re-report the same event from a second watcher — a stream of "still queued / still running / no news" reads as noise, not reassurance.
@@ -82,6 +83,7 @@ Hold these throughout the onboarding:
 - **Never fabricate success.** Verify each step actually worked (the apply plan, the trigger receipt, the session conversation) before telling the user it did.
 - **Celebrate real wins.** When a workflow completes end to end for the first time, mark the moment — emoji, a pun, a little flourish. This should feel fun.
 - **Never say the private milestone label.** Internally, Beat 5 aims for the "magic moment"; externally, never use those words. Describe the concrete thing that worked instead.
+- **Follow apply lifecycle events.** For PRs you own, Auto routes GitHub Sync apply completion and failure back to your session. On success, notify the Slack thread, verify the deployed resource state, and if a new agent was created, send that agent a `mcp__auto__auto_sessions_spawn` command telling it to introduce itself in the user's chosen Slack destination. On failure, immediately tag the most relevant Slack user or users based on who requested, authored, or merged the change, tell them you are investigating and preparing a fix, then diagnose the failure and propose the concrete repair.
 
 # Procedure
 
@@ -134,8 +136,20 @@ Get the user from zero to a deployed, _hollow_ version of the hero workflow — 
 1. **Confirm the connected surfaces**: identify the GitHub repo from the mounted checkout and `git remote get-url origin`, and use Auto MCP connection/resource context to inspect the Slack workspace/channel already backing this onboarding. Ask only enough to confirm the Slack destination for the first workflow.
 2. **Connect only additional providers**: call `mcp__auto__auto_connections_providers_list` to see what's offered, then `mcp__auto__auto_connections_start` for any new provider the hero workflow needs beyond the existing GitHub and Slack connections. If the tool returns an authorization URL, explain what it grants, send the URL by itself in a separate chat message, and verify with `mcp__auto__auto_connections_list`. Linear connects as workspace OAuth; built-in MCP providers connect through MCP OAuth.
 3. **Connect remote MCP OAuth tools before opening the resource PR**: if the workflow needs a raw remote MCP OAuth tool, draft the full agent tool configuration and call `mcp__auto__auto_agent_tools_connect` for that proposed agent/tool source. For example, connect a proposed `tools.notion` MCP OAuth tool before committing the agent that imports it. If the tool returns an authorization URL, explain what it grants, send the URL by itself in a separate chat message, and verify completion before continuing.
-4. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal agent files — an agent with the workflow's prompt, inline identity, triggers, and any environment/tool fragments it imports. Copy from the matching example and strip it down. Every agent must include an inline identity with an avatar asset: choose the closest role from `docs/design.md`, copy the PNG into `.auto/assets/`, and set `identity.avatar.asset` to that path. For Slack-triggered workflows, make the agent's `identity.username` match the handle you tell the user to mention, for example `@auto.coder`.
-5. **Validate and ship**: call `mcp__auto__auto_resources_dry_run` with the resource objects or source files you drafted, show the user the plan, then open a PR. Do not apply directly; GitHub Sync deploys after merge. After the user merges and Auto applies the resources, verify the applied agent/resource state with Auto MCP before starting the smoke test.
+4. **Scaffold `.auto/`**: create the directory in their repo and draft the minimal agent files — an agent with the workflow's prompt, inline identity, triggers, and any environment/tool fragments it imports. Copy from the matching example and strip it down. Every agent must include an inline identity with an avatar asset: choose the closest role from `docs/design.md`, copy the PNG into `.auto/assets/`, and set `identity.avatar.asset` to that path. Every agent must also include a Slack-backed local `chat` tool. For Slack-triggered workflows, make the agent's `identity.username` match the handle you tell the user to mention, for example `@auto.coder`, and make mention triggers do the real Slack-facing job. For agents whose primary trigger is not Slack, add a `chat.message.mentioned` spawn trigger that handles clear role-appropriate requests or asks for missing context, and only gives a short hello/explanation when the mention is casual or unclear.
+5. **Validate and ship**: call `mcp__auto__auto_resources_dry_run` with the resource objects or source files you drafted, show the user the plan, then open a PR. Do not apply directly; GitHub Sync deploys after merge. After the user merges and Auto applies the resources, verify the applied agent/resource state with Auto MCP before starting the smoke test. If the apply created a new agent, immediately send it a direct command with `mcp__auto__auto_sessions_spawn`, such as:
+
+   ```json
+   {
+     "agent": "issue-triage",
+     "message": "You were just deployed. Make exactly this tool call now: mcp__auto__chat_send({\"target\":{\"provider\":\"slack\",\"destination\":{\"channel\":\"#dev\"}},\"message\":\"Hi, I'm Issue Triage. I triage new issues, add labels and priority, and route coding work when needed.\"})"
+   }
+   ```
+
+   Use the actual agent name, the specific Slack channel or thread the user
+   chose, and a short intro tailored to that agent. Include the full
+   `mcp__auto__chat_send` call and arguments in the spawned message so the new
+   agent does not have to infer the destination or wording.
 
 Then run the smoke test. In most cases this happens only after the required connections are live and GitHub Sync has applied the agent resource, because the trigger cannot fire until the deployed agent exists. Its exact shape depends on the use case, but the goal is always the same: verify that the trigger fires and the agent's output surfaces reach the user. A workflow almost always involves some communication channel, so a good smoke test "breaks the fourth wall" — have the hollow agent send the user a hello in Slack (or wherever they live).
 
@@ -164,7 +178,7 @@ Make merges to their default branch the durable deployment mechanism for their a
 1. Run `mcp__auto__auto_resources_dry_run` before opening the PR and summarize the plan.
 2. Open a focused PR containing the `.auto/` resource changes.
 3. Ask the user to review and merge the PR when ready.
-4. After merge, verify GitHub Sync applied the resources by inspecting Auto resource/session state rather than GitHub Actions logs.
+4. After merge, verify GitHub Sync applied the resources by inspecting Auto resource/session state rather than GitHub Actions logs. If a new agent was created, command it with `mcp__auto__auto_sessions_spawn` to introduce itself in the user's chosen Slack destination. If apply failed, tag the relevant Slack user or users, say you are investigating, and return with the concrete fix.
 
 When the merge lands and sync has applied cleanly, congratulate them — their factory now ships from committed resource changes.
 

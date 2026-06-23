@@ -27,6 +27,15 @@ Auto MCP flow for additional providers:
 
 Trigger `connection:` fields and chat-tool `auth.connection` fields reference these grants by name.
 
+For onboarding-authored agents, Slack is the default communication backstop.
+Even agents whose primary job is GitHub, Linear, a webhook, or a schedule
+should have a Slack-backed `chat` tool. If Slack is only a backstop for
+discovery or smoke tests, add a direct mention trigger that handles clear
+role-appropriate requests or asks for missing context, and only falls back to a
+short hello/explanation when the mention is casual or unclear. If the agent is
+meant to be tagged in Slack during normal operations, its mention trigger should
+run that normal flow instead.
+
 ## Tools
 
 ### Connection-backed MCP tools
@@ -158,6 +167,30 @@ One interface across Slack, Linear, and Telegram; every call takes a `target` of
 - `chat.issue.get` / `chat.issue.update` — read and mutate issue metadata (Linear): state, assignee, labels.
 
 Slack notes worth baking into agent prompts: pass channel names like `"#dev"` directly; Slack renders mrkdwn links (`<https://url|text>`), not Markdown.
+
+For non-Slack-primary agents, include a small mention path like this:
+
+```yaml
+triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If the message contains a clear
+      request that fits your normal role, handle it or ask for the missing
+      required context. Otherwise, briefly explain what you do.
+    routing:
+      kind: spawn
+```
 
 ### `auto.*` — platform coordination
 

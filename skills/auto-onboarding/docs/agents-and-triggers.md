@@ -41,9 +41,12 @@ mounts:                              # optional git checkouts
 workingDirectory: /workspace/widgets
 tools:                               # alias -> inline local or remote MCP definition
   chat:
-    kind: chat
-    connection: slack
-    provider: slack
+    kind: local
+    implementation: chat
+    auth:
+      kind: connection
+      provider: slack
+      connection: slack
   notion:
     kind: mcp_remote
     url: https://mcp.notion.com/mcp
@@ -59,6 +62,13 @@ Notes:
 - **Mount capabilities are the permission boundary.** A `githubApp` mount mints installation tokens scoped to exactly the capabilities you declare (`none`/`read`/`write` for contents, pullRequests, issues, checks, actions, workflows). The brokered GitHub MCP tools and git pushes both run inside that scope. A reviewer that should never push gets `contents: read`.
 - **`commitAuthor`** on a mount sets the bot author for commits the agent pushes.
 - **Identity makes the agent a first-class chat persona.** With an `identity:`, GitHub Sync and the connected Slack workspace realize an @mentionable agent handle such as `@auto.pr-review`; mentions of that handle route to this agent.
+- **Onboarding-authored agents should be Slack-capable by default.** Give each
+  new agent a Slack-backed local `chat` tool. If Slack is only a backstop for
+  discovery or smoke tests, add a direct mention trigger that handles clear
+  role-appropriate requests or asks for missing context, and only falls back to
+  a short hello/explanation when the mention is casual or unclear. If the agent
+  is meant to be tagged in Slack during normal operations, its mention trigger
+  should run that normal flow instead.
 
 ## Triggers
 
@@ -66,6 +76,24 @@ Each trigger names one or more events, an event source, optional filters, an opt
 
 ```yaml
 triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If the message contains a clear
+      request that fits your normal role, handle it or ask for the missing
+      required context. Otherwise, briefly explain what you do.
+    routing:
+      kind: spawn
   - events:                          # or singular: event: <name>
       - github.pull_request.opened
       - github.pull_request.synchronize

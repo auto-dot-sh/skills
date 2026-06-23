@@ -92,6 +92,25 @@ tools:
       - actions_list
       - actions_get
 triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If the user clearly asks for an
+      unscheduled digest, produce one. If required context is missing, ask for
+      the digest window. Otherwise, briefly explain that you post the daily
+      shipped-code digest for acme/widgets in #dev.
+    routing:
+      kind: spawn
   - kind: heartbeat
     cron: 0 8 * * *
     timezone: America/Los_Angeles

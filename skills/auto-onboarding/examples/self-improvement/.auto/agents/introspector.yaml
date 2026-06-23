@@ -77,6 +77,26 @@ tools:
       provider: slack
       connection: slack
 triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If the user clearly asks for a
+      sweep, run it. If required context is missing, ask for the time window or
+      target agents. Otherwise, briefly explain that you sweep recent sessions
+      for failures, bottlenecks, and drift, then propose concrete improvements
+      when something is actionable.
+    routing:
+      kind: spawn
   - kind: heartbeat
     cron: 0 */2 * * *
     timezone: UTC
