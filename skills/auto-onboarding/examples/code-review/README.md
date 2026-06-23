@@ -16,6 +16,23 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
 - **Check run**: the trigger declares a `pr-review` check; the agent moves it begin → success/failure so the review can gate merges.
 - **Slack**: one top-level message per PR in `#dev`, verdicts threaded under it on subsequent pushes.
 
+## CI watchdog
+
+If the repo has required GitHub Actions workflows, configure GitHub Sync to
+watchdog those workflow files separately from the review trigger:
+
+```sh
+auto sync enable github acme/widgets \
+  --connection github-acme \
+  --branch main \
+  --ci-watchdog-workflow ci.yml
+```
+
+This is only for required GitHub Actions workflows that support
+`workflow_dispatch`. It is not inferred from `github.check_run.completed`
+triggers, because those triggers are passive event routing and may refer to
+external checks or job names that Auto cannot safely dispatch.
+
 ## Customize
 
 - Replace `acme/widgets`, `github-acme`, and the `#dev` channel.

@@ -6,6 +6,8 @@ Every example uses the same placeholders, which must be replaced before opening 
 
 Every example agent has a Slack-backed `chat` tool. Agents whose main workflow starts from GitHub, Linear, a webhook, or a heartbeat still include a basic direct-mention trigger so a user can tag the agent, get a short hello, and learn what it does.
 
+For repositories with required GitHub Actions checks, consider adding GitHub Sync CI watchdog workflows during setup (`auto sync enable github ... --ci-watchdog-workflow ci.yml`). This is separate from `github.check_run.completed` triggers: triggers react to existing check events, while the watchdog actively dispatches a missing workflow run and should only be configured for dispatchable required Actions workflows.
+
 ## The simple (but effective) automations
 
 **`code-review/` — a tailored PR review agent.** On every PR open, reopen, and push, a reviewer wakes with the PR head mounted read-only, reviews the diff against the repo's *own* written conventions, posts exactly one comment with a thumbs-up/thumbs-down merge recommendation, and reports a GitHub check that can gate merges. A Slack thread per PR carries the verdicts. This is the canonical first workflow: a single spawn trigger, tightly scoped GitHub capabilities (it cannot push, approve, or merge by construction), and an immediately felt payoff. It also gates the agent fleet below.

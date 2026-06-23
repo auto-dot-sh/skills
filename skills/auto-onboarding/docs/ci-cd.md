@@ -22,6 +22,27 @@ token in the repo.
 Before opening a resource PR, validate the intended resources with
 `mcp__auto__auto_resources_dry_run`.
 
+When the user's repository has required GitHub Actions checks, ask whether those
+workflow files should be watchdogged by GitHub Sync. A check-run trigger only
+reacts after a check event exists; it does not imply that Auto should create or
+re-run CI. The CI watchdog is an explicit Sync binding setting for workflows
+that must produce a PR-head run and can be dispatched with GitHub's
+`workflow_dispatch`.
+
+Configure it when enabling or updating Sync:
+
+```sh
+auto sync enable github acme/widgets \
+  --connection github-acme \
+  --branch main \
+  --ci-watchdog-workflow ci.yml
+```
+
+Repeat `--ci-watchdog-workflow` for each required GitHub Actions workflow that
+Auto should rescue when GitHub misses a PR-head run. Do not configure it for
+external checks such as Vercel or CodeQL app checks, or for deploy/release
+workflows that should not run on PR heads.
+
 ## 2. Open the resource PR
 
 Open a focused PR containing the `.auto/` files. Ask the user to review and
