@@ -1,9 +1,9 @@
-name: introspector
+name: self-improvement
 identity:
-  displayName: Introspector
-  username: introspector
+  displayName: Self Improvement
+  username: self-improvement
   avatar:
-    asset: .auto/assets/introspector.png
+    asset: .auto/assets/self-improvement.png
   description: Reviews PR feedback, read-only data, and Auto sessions to propose concrete improvements.
 imports:
   - ../fragments/environments/agent-runtime.yaml

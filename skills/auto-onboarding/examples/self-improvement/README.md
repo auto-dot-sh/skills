@@ -1,6 +1,6 @@
 # Self-improvement agent
 
-An introspector that periodically reviews real evidence from the project and
+A self-improvement agent that periodically reviews real evidence from the project and
 reports concrete improvements. It can inspect PR feedback, read-only operational
 or product data sources, and the project's own Auto session history. Findings
 can target either the user's application itself or the Auto agents, prompts,
@@ -9,7 +9,7 @@ triggers, and processes that support it.
 ```
 .auto/
   fragments/environments/agent-runtime.yaml
-  agents/introspector.yaml
+  agents/self-improvement.yaml
 ```
 
 ## How it works
@@ -28,11 +28,11 @@ triggers, and processes that support it.
 
 - Replace `slack`, `github-acme`, `acme/widgets`, and `#dev`; pick the sweep cadence.
 - Keep the example identity unless the user wants a different persona:
-  `identity.username: introspector` with `identity.avatar.asset:
-  .auto/assets/introspector.png`.
+  `identity.username: self-improvement` with `identity.avatar.asset:
+  .auto/assets/self-improvement.png`.
 - Tailor "what counts as actionable" to the user's goals. A code-review-heavy team may care most about review feedback, expressed preferences, and missing tests; an ops-heavy team may care more about incident patterns, logs, and flaky handoffs.
 - Add only read-only MCP tools for external data sources during onboarding. If the user later wants the agent to create issues or PRs from findings, make that an explicit follow-up workflow.
 
 ## Smoke test
 
-Spawn the introspector with `mcp__auto__auto_sessions_spawn` and the message "Do a manual sweep of the last 24 hours: inspect sessions, recent PR feedback, and any connected read-only data sources, then report the highest-leverage concrete improvements you have evidence for." Confirm it reads real evidence, picks sensible deep-dives, and posts a finding thread with concrete recommendations or explains why the highest-confidence opportunities should wait for more data.
+Spawn the self-improvement agent with `mcp__auto__auto_sessions_spawn` and the message "Do a manual sweep of the last 24 hours: inspect sessions, recent PR feedback, and any connected read-only data sources, then report the highest-leverage concrete improvements you have evidence for." Confirm it reads real evidence, picks sensible deep-dives, and posts a finding thread with concrete recommendations or explains why the highest-confidence opportunities should wait for more data.
