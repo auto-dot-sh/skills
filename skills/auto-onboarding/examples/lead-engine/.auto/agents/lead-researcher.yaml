@@ -2,6 +2,8 @@ name: lead-researcher
 identity:
   displayName: Lead Researcher
   username: lead-researcher
+  avatar:
+    asset: .auto/assets/scout.png
   description: Researches inbound leads, scores fit, and drafts outreach for human approval in the sales channel.
 imports:
   - ../fragments/environments/agent-runtime.yaml

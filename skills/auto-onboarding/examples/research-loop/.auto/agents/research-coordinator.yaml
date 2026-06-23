@@ -2,6 +2,8 @@ name: research-coordinator
 identity:
   displayName: Research Coordinator
   username: research
+  avatar:
+    asset: .auto/assets/cartographer.png
   description: Give @research a measurable objective and a budget; it sessions experiment rounds on a fleet and reports the lab log.
 imports:
   - ../fragments/environments/agent-runtime.yaml

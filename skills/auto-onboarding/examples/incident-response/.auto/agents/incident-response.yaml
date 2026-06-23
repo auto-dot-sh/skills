@@ -2,6 +2,8 @@ name: incident-response
 identity:
   displayName: Incident Response
   username: incident-response
+  avatar:
+    asset: .auto/assets/sentinel.png
   description: First responder for production alerts - investigates, posts a triage thread, and answers follow-ups.
 imports:
   - ../fragments/environments/agent-runtime.yaml

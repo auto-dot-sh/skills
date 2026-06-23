@@ -12,11 +12,11 @@ imports:
   - ../fragments/environments/agent-runtime.yaml      # reusable harness + environment fragment
 systemPrompt: |                      # durable persona and rules
   You are the PR review agent for acme/widgets.
-identity:                            # optional: chat presence
+identity:                            # chat presence; always include one in onboarding-authored agents
   displayName: PR Review             # <=80 chars
   username: pr-review                # <=80 chars; @mention handle
   avatar:
-    asset: .auto/assets/pr-review.png
+    asset: .auto/assets/pr-reviewer.png
   description: Reviews each PR and posts a merge recommendation. # <=140 chars as Slack counts them
 initialPrompt: |                     # optional, <=20k chars; event-payload templating
   Review pull request #{{github.pullRequest.number}} ...

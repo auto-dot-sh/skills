@@ -2,6 +2,8 @@ name: pr-review
 identity:
   displayName: PR Review
   username: pr-review
+  avatar:
+    asset: .auto/assets/pr-reviewer.png
   description: Reviews each pull request and posts one comment with a merge recommendation.
 imports:
   - ../fragments/environments/agent-runtime.yaml

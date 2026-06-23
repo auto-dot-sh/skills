@@ -36,6 +36,8 @@ imports:
 identity:
   displayName: PR Review
   username: pr-review
+  avatar:
+    asset: .auto/assets/pr-reviewer.png
 systemPrompt: |
   You are the code review agent for acme/widgets.
 ```
@@ -44,7 +46,7 @@ systemPrompt: |
 
 An agent answers five questions:
 
-- **Who is the agent?** `systemPrompt` and optional inline `identity` fields that give it a name, avatar, and its own @mentionable presence in chat providers.
+- **Who is the agent?** `systemPrompt` and inline `identity` fields that give it a name, avatar, and its own @mentionable presence in chat providers. Onboarding-authored agents should always include an identity and avatar; use `docs/design.md` to pick a best-fit image.
 - **Where does it run?** `harness` plus an inline or imported `environment` definition: base image, setup, resources, and env vars.
 - **What does it know at start?** `initialPrompt`, a template with access to the triggering event via top-level placeholders like `{{github.pullRequest.number}}` or `{{message.text}}` (no `payload.` prefix).
 - **What can it touch?** `mounts` (git checkouts with scoped GitHub App permissions) and `tools` (inline local or remote MCP tool definitions).

@@ -2,6 +2,8 @@ name: chief-of-staff
 identity:
   displayName: Chief of Staff Engineers
   username: chief
+  avatar:
+    asset: .auto/assets/chief-of-staff-engineers.png
   description: Give @chief a task list; it dispatches coding agents, shepherds them to green, and reports back.
 imports:
   - ../fragments/environments/agent-runtime.yaml

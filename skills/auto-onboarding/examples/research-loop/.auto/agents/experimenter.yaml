@@ -1,4 +1,10 @@
 name: experimenter
+identity:
+  displayName: Experimenter
+  username: experimenter
+  avatar:
+    asset: .auto/assets/tuner.png
+  description: Tests one research hypothesis, measures it honestly, and reports results to the coordinator.
 imports:
   - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |

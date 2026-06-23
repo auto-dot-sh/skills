@@ -1,4 +1,10 @@
 name: staff-engineer
+identity:
+  displayName: Staff Engineer
+  username: staff-engineer
+  avatar:
+    asset: .auto/assets/staff-engineer.png
+  description: Implements one scoped task, opens the PR, and reports milestones back to the chief.
 imports:
   - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |

@@ -1,4 +1,10 @@
 name: issue-coder
+identity:
+  displayName: Issue Coder
+  username: issue-coder
+  avatar:
+    asset: .auto/assets/patch.png
+  description: Implements triaged issues, opens PRs, and reports back on the source issue.
 imports:
   - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |

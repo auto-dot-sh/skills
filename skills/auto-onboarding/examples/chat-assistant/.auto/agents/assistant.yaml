@@ -2,6 +2,8 @@ name: assistant
 identity:
   displayName: Assistant
   username: assistant
+  avatar:
+    asset: .auto/assets/chatterbox.png
   description: The team's channel assistant - mention @assistant for quick answers, summaries, and drafts.
 imports:
   - ../fragments/environments/agent-runtime.yaml

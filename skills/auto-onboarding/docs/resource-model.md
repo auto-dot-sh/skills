@@ -24,11 +24,11 @@ labels:                    # optional string map
   purpose: pr-review
 imports:
   - ../fragments/environments/agent-runtime.yaml
-identity:                  # optional @mentionable persona
+identity:                  # @mentionable persona; always include one in onboarding-authored agents
   displayName: PR Review
   username: pr-review
   avatar:
-    asset: .auto/assets/pr-review.png
+    asset: .auto/assets/pr-reviewer.png
 systemPrompt: |
   You are the code review agent for acme/widgets.
 initialPrompt: |
@@ -89,7 +89,8 @@ auth:
 
 ## Avatar assets
 
-An inline agent identity may declare an avatar. The authored identity is compiled
+An inline agent identity may declare an avatar. Onboarding-authored agents should
+always declare one. The authored identity is compiled
 into a generated identity resource, and GitHub Sync validates the asset through
 that generated resource:
 
@@ -98,7 +99,7 @@ name: pr-review
 identity:
   displayName: PR Review
   avatar:
-    asset: .auto/assets/pr-review.png
+    asset: .auto/assets/pr-reviewer.png
 ```
 
 Rules: the path must be relative, under `.auto/assets/`, end in `.png`/`.jpg`/`.jpeg`, be ≤2MB, and be a square between 512x512 and 2000x2000 pixels (Slack's app-icon constraints — the strictest provider). GitHub Sync validates, uploads, and content-addresses the image; the platform serves it publicly and stamps agent messages with it.

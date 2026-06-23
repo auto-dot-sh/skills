@@ -2,6 +2,8 @@ name: ship-digest
 identity:
   displayName: Ship Digest
   username: ship-digest
+  avatar:
+    asset: .auto/assets/ship-digest.png
   description: Daily shipped-code digest - summarizes merged work, flags follow-ups, and posts the report to the channel.
 imports:
   - ../fragments/environments/agent-runtime.yaml
