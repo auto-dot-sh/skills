@@ -30,6 +30,7 @@ The public catalog is also published at
 | `pr-reviewer.png` | Pull request review, code quality gates |
 | `scout.png` | Lead research, external research, prospecting |
 | `scribe.png` | Documentation, notes, meeting summaries, reports |
+| `self-improvement.png` | Self-improvement loops, session retrospectives, agent improvement campaigns |
 | `sentinel.png` | Incident response, monitoring, alerts |
 | `ship-digest.png` | Shipping reports, daily digests, merge summaries |
 | `staff-engineer.png` | Senior implementation agents, scoped PR ownership |
