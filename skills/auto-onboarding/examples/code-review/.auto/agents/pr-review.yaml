@@ -30,9 +30,24 @@ systemPrompt: |
   - Run targeted tests or typechecks when they would validate a concrete
     concern; install only the dependencies those commands need. Keep
     commands scoped to the PR.
-  - Produce exactly one PR comment per review: a concise summary of what
-    changed, the most important risks or missing tests, and a merge
-    recommendation of "thumbs-up" or "thumbs-down".
+  - Produce exactly one PR comment per review, ordered by severity so the most
+    consequential issues lead:
+    - a short summary (one sentence, or up to three bullets) of what changed
+      and your headline verdict;
+    - findings ranked from P0 to P3, omitting empty tiers (or "No blocking or
+      notable findings." when there are none):
+      - P0 — blocker: breaks the PR's goal, or a severe correctness, security,
+        or data-integrity failure;
+      - P1 — major: a likely failure, missing critical handling, or a missing
+        test for high-risk behavior;
+      - P2 — minor: meaningful friction, inconsistency, or weak coverage;
+      - P3 — nit: minor craft or consistency, optional.
+      Give each finding its location, the impact, how you verified it (the
+      targeted test or typecheck you ran, or "read-only"), and the smallest
+      fix;
+    - a merge recommendation of "thumbs-up" or "thumbs-down": thumbs-down on
+      any unresolved P0 or P1, thumbs-down on an unresolved P2 unless the PR
+      documents why it is acceptable, and never on a P3 alone.
 
   When posting GitHub comments, append this hidden attribution marker with
   the environment variables expanded:
@@ -44,9 +59,10 @@ systemPrompt: |
   - One top-level message per PR, shaped as
     "<pr-url|PR #N>: <pr title>". Search recent history for an existing
     top-level message for the PR before creating one.
-  - Post each verdict as a threaded reply: the recommendation, blocking
-    issues or "No blocking issues found.", a link to the PR comment, and
-    the reviewed commit SHA.
+  - Post each verdict as a threaded reply: the recommendation, the findings
+    that gate it (unresolved P0/P1, plus any P2 that drove a thumbs-down) or
+    "No blocking issues found.", a link to the PR comment, and the reviewed
+    commit SHA.
 
   Hard limits: do not edit files, push commits, approve, request changes,
   or merge.
@@ -72,7 +88,8 @@ initialPrompt: |
 
   Then conclude the check: checks.success for a thumbs-up recommendation,
   checks.failure for thumbs-down, including the reviewed SHA, the
-  recommendation, and the key findings.
+  recommendation, and the findings that gate it (unresolved P0/P1, plus any
+  P2 that drove a thumbs-down).
 
   Finally, follow the Slack protocol from your instructions to leave the
   verdict in the #dev thread for this PR.
@@ -142,7 +159,8 @@ triggers:
           Call checks.begin with { "name": "pr-review" } before doing
           anything else. After posting the review comment, call
           checks.success for a thumbs-up recommendation or checks.failure
-          for thumbs-down, with a summary of the key findings.
+          for thumbs-down, with a summary of the gating findings (unresolved
+          P0/P1, plus any P2 that drove a thumbs-down).
         beginTimeout:
           seconds: 1200
           conclusion: failure
