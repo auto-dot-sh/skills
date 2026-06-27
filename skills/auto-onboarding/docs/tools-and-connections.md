@@ -154,6 +154,37 @@ tools:
 
 The alias (the YAML key) is what the agent sees; `workspace` is reserved. The `github` kind exposes a curated GitHub MCP catalog brokered through the agent's mount credentials — name tools explicitly to narrow (a reviewer gets read + comment, never merge).
 
+### Optional connection-backed tools
+
+By default, a connection-backed tool whose connection has no active grant fails
+the whole apply. Mark the connection `optional: true` to instead skip just that
+tool and let the apply succeed:
+
+```yaml
+tools:
+  notion:
+    kind: connection
+    provider: notion
+    connection: notion
+    optional: true # skip this tool until the connection is set up
+  slack:
+    kind: local
+    implementation: chat
+    auth:
+      kind: connection
+      provider: slack
+      connection: slack
+      optional: true
+```
+
+`optional` is supported on the `connection`, `connections`, `mcp_oauth`, and
+`provider_oauth` connection references. When the grant is missing, the tool is
+omitted from the applied agent and the apply emits a non-blocking info notice
+(in the CLI output and the GitHub Sync comment) naming the connection to set up.
+Activation is on the next apply/sync once the connection exists — it is not
+live. Multi-connection tools (`auth.kind: connections`) are all-or-nothing: the
+tool is included only when every referenced connection resolves.
+
 ## What the agent sees at runtime
 
 ### `chat.*` — unified messaging

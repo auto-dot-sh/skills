@@ -106,7 +106,7 @@ triggers:
 
 ### Event sources
 
-- **Provider connections** (`connection: <name>`): GitHub App installations, Slack/Linear/Telegram grants. The connection name comes from `mcp__auto__auto_connections_list`.
+- **Provider connections** (`connection: <name>`): GitHub App installations, Slack/Linear/Telegram grants. The connection name comes from `mcp__auto__auto_connections_list`. Add `optional: true` to a connection-bound trigger to skip it (instead of failing the apply) while its connection has no active grant — the apply succeeds, emits a non-blocking info notice naming the connection to set up, and activates the trigger on the next apply/sync once the connection exists.
 - **Custom webhooks** (`endpoint: <name>` + `auth`): the apply response returns an ingest URL per endpoint; POST JSON to it to emit the event.
 
   ```yaml
