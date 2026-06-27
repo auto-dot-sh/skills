@@ -105,7 +105,7 @@ mounts:
         contents: read
         pullRequests: write
         issues: write
-        checks: none
+        checks: read
         actions: read
 workingDirectory: /workspace/widgets
 tools:
