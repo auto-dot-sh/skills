@@ -20,6 +20,7 @@ identity:                            # chat presence; always include one in onbo
   description: Reviews each PR and posts a merge recommendation. # <=140 chars as Slack counts them
 initialPrompt: |                     # optional, <=20k chars; event-payload templating
   Review pull request #{{github.pullRequest.number}} ...
+displayTitle: "Review PR #{{github.pullRequest.number}}: {{github.pullRequest.title}}" # optional template, or infer
 env:                                 # optional env vars for the sandbox
   MY_API_KEY:
     $secret: my-api-key
@@ -58,7 +59,8 @@ triggers: []                         # see below
 
 Notes:
 
-- **`initialPrompt` is per-run context; `systemPrompt` is standing orders.** Put the durable persona and rules in the agent's system prompt, and the event-specific task in the initial prompt. Triggered sessions render placeholders from the event payload by its top-level keys — `{{github.pullRequest.number}}`, `{{chat.channelId}}`, `{{message.text}}` — with no `payload.` prefix. (That prefix is only for mount `ref` templates, which render against the run-input wrapper.)
+- **`initialPrompt` is per-run context; `systemPrompt` is standing orders.** Put the durable persona and rules in the agent's system prompt, and the event-specific task in the initial prompt. Triggered sessions render `initialPrompt` and `displayTitle` placeholders from the event payload by its top-level keys — `{{github.pullRequest.number}}`, `{{chat.channelId}}`, `{{message.text}}` — with no `payload.` prefix. (That prefix is only for mount `ref` templates, which render against the run-input wrapper.)
+- **`displayTitle` controls session list titles.** Set it to a deterministic template when the event has stable identifying fields, or to `infer` when the generated-title path is better.
 - **Mount capabilities are the permission boundary.** A `githubApp` mount mints installation tokens scoped to exactly the capabilities you declare (`none`/`read`/`write` for contents, pullRequests, issues, checks, actions, workflows). The brokered GitHub MCP tools and git pushes both run inside that scope. A reviewer that should never push gets `contents: read`.
 - **`commitAuthor`** on a mount sets the bot author for commits the agent pushes.
 - **Identity makes the agent a first-class chat persona.** With an `identity:`, GitHub Sync and the connected Slack workspace realize an @mentionable agent handle such as `@auto.pr-review`; mentions of that handle route to this agent.
