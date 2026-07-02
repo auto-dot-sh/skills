@@ -8,6 +8,23 @@ A tailored PR reviewer: on every PR open, reopen, and push, it reviews the diff 
   agents/pr-review.yaml            # persona, standing orders, triggers, and scoped GitHub access
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/code-review`. The default way to install it is a thin agent file in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/pr-review.yaml
+imports:
+  - "@auto/code-review@latest/agents/pr-review.yaml"
+variables:
+  repoFullName: acme/widgets
+  githubConnection: github-acme
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Trigger**: `github.pull_request.opened|reopened|synchronize` on the user's repo, `routing: spawn` — every PR head gets a fresh review run. PR issue comments, PR reviews, and review comments with `$.auto.authored: false` route back through `ownedArtifact`.

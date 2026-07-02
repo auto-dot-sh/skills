@@ -12,6 +12,22 @@ triggers, and processes that support it.
   agents/self-improvement.yaml
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/self-improvement`. The default way to install it is a thin agent file in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/self-improvement.yaml
+imports:
+  - "@auto/self-improvement@latest/agents/self-improvement.yaml"
+variables:
+  repoFullName: acme/widgets
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Heartbeat sweep**: every 2 hours (tune the cadence to run volume), `routing: spawn`.

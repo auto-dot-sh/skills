@@ -11,6 +11,23 @@ modeled on the handoff agent used in the Auto repository.
   agents/handoff.yaml              # persona, ownership protocol, triggers, and write access
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/handoff`. The default way to install it is a thin agent file in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/handoff.yaml
+imports:
+  - "@auto/handoff@latest/agents/handoff.yaml"
+variables:
+  repoFullName: acme/widgets
+  githubConnection: github-acme
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Explicit handoff**: a GitHub comment/review that mentions the agent, or a

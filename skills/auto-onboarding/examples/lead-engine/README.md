@@ -8,6 +8,21 @@ The non-engineering archetype: an agentic BDR that turns raw signups and prospec
   agents/lead-researcher.yaml
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/lead-engine`. The default way to install it is a thin agent file in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/lead-researcher.yaml
+imports:
+  - "@auto/lead-engine@latest/agents/lead-researcher.yaml"
+variables:
+  slackConnection: slack
+  slackChannel: "#sales"
+```
+
+Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Webhook intake**: `event: webhook.lead.created` on `endpoint: lead-webhook` with bearer-token auth. Before the PR merges, have the user enter the shared secret from their own terminal, for example `read -rsp "LEAD_WEBHOOK_SECRET: " LEAD_WEBHOOK_SECRET; printf %s "$LEAD_WEBHOOK_SECRET" | auto secrets set lead-webhook-secret --stdin; unset LEAD_WEBHOOK_SECRET`. Wire any lead source that can POST JSON at the ingest URL from the GitHub Sync receipt. The example payload shape is `{ "name", "email", "company", "source", "notes" }` — adapt the prompt to the real fields.

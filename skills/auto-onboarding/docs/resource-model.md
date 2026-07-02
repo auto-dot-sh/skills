@@ -41,6 +41,36 @@ are materialized into generated backend resources during apply, and the compiled
 agent references those generated resources by name. Reused runtimes should live
 in fragment imports rather than repeated in every agent.
 
+## Managed templates
+
+Imports that start with `@` are **managed templates**, Auto-published `.auto/`
+content resolved by the platform at apply time — nothing needs to exist in the
+repo for them. The specifier is `@scope/name[@version|@latest]/subpath`, and
+every onboarding example archetype is published as `@auto/<example-dir-name>`.
+Creating an agent from a template is a thin file: the managed import plus the
+template's `variables:` (each example README lists them):
+
+```yaml
+imports:
+  - "@auto/code-review@latest/agents/pr-review.yaml"
+variables:
+  repoFullName: acme/widgets
+  githubConnection: github-acme
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+`{{ $name }}` tokens inside the template resolve from the importing agent's
+`variables:` map at apply time (runtime `{{ github.… }}` / `{{ chat.… }}`
+tokens are untouched). The template carries the full agent definition —
+prompts, triggers, tools, runtime environment, and an identity whose avatar is
+baked in as a stored `sha256` reference, so no image files are needed. Tailor
+by declaring fields in the importing file: local fields win on merge, triggers
+merge by their authoring `name:` (redeclare `mention` or `digest-heartbeat` to
+replace them), and `remove: { triggers: [...], tools: [...] }` drops inherited
+entries. `@latest` follows template updates; pinning `@auto/name@1.0.0` opts
+out.
+
 ## Sync semantics
 
 Use `mcp__auto__auto_resources_dry_run` to validate drafted resources before a

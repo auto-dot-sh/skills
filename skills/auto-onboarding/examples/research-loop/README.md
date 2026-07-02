@@ -9,6 +9,30 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
   agents/experimenter.yaml          # spawn-only standing orders
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/research-loop`. The default way to install it is one thin agent file per agent in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/research-coordinator.yaml
+imports:
+  - "@auto/research-loop@latest/agents/research-coordinator.yaml"
+variables:
+  repoFullName: acme/widgets
+  slackConnection: slack
+```
+
+```yaml
+# .auto/agents/experimenter.yaml
+imports:
+  - "@auto/research-loop@latest/agents/experimenter.yaml"
+variables:
+  repoFullName: acme/widgets
+  slackConnection: slack
+```
+
+Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Long-horizon singleton**: like the agent fleet, the coordinator is a `deliverOrSpawn` singleton woken by mentions, subscribed replies, and a heartbeat. A campaign survives across many wake-ups — and even across coordinator restarts, because the lab log lives in the Slack thread, not in the run's memory.

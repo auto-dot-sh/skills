@@ -8,6 +8,22 @@ A scheduled reporter: every morning it reads the last 24 hours of merged PRs and
   agents/ship-digest.yaml
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/daily-digest`. The default way to install it is a thin agent file in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/ship-digest.yaml
+imports:
+  - "@auto/daily-digest@latest/agents/ship-digest.yaml"
+variables:
+  repoFullName: acme/widgets
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Heartbeat trigger**: `kind: heartbeat` with `cron: "0 8 * * *"` and an explicit `timezone`. The prompt anchors the reporting window on `{{heartbeat.scheduledAt}}` so the window is exact even if the run starts late.

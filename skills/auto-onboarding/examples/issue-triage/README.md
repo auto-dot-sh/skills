@@ -9,6 +9,34 @@ Two cooperating agents: a **triage** agent that wakes when a Linear issue gets t
   agents/issue-coder.yaml          # spawn-only implementation agent and standing orders
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/issue-triage`. The default way to install it is one thin agent file per agent in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/issue-triage.yaml
+imports:
+  - "@auto/issue-triage@latest/agents/issue-triage.yaml"
+variables:
+  repoFullName: acme/widgets
+  linearConnection: linear
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+```yaml
+# .auto/agents/issue-coder.yaml
+imports:
+  - "@auto/issue-triage@latest/agents/issue-coder.yaml"
+variables:
+  repoFullName: acme/widgets
+  linearConnection: linear
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+The same variables block is shared across both agent files for symmetry; each agent file substitutes only the variables it references and ignores the rest. Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Label as request token**: the trigger fires on `linear.issue.created` with the label present, and on `linear.issue.updated` only when the label was just _added_ (`$.linear.updatedFrom.labelNames.added: { contains: ... }`). The triage agent removes the label once it has acted, so re-labeling is how humans re-request triage.

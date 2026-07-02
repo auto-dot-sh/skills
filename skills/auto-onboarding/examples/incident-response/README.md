@@ -8,6 +8,22 @@ A first responder for production alerts: any system that can POST JSON (PagerDut
   agents/incident-response.yaml
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/incident-response`. The default way to install it is a thin agent file in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/incident-response.yaml
+imports:
+  - "@auto/incident-response@latest/agents/incident-response.yaml"
+variables:
+  repoFullName: acme/widgets
+  slackConnection: slack
+  slackChannel: "#incidents"
+```
+
+Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 - **Custom webhook trigger**: `event: webhook.incident.opened` on `endpoint: incident-webhook` with `auth.kind: bearer_token`. Before the PR merges, have the user enter the shared secret from their own terminal, for example `read -rsp "INCIDENT_WEBHOOK_SECRET: " INCIDENT_WEBHOOK_SECRET; printf %s "$INCIDENT_WEBHOOK_SECRET" | auto secrets set incident-webhook-secret --stdin; unset INCIDENT_WEBHOOK_SECRET`. The GitHub Sync receipt contains the **ingest URL**; wire the alerting system to POST there with `Authorization: Bearer <secret>`.

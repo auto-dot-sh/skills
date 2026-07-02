@@ -9,6 +9,32 @@ The flagship: an organized fleet of agents on long-horizon engineering work, and
   agents/staff-engineer.yaml       # spawn-only: standing orders, woken by PR events on its owned artifact
 ```
 
+## Create from the managed template
+
+This archetype is published as the managed template `@auto/agent-fleet`. The default way to install it is one thin agent file per agent in the user's repo — the template carries the prompts, triggers, tools, runtime, and identity with its avatar baked in, so no assets are copied:
+
+```yaml
+# .auto/agents/chief-of-staff.yaml
+imports:
+  - "@auto/agent-fleet@latest/agents/chief-of-staff.yaml"
+variables:
+  repoFullName: acme/widgets
+  githubConnection: github-acme
+  slackConnection: slack
+```
+
+```yaml
+# .auto/agents/staff-engineer.yaml
+imports:
+  - "@auto/agent-fleet@latest/agents/staff-engineer.yaml"
+variables:
+  repoFullName: acme/widgets
+  githubConnection: github-acme
+  slackConnection: slack
+```
+
+The same variables block is shared across both agent files for symmetry; each agent file substitutes only the variables it references and ignores the rest. Set the variables to the user's repo, connection names, and channel. Override any field by declaring it in the importing file (local fields win; triggers merge by their authoring `name:`), and use `remove: { triggers: [...], tools: [...] }` to drop inherited entries. The directory below is the source this template was derived from.
+
 ## How it works
 
 This example composes nearly the whole trigger/routing vocabulary:

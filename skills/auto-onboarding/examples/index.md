@@ -1,8 +1,22 @@
 # Examples
 
-Each example here is a complete, copyable `.auto/` directory for one workflow archetype, plus a README explaining the moving parts, what to customize, and how to smoke test it. They are distilled from workflows running in production on the auto repo itself, or modeled directly on the use cases auto pitches on its landing page. Together they cover the platform's whole vocabulary — if you understand all ten, you understand auto.
+Each example here is a complete `.auto/` directory for one workflow archetype, plus a README explaining the moving parts, what to customize, and how to smoke test it. They are distilled from workflows running in production on the auto repo itself, or modeled directly on the use cases auto pitches on its landing page. Together they cover the platform's whole vocabulary — if you understand all ten, you understand auto.
 
-Every example uses the same placeholders, which must be replaced before opening a resource PR: `acme/widgets` for the user's connected `org/repo`, `github-acme` / `slack` / `linear` for their connection names (from `mcp__auto__auto_connections_list`), and `#dev` / `#sales` / `#incidents` for their channels. Copy an example's `.auto/` into the repo root, replace placeholders, validate with `mcp__auto__auto_resources_dry_run`, then open a PR and let GitHub Sync deploy after merge.
+**Every archetype is also published as a managed template named `@auto/<example-dir-name>`, and creating from the template is the default.** The tenant file is a thin managed import plus the template's variables (listed in each README):
+
+```yaml
+imports:
+  - "@auto/code-review@latest/agents/pr-review.yaml"
+variables:
+  repoFullName: acme/widgets
+  githubConnection: github-acme
+  slackConnection: slack
+  slackChannel: "#dev"
+```
+
+Identity and avatar come baked into the template — no asset copying — and fields declared in the importing file override the template's, so tailor by overriding (triggers merge by their authoring `name:`; `remove: { triggers: [...], tools: [...] }` drops entries). The templates' shared runtime has no repository setup step: when an agent needs the repo's dependencies installed, override the full inline `environment` with a `setup` block, kept identical across every installed archetype (differing `agent-runtime` definitions conflict at apply). Validate with `mcp__auto__auto_resources_dry_run`, open a PR, and let GitHub Sync deploy after merge. See "Managed templates" in `docs/resource-model.md` for the mechanics.
+
+The directories themselves are the readable source the templates were derived from, and the source to copy from when a workflow needs bespoke authoring no template fits. They differ from the template content in placeholder values and small template-only mechanics (the templates add trigger `name:` keys, mount at `/workspace/repo`, and drop repo-specific environment setup). The placeholder values are what the template variables take: `acme/widgets` for the user's connected `org/repo`, `github-acme` / `slack` / `linear` for their connection names (from `mcp__auto__auto_connections_list`), and `#dev` / `#sales` / `#incidents` for their channels.
 
 Every example agent has a Slack-backed `chat` tool. Agents whose main workflow starts from GitHub, Linear, a webhook, or a heartbeat still include a basic direct-mention trigger so a user can tag the agent, get a short hello, and learn what it does.
 
