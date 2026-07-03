@@ -132,7 +132,7 @@ auto sessions conversation <session-id> [--tail <n>] [--full]   # snapshot; `aut
 auto sessions search <session-id> <query...>     # grep a transcript
 auto sessions tools <session-id> [--errors]      # paired tool calls/results with timing
 auto sessions triggers <session-id>              # what spawned the session, events delivered
-auto sessions artifacts <session-id>             # artifacts the session owns
+auto sessions bindings <session-id>              # active bindings the session owns
 auto sessions commands <session-id>              # inbound command history
 auto sessions archive|unarchive <session-ids...>
 ```

@@ -182,7 +182,7 @@ routing:
 `routeBy` options for `deliver`:
 
 - `singleton` — the agent's one live run.
-- `ownedArtifact` + `artifactType` (e.g. `github.pull_request`) — the run that recorded ownership of the artifact via `auto.artifacts.record`. This is how check failures, merge conflicts, and review comments on a PR route back to the run that owns it.
+- `ownedArtifact` + `artifactType` (e.g. `github.pull_request`) — the run holding the session binding for the target, written via `auto.bind`. This is how check failures, merge conflicts, and review comments on a PR route back to the run that owns it.
 - `attributedSessions` — sessions attributed to the conversation (the agent's own messages and subscribed threads). This is how chat replies continue an existing conversation.
 - `allLiveRuns` — broadcast to every live run of the agent.
 

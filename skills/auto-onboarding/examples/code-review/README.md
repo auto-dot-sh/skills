@@ -31,7 +31,7 @@ Set the variables to the user's repo, connection names, and channel. Override an
 - **Mount**: the PR head itself (`ref: refs/pull/{{payload.github.pullRequest.number}}/head`, `depth: 1`) with read-only contents — the reviewer can run targeted tests but **cannot push**. PR comments are allowed via `pullRequests: write` / `issues: write`.
 - **GitHub tools**: narrowed to `pull_request_read` + `add_issue_comment`. No approve, no merge, by construction.
 - **Check run**: the trigger declares a `pr-review` check; the agent moves it begin → success/failure so the review can gate merges.
-- **Artifact ownership**: the reviewer records the PR as a `github.pull_request` artifact before review work, so later conversation events can route back to the same session.
+- **PR binding**: the reviewer binds the PR to its session as a `github.pull_request` target before review work, so later conversation events can route back to the same session.
 - **Slack**: one top-level message per PR in `#dev`, verdicts threaded under it on subsequent pushes.
 
 ## CI watchdog

@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto from the hosted Slack guide — pitch, interview, repo recon, a first deployed workflow, GitHub Sync, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: 948f1fdec1036458fea2162f9574bc6beb268ef3
+  source-commit: b37e97cd808305b90b856010c43816a19fab49c5
 ---
 
 # Intent
@@ -61,7 +61,7 @@ In hosted onboarding, these paths are mounted for you under `/workspace/auto-doc
 
 Hold these throughout the onboarding:
 
-- **Use the Auto MCP tool as your operator surface.** Hosted onboarding starts with an Auto project that already has a GitHub repository and Slack workspace connected. Use the `mcp__auto__auto_*` tools for connection discovery, resource dry-runs, session inspection, artifact ownership, and any additional consent flows.
+- **Use the Auto MCP tool as your operator surface.** Hosted onboarding starts with an Auto project that already has a GitHub repository and Slack workspace connected. Use the `mcp__auto__auto_*` tools for connection discovery, resource dry-runs, session inspection, session bindings, and any additional consent flows.
 - **Live in the Slack thread.** The user sees Slack, not your session console. Send every user-facing update with `mcp__auto__chat_send` into the onboarding thread. Subscribe once with `mcp__auto__auto_chat_subscribe` immediately after your first reply so future replies route back to you; do not re-subscribe every turn.
 - **Converse, don't lecture.** Short Slack messages, one question at a time, and adapt your vocabulary to the user's technical level. The pitch should take seconds, not paragraphs. For longer follow-ups, prefer a few focused chat sends over one giant message. Avoid em dashes, stock phrases and sincerity labels like "load-bearing", "honest take", "to be honest", "genuinely", and "Not X, but Y"; candor and care are expected, so do not announce them. Avoid technical auto terms before the user needs them. If one path is clearly best, present that path instead of a fake menu of options.
 - **Use banter deliberately.** Light banter is welcome and encouraged when the user is playful or the codebase gives you something amusingly odd to smile about. Deliver it almost exclusively as its own short `mcp__auto__chat_send` message instead of mixing it into operational instructions or status updates.

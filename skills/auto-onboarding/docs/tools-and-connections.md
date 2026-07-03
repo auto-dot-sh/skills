@@ -228,10 +228,10 @@ triggers:
 - `auto.run.get` — the current run's own identity and scope (who am I, which agent/project).
 - `auto.agents.list` — list the project's agents (discover who to hand work to).
 - `auto.sessions.spawn` — start a run of another agent with a message (agent-to-agent handoff).
-- `auto.sessions.list` / `auto.sessions.get` / `auto.sessions.conversation` / `auto.sessions.search` / `auto.sessions.tools` / `auto.sessions.summary` / `auto.sessions.commands` / `auto.sessions.triggers` / `auto.sessions.artifacts` — inspect sibling sessions (this is how a self-improvement agent reads the system).
+- `auto.sessions.list` / `auto.sessions.get` / `auto.sessions.conversation` / `auto.sessions.search` / `auto.sessions.tools` / `auto.sessions.summary` / `auto.sessions.commands` / `auto.sessions.triggers` / `auto.sessions.bindings` — inspect sibling sessions (this is how a self-improvement agent reads the system).
 - `auto.sessions.message` — send a message into another live run.
 - `auto.chat.subscribe` — subscribe this session to a chat thread so future replies route back to it (pairs with `attributedSessions` delivery). In onboarding, call this once immediately after the first reply in the thread.
-- `auto.artifacts.record` / `auto.artifacts.list` / `auto.artifacts.release` — record, list, and release ownership of an artifact such as a PR (pairs with `ownedArtifact` delivery).
+- `auto.bind` / `auto.bindings.targets` / `auto.unbind` — bind an external target such as a PR to the session, list bindable target types, and release a binding (pairs with `ownedArtifact` delivery).
 
 ### `checks.*` — GitHub check runs
 

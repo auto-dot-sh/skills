@@ -71,7 +71,7 @@ initialPrompt: |
   {{github.repository.fullName}}.
 
   Call checks.begin with { "name": "pr-review" } before doing anything else.
-  Then call mcp__auto__auto_artifacts_record for this PR with type
+  Then call mcp__auto__auto_bind for this PR with type
   `github.pull_request`, repository `{{github.repository.fullName}}`, and
   pull request number `{{github.pullRequest.number}}` so later PR comments and
   reviews route back to this session.

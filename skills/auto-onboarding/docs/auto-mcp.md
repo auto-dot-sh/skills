@@ -16,9 +16,9 @@ Use these tools as the operator surface during onboarding:
 | Connect a remote MCP OAuth tool from proposed agent source | `mcp__auto__auto_agent_tools_connect` |
 | Spawn a manual smoke-test session | `mcp__auto__auto_sessions_spawn` |
 | Inspect sessions | `mcp__auto__auto_sessions_list`, `mcp__auto__auto_sessions_get`, `mcp__auto__auto_sessions_conversation` |
-| Debug session tools and routing | `mcp__auto__auto_sessions_tools`, `mcp__auto__auto_sessions_triggers`, `mcp__auto__auto_sessions_artifacts` |
+| Debug session tools and routing | `mcp__auto__auto_sessions_tools`, `mcp__auto__auto_sessions_triggers`, `mcp__auto__auto_sessions_bindings` |
 | Send or subscribe chat | `mcp__auto__chat_send`, `mcp__auto__auto_chat_subscribe` |
-| Record PR ownership | `mcp__auto__auto_artifacts_record` |
+| Bind a PR to the session | `mcp__auto__auto_bind` |
 
 ## Connected by default
 

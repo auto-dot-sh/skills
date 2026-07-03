@@ -60,7 +60,7 @@ An agent answers five questions:
 Inside a run, the agent has its mounted repo, ordinary shell access in its sandbox, and the tools granted to it:
 
 - **`chat.*`** — send/read messages and manage issues across the connected chat providers (Slack, Linear, Telegram) through one interface.
-- **`auto.*`** — coordinate with the platform itself: spawn sibling agents, list and read other sessions, subscribe to chat threads, record artifact ownership.
+- **`auto.*`** — coordinate with the platform itself: spawn sibling agents, list and read other sessions, subscribe to chat threads, bind PRs and other targets to sessions.
 - **`checks.*`** — report a GitHub check run (begin/success/failure) when a PR trigger declared one.
 - **GitHub MCP tools** — a curated, capability-scoped GitHub API surface brokered from the agent's mounts.
 - **Remote MCP tools** — whatever inline remote MCP tools the agent declares (Notion, Datadog, ...).

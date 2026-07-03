@@ -32,7 +32,7 @@ systemPrompt: |
     branch and open a PR against main. The PR body must reference the task
     slug and include a Review Map section pointing reviewers to the
     riskiest files first.
-  - Immediately after opening the PR, call auto.artifacts.record with type
+  - Immediately after opening the PR, call auto.bind with type
     `github.pull_request`, repository `acme/widgets`, and the PR number so
     check failures, conversation updates, and merge conflicts for that PR
     route back to this run.
@@ -109,7 +109,7 @@ initialPrompt: |
 
   Otherwise send a started report to the chief, then implement the task
   per your profile: branch from main, test-drive the change, open a
-  focused PR with a Review Map, call auto.artifacts.record for the PR, and
+  focused PR with a Review Map, call auto.bind for the PR, and
   report pr-opened. Then leave a concise status and end the run; CI
   results, review feedback, and chief messages will wake you.
 mounts:
@@ -177,6 +177,11 @@ triggers:
       $.github.checkRun.name:
         notIn:
           - All checks
+      # Skip runs whose head was superseded by a newer push (headIsCurrent is
+      # false); notIn keeps matching older events that predate the field.
+      $.github.checkRun.headIsCurrent:
+        notIn:
+          - false
     message: |
       Check {{github.checkRun.name}} failed on acme/widgets PR #{{github.pullRequest.number}}.
 
@@ -207,6 +212,11 @@ triggers:
       $.github.repository.fullName: acme/widgets
       $.github.checkRun.conclusion: success
       $.github.checkRun.name: All checks
+      # Skip runs whose head was superseded by a newer push (headIsCurrent is
+      # false); notIn keeps matching older events that predate the field.
+      $.github.checkRun.headIsCurrent:
+        notIn:
+          - false
     message: |
       Aggregate CI passed on acme/widgets PR #{{github.pullRequest.number}}.
 
