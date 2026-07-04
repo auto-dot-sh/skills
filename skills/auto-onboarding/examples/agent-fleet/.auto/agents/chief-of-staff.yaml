@@ -8,8 +8,8 @@ identity:
 imports:
   - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |
-  You are the Chief of Staff Engineers for acme/widgets: a singleton
-  orchestrator that lives in Slack. Humans tag you with lists of
+  You are the Chief of Staff Engineers for acme/widgets: a
+  one-live-session orchestrator that lives in Slack. Humans tag you with lists of
   engineering tasks. You break those lists into discrete tasks, dispatch
   one staff-engineer run per task, shepherd every run until its PR has
   green CI and a clean review verdict, unblock or escalate along the way,
@@ -106,19 +106,33 @@ systemPrompt: |
   - Keep updates short. The roster and the packet are the two structured
     artifacts; everything else is a sentence or two.
 
-  Singleton discipline:
-  - You are routed as a singleton: every mention, subscribed thread reply,
+  Slot discipline:
+  - You run with `concurrency: 1`: every mention, subscribed thread reply,
     reaction, and heartbeat is delivered into the one live run. Multiple
     batches from different threads may be in flight at once; track each
     batch by its originating thread and never mix rosters across threads.
   - Do not sleep or poll. After handling a delivery, leave a concise status
     and end your turn; triggers and heartbeats wake you.
   - If you wake in a fresh run while prior work appears to be in flight (a
-    previous singleton run ended), rebuild state before acting: list
+    previous run ended or was replaced), rebuild state before acting: list
     recent staff-engineer sessions with auto.sessions.list, inspect their status,
     and read the relevant Slack threads with chat.history. Then post a
     one-line note in any affected thread that you have picked the batch
     back up.
+concurrency: 1
+replace: auto
+manages:
+  - staff-engineer
+  - chief-of-staff
+onReplace: |
+  You are a fresh chief-of-staff session, spawned to replace a predecessor
+  that either wound itself down to load the latest definition or failed.
+  The swap left a window with no live chief, so rebuild state before doing
+  anything else: list staff-engineer sessions with auto.sessions.list,
+  reconcile them against open PRs and active Slack threads, re-subscribe
+  (auto.chat.subscribe) to threads with batches in flight, re-bind
+  (auto.bind) PRs you still own, and back-read the swap window. Once state
+  is rebuilt, resume normal orchestration.
 initialPrompt: |
   {{message.author.userName}} mentioned you on Slack.
 
@@ -127,7 +141,7 @@ initialPrompt: |
   - Thread: {{chat.threadId}}
   - Message text: {{message.text}}
 
-  You are starting as a fresh singleton run. Before handling this message,
+  You are starting as a fresh run in the agent's one slot. Before handling this message,
   check whether prior work is in flight: list recent staff-engineer sessions
   with auto.sessions.list and rebuild any live batch state per your profile
   instructions.
@@ -185,9 +199,8 @@ triggers:
       batch already in flight, treat it as steering or a question for that
       batch.
     routing:
-      kind: deliverOrSpawn
-      routeBy:
-        kind: singleton
+      kind: deliver
+      onUnmatched: spawn
   - event: chat.message.subscribed
     connection: slack
     where:
@@ -208,9 +221,7 @@ triggers:
       in the thread when it changes what the fleet is doing.
     routing:
       kind: deliver
-      routeBy:
-        kind: singleton
-      onUnmatched: drop
+      onUnmatched: spawn
   - events:
       - chat.reaction.added
       - chat.reaction.removed
@@ -229,8 +240,6 @@ triggers:
       short correction. Plain acknowledgements need no reply.
     routing:
       kind: deliver
-      routeBy:
-        kind: singleton
       onUnmatched: drop
   - kind: heartbeat
     cron: "*/15 * * * *"
@@ -244,6 +253,4 @@ triggers:
       nothing needs attention, end the turn without posting to Slack.
     routing:
       kind: deliver
-      routeBy:
-        kind: singleton
       onUnmatched: drop

@@ -171,17 +171,26 @@ routing:
   kind: deliver                      # send the event into an existing run
   routeBy:
     kind: attributedSessions         # the session(s) attributed to this conversation
-  onUnmatched: drop                  # or warn | error
+  onUnmatched: drop                  # or warn | error | spawn
 
 routing:
-  kind: deliverOrSpawn               # deliver to the singleton run, else spawn one
-  routeBy:
-    kind: singleton
+  kind: deliver                      # slot-member delivery for a concurrency-capped agent
+  onUnmatched: spawn                 # spawn the member when none is live
 ```
+
+An agent can cap its live sessions with the `concurrency: 1` spec field (only
+`1` is supported). A `deliver` trigger with no `routeBy` resolves the capped
+agent's one slot member, and `onUnmatched: spawn` turns an unmatched delivery
+into a fresh session carrying the event — legal on any deliver/bind trigger,
+bounded agent or not. `replace: auto` (with an `onReplace` rebuild prompt)
+opts the agent into automatic replacement on spec drift or failure.
+(`deliverOrSpawn` and `routeBy: singleton` are legacy sugar for
+`deliver` + `onUnmatched: spawn` on a capped agent; do not author them in new
+specs.)
 
 `routeBy` options for `deliver`:
 
-- `singleton` — the agent's one live run.
+- omitted — the capped agent's one live slot member.
 - `ownedArtifact` + `artifactType` (e.g. `github.pull_request`) — the run holding the session binding for the target, written via `auto.bind`. This is how check failures, merge conflicts, and review comments on a PR route back to the run that owns it.
 - `attributedSessions` — sessions attributed to the conversation (the agent's own messages and subscribed threads). This is how chat replies continue an existing conversation.
 - `allLiveRuns` — broadcast to every live run of the agent.

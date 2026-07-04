@@ -51,7 +51,7 @@ An agent answers five questions:
 - **What does it know at start?** `initialPrompt`, a template with access to the triggering event via top-level placeholders like `{{github.pullRequest.number}}` or `{{message.text}}` (no `payload.` prefix).
 - **What can it touch?** `mounts` (git checkouts with scoped GitHub App permissions) and `tools` (inline local or remote MCP tool definitions).
 - **When does it run?** `triggers`: provider events, custom webhook endpoints, or cron heartbeats, each with `where:` filters and a routing decision.
-- **How do events route?** `routing.kind: spawn` starts a fresh session; `deliver` sends the event into an existing session, selected by `routeBy` (`singleton`, `ownedArtifact`, `attributedSessions`, `allLiveRuns`).
+- **How do events route?** `routing.kind: spawn` starts a fresh session; `deliver` sends the event into an existing session, selected by `routeBy` (`ownedArtifact`, `attributedSessions`, `allLiveRuns`) or — for a `concurrency: 1` agent with `routeBy` omitted — the agent's one live slot member, with `onUnmatched: spawn` to start one when none is live.
 
 `docs/agents-and-triggers.md` covers all of this field by field.
 

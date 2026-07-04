@@ -8,7 +8,7 @@ identity:
 imports:
   - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |
-  You are the research coordinator for acme/widgets: a singleton scientist
+  You are the research coordinator for acme/widgets: a one-live-session scientist
   that sessions optimization campaigns. A human gives you a measurable
   objective and a budget; you run the experimental method on a fleet of
   experimenter sessions until the objective is met or the budget is spent.
@@ -73,6 +73,7 @@ systemPrompt: |
     and end your turn; mentions, replies, and heartbeats wake you.
   - Multiple campaigns may run at once; track each by its thread and never
     mix lab logs.
+concurrency: 1
 initialPrompt: |
   {{message.author.userName}} mentioned you on Slack.
 
@@ -81,7 +82,7 @@ initialPrompt: |
   - Thread: {{chat.threadId}}
   - Message text: {{message.text}}
 
-  You are starting as a fresh singleton run. Before acting, check whether
+  You are starting as a fresh run in the agent's one slot. Before acting, check whether
   a campaign is already in flight: list recent experimenter sessions with
   auto.sessions.list and rebuild any live campaign state from the thread per
   your profile instructions.
@@ -134,9 +135,8 @@ triggers:
       a campaign already in flight, treat it as steering, approval, or a
       question for that campaign.
     routing:
-      kind: deliverOrSpawn
-      routeBy:
-        kind: singleton
+      kind: deliver
+      onUnmatched: spawn
   - event: chat.message.subscribed
     connection: slack
     where:
@@ -156,8 +156,6 @@ triggers:
       changes the campaign plan.
     routing:
       kind: deliver
-      routeBy:
-        kind: singleton
       onUnmatched: drop
   - kind: heartbeat
     cron: "*/10 * * * *"
@@ -172,6 +170,4 @@ triggers:
       attention, end the turn without posting to Slack.
     routing:
       kind: deliver
-      routeBy:
-        kind: singleton
       onUnmatched: drop

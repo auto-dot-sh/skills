@@ -5,7 +5,7 @@ A multi-agent autoresearch loop: give the **research-coordinator** a measurable 
 ```
 .auto/
   fragments/environments/agent-runtime.yaml # reusable sandbox runtime
-  agents/research-coordinator.yaml  # singleton; persona, standing orders, mention to start, heartbeat to advance
+  agents/research-coordinator.yaml  # concurrency: 1; persona, standing orders, mention to start, heartbeat to advance
   agents/experimenter.yaml          # spawn-only standing orders
 ```
 
@@ -35,7 +35,7 @@ Set the variables to the user's repo, connection names, and channel. Override an
 
 ## How it works
 
-- **Long-horizon singleton**: like the agent fleet, the coordinator is a `deliverOrSpawn` singleton woken by mentions, subscribed replies, and a heartbeat. A campaign survives across many wake-ups — and even across coordinator restarts, because the lab log lives in the Slack thread, not in the run's memory.
+- **Long-horizon singleton**: like the agent fleet, the coordinator is a `concurrency: 1` agent (deliver + `onUnmatched: spawn`) woken by mentions, subscribed replies, and a heartbeat. A campaign survives across many wake-ups — and even across coordinator restarts, because the lab log lives in the Slack thread, not in the run's memory.
 - **Rounds, not sprawl**: each round the coordinator proposes 2-4 falsifiable hypotheses, spawns one experimenter per hypothesis (idempotency-keyed on campaign + round + hypothesis slug), and waits for results to arrive via `auto.sessions.message`.
 - **Experiments are isolated and complete**: each experimenter gets its own sandbox and checkout, implements exactly one variant, sessions the measurement protocol from the brief (same warmup, same iterations, baseline + variant), and reports numbers — explicitly including null and negative results. Experimenters never open PRs during the loop.
 - **The lab log is the artifact**: after each round the coordinator posts a structured update in the campaign thread — round number, each hypothesis with its measured effect, the running best configuration, and the next round's plan. Anyone can read the thread and know exactly where the search stands.

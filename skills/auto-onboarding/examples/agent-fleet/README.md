@@ -5,7 +5,7 @@ The flagship: an organized fleet of agents on long-horizon engineering work, and
 ```
 .auto/
   fragments/environments/agent-runtime.yaml # reusable sandbox runtime
-  agents/chief-of-staff.yaml       # singleton: persona, standing orders, mentions, replies, heartbeat
+  agents/chief-of-staff.yaml       # concurrency: 1; persona, standing orders, mentions, replies, heartbeat
   agents/staff-engineer.yaml       # spawn-only: standing orders, woken by PR events on its owned artifact
 ```
 
@@ -39,12 +39,12 @@ The same variables block is shared across both agent files for symmetry; each ag
 
 This example composes nearly the whole trigger/routing vocabulary:
 
-- **Singleton orchestrator**: every chief trigger routes `deliverOrSpawn` / `deliver` with `routeBy: singleton` — mentions, subscribed thread replies, reactions, and a 15-minute heartbeat all land in the _one_ live chief run, which can track multiple batches from different threads simultaneously.
+- **One-slot orchestrator**: the chief declares `concurrency: 1` and every trigger routes plain `deliver` (mentions and subscribed replies with `onUnmatched: spawn`) — mentions, subscribed thread replies, reactions, and a 15-minute heartbeat all land in the _one_ live chief run, which can track multiple batches from different threads simultaneously.
 - **Division of labor by construction**: the chief's mount is read-only (it scopes tasks and answers questions but cannot write code); the staff engineer's mount can write and open PRs. The chief's tools are delegation and communication only. The staff engineer's GitHub API access is the brokered `github` tool catalog with its five tools named explicitly (read, comment, open/update PRs — never merge); this is deliberate so the example works without assuming a preauthenticated `gh` CLI in the sandbox.
 - **Dispatch protocol**: one `auto.sessions.spawn` per task with an idempotency key (thread id + task slug) so retries never double-spawn. The spawn message is a structured brief: slug, statement, acceptance criteria, constraints, the originating thread, the chief's run id, and the reporting protocol.
 - **Milestone reporting**: staff engineers report `started` / `pr-opened` / `fixing-ci` / `blocked` / `ready` to the chief's run via `auto.sessions.message`. Blocked early beats stuck silently.
 - **Event-driven waiting, no polling**: after opening its PR, a staff engineer binds the PR to its session (`auto.bind`) and _ends its turn_. Check failures, aggregate CI success, review comments, and merge conflicts on that PR wake it via `ownedArtifact` delivery. The PR-conversation trigger deliberately has no `$.auto.authored: false` filter — the staff engineer must receive the pr-review agent's comments, which are also auto-authored — so its own PR comments cost one no-op wake-up each; don't "fix" the filter or it goes deaf to its reviewer. The chief's heartbeat sweeps the fleet for stalls and respawns dead sessions.
-- **Crash recovery**: if the chief singleton dies, the next mention spawns a fresh run whose first duty is to rebuild batch state from `auto.sessions.list`, introspection, and thread history.
+- **Crash recovery**: if the chief's live session dies, the next mention spawns a fresh run whose first duty is to rebuild batch state from `auto.sessions.list`, introspection, and thread history.
 - **Humans stay in the loop where it matters**: ambiguities are raised as crisp questions with recommendations; merging is always a human decision; the final packet links every PR with verification and residual risks.
 
 ## Composes with the code-review example
