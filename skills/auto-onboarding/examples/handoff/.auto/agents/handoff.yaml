@@ -235,10 +235,8 @@ triggers:
       act when it identifies a blocker, failing behavior, or a quick
       unambiguous fix. Keep work on the existing PR branch.
     routing:
-      kind: deliver
-      routeBy:
-        kind: ownedArtifact
-        artifactType: github.pull_request
+      kind: bind
+      target: github.pull_request
       onUnmatched: drop
   - event: github.check_run.completed
     connection: github-acme
@@ -264,10 +262,8 @@ triggers:
 
       Check session URL: {{github.checkRun.htmlUrl}}
     routing:
-      kind: deliver
-      routeBy:
-        kind: ownedArtifact
-        artifactType: github.pull_request
+      kind: bind
+      target: github.pull_request
       onUnmatched: drop
   - event: github.check_run.completed
     connection: github-acme
@@ -295,10 +291,8 @@ triggers:
       comment saying the PR is ready for final review. Do not merge unless a
       human explicitly asked you to merge.
     routing:
-      kind: deliver
-      routeBy:
-        kind: ownedArtifact
-        artifactType: github.pull_request
+      kind: bind
+      target: github.pull_request
       onUnmatched: drop
   - event: github.pull_request.merge_conflict
     connection: github-acme
@@ -312,10 +306,8 @@ triggers:
       and repair the existing PR branch with a normal follow-up commit. Do not
       amend, force-push, or open a replacement PR.
     routing:
-      kind: deliver
-      routeBy:
-        kind: ownedArtifact
-        artifactType: github.pull_request
+      kind: bind
+      target: github.pull_request
       onUnmatched: drop
   - event: chat.message.mentioned
     connection: slack

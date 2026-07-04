@@ -36,7 +36,7 @@ Set the variables to the user's repo, connection names, and channel. Override an
 - **Ownership**: once it confirms the handoff is intentional, the agent records
   the pull request as a `github.pull_request` artifact. Later PR comments,
   reviews, failing checks, all-checks success, and merge conflicts deliver back
-  to the same session with `ownedArtifact`.
+  to the same session with `bind` routing on the `github.pull_request` target.
 - **Slack thread**: the agent acknowledges the handoff in the originating Slack
   thread when one exists. For GitHub-only handoffs, it establishes or reuses a
   PR thread in `#dev`, subscribes to it, and sends future status there.

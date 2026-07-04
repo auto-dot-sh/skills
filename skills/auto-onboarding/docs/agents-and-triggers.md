@@ -176,6 +176,11 @@ routing:
 routing:
   kind: deliver                      # slot-member delivery for a concurrency-capped agent
   onUnmatched: spawn                 # spawn the member when none is live
+
+routing:
+  kind: bind                         # continue the session bound to the event's target
+  target: github.pull_request        # or slack.thread | agent.singleton
+  onUnmatched: drop                  # or warn | error | spawn
 ```
 
 An agent can cap its live sessions with the `concurrency: 1` spec field (only
@@ -184,16 +189,21 @@ agent's one slot member, and `onUnmatched: spawn` turns an unmatched delivery
 into a fresh session carrying the event — legal on any deliver/bind trigger,
 bounded agent or not. `replace: auto` (with an `onReplace` rebuild prompt)
 opts the agent into automatic replacement on spec drift or failure.
-(`deliverOrSpawn` and `routeBy: singleton` are legacy sugar for
-`deliver` + `onUnmatched: spawn` on a capped agent; do not author them in new
-specs.)
+(`deliverOrSpawn`, `routeBy: singleton`, and `routeBy: ownedArtifact` are
+legacy sugar — for `deliver` + `onUnmatched: spawn`, a routeBy-less `deliver`,
+and `bind` over the same target respectively; parsing normalizes them and they
+must not be authored in new specs.)
+
+`bind` resolves the event's target (`github.pull_request`, `slack.thread`,
+`agent.singleton`) to the one session bound to it, written via `auto.bind` or
+bind-at-spawn. This is how check failures, merge conflicts, and review
+comments on a PR route back to the run that owns it.
 
 `routeBy` options for `deliver`:
 
 - omitted — the capped agent's one live slot member.
-- `ownedArtifact` + `artifactType` (e.g. `github.pull_request`) — the run holding the session binding for the target, written via `auto.bind`. This is how check failures, merge conflicts, and review comments on a PR route back to the run that owns it.
 - `attributedSessions` — sessions attributed to the conversation (the agent's own messages and subscribed threads). This is how chat replies continue an existing conversation.
-- `allLiveRuns` — broadcast to every live run of the agent.
+- `allLiveSessions` — broadcast to every live session of the agent.
 
 Deliver triggers should carry a `message:` template (same `{{...}}` placeholders) framing the event for the in-flight agent — include `{{message.text}}` for chat events so the human's actual words arrive.
 

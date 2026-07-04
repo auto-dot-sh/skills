@@ -231,7 +231,7 @@ triggers:
 - `auto.sessions.list` / `auto.sessions.get` / `auto.sessions.conversation` / `auto.sessions.search` / `auto.sessions.tools` / `auto.sessions.summary` / `auto.sessions.commands` / `auto.sessions.triggers` / `auto.sessions.bindings` — inspect sibling sessions (this is how a self-improvement agent reads the system).
 - `auto.sessions.message` — send a message into another live run.
 - `auto.chat.subscribe` — subscribe this session to a chat thread so future replies route back to it (pairs with `attributedSessions` delivery). In onboarding, call this once immediately after the first reply in the thread.
-- `auto.bind` / `auto.bindings.targets` / `auto.unbind` — bind an external target such as a PR to the session, list bindable target types, and release a binding (pairs with `ownedArtifact` delivery).
+- `auto.bind` / `auto.bindings.targets` / `auto.unbind` — bind an external target such as a PR to the session, list bindable target types, and release a binding (pairs with `bind` routing).
 
 ### `checks.*` — GitHub check runs
 

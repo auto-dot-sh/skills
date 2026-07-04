@@ -27,7 +27,7 @@ Set the variables to the user's repo, connection names, and channel. Override an
 
 ## How it works
 
-- **Trigger**: `github.pull_request.opened|reopened|synchronize` on the user's repo, `routing: spawn` — every PR head gets a fresh review run. PR issue comments, PR reviews, and review comments with `$.auto.authored: false` route back through `ownedArtifact`.
+- **Trigger**: `github.pull_request.opened|reopened|synchronize` on the user's repo, `routing: spawn` — every PR head gets a fresh review run. PR issue comments, PR reviews, and review comments with `$.auto.authored: false` route back through the `bind` route on the `github.pull_request` target.
 - **Mount**: the PR head itself (`ref: refs/pull/{{payload.github.pullRequest.number}}/head`, `depth: 1`) with read-only contents — the reviewer can run targeted tests but **cannot push**. PR comments are allowed via `pullRequests: write` / `issues: write`.
 - **GitHub tools**: narrowed to `pull_request_read` + `add_issue_comment`. No approve, no merge, by construction.
 - **Check run**: the trigger declares a `pr-review` check; the agent moves it begin → success/failure so the review can gate merges.

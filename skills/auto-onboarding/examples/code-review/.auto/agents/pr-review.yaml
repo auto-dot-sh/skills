@@ -192,8 +192,6 @@ triggers:
       and decide whether the pull request needs a refreshed review or a
       concrete blocker summary. Do not react to your own prior comments.
     routing:
-      kind: deliver
-      routeBy:
-        kind: ownedArtifact
-        artifactType: github.pull_request
+      kind: bind
+      target: github.pull_request
       onUnmatched: drop
