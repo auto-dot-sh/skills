@@ -48,7 +48,14 @@ The same variables block is shared across both agent files for symmetry; each ag
 
 - Replace `acme/widgets`, `github-acme`, `linear`, `slack`, `#dev`, and the label name.
 - Align the "implementation-ready" bar and the coder's PR conventions (branch naming, Review Map section) with how the team actually works.
-- If the team uses GitHub Issues instead of Linear, the same shape works with `github.issue_comment` / label events and the `github` tool.
+- If the team uses GitHub Issues instead of Linear, use the GitHub issue event
+  family: `github.issue.opened` / `.edited` for issue metadata changes and
+  `github.issue.comment.created` / `.edited` for plain issue comments. PR
+  comments remain `github.issue_comment.*`; plain-issue comments are
+  `github.issue.comment.*`. For direct coding handoffs from GitHub Issues, the
+  `handoff/` example already supports `/handoff` on a plain issue, keeps the
+  `github.issue` binding, opens a PR, binds it as `github.pull_request`, and
+  reports back on the issue.
 
 ## Smoke test
 

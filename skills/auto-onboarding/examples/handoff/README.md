@@ -30,13 +30,22 @@ Set the variables to the user's repo, connection names, and channel. Override an
 
 ## How it works
 
-- **Explicit handoff**: a GitHub comment/review that mentions the agent, or a
-  Slack mention such as `@auto.handoff`, starts a new session with
-  `routing: spawn`.
-- **Ownership**: once it confirms the handoff is intentional, the agent records
-  the pull request as a `github.pull_request` artifact. Later PR comments,
-  reviews, failing checks, all-checks success, and merge conflicts deliver back
-  to the same session with `bind` routing on the `github.pull_request` target.
+- **Explicit handoff**: a GitHub PR comment/review, GitHub issue body, or
+  GitHub issue comment that mentions the agent starts or continues a handoff.
+  Plain issue handoffs use `github.issue.opened` and
+  `github.issue.comment.created`; PR comments keep the older
+  `github.issue_comment.*` event names. A Slack mention such as
+  `@auto.handoff` can also start a new session.
+- **Ownership**: once it confirms the handoff is intentional, the agent keeps
+  the spawn-claimed `github.issue` binding for issue-origin work, opens or
+  identifies the implementation PR, and binds that PR as `github.pull_request`.
+  Later issue comments, PR comments, reviews, failing checks, all-checks
+  success, and merge conflicts deliver back to the same session with `bind`
+  routing on the matching target.
+- **Issue status surface**: when work starts from a GitHub issue, the agent
+  acknowledges on the issue, opens a PR when implementation begins, links the
+  PR back to the issue, and reports final status on the issue as well as the
+  PR.
 - **Slack thread**: the agent acknowledges the handoff in the originating Slack
   thread when one exists. For GitHub-only handoffs, it establishes or reuses a
   PR thread in `#dev`, subscribes to it, and sends future status there.
@@ -73,9 +82,10 @@ Set the variables to the user's repo, connection names, and channel. Override an
 ## Smoke test
 
 After the PR merges and GitHub Sync applies the resources, open or reuse a
-small PR. Comment `/handoff please take this PR, address review comments and
-CI failures, and report back when it is ready for final review.`
+small GitHub issue. Comment `/handoff please implement this issue, open a PR,
+and report back here when it is ready for final review.`
 
-Confirm: a handoff session appears, the agent acknowledges on GitHub and in
-Slack, records PR ownership, reacts to a follow-up PR comment or failing check,
-and waits for the latest PR-reviewer feedback before final-ready status.
+Confirm: a handoff session appears, the agent acknowledges on the issue and in
+Slack when configured, holds the `github.issue` binding, opens and binds a PR,
+reacts to a follow-up issue comment or failing PR check, and reports final
+ready status back on the issue.

@@ -136,12 +136,19 @@ triggers:
 | Family | Events |
 | --- | --- |
 | GitHub PRs | `github.pull_request.opened` / `.reopened` / `.synchronize` / `.edited`, `github.pull_request.merge_conflict` |
-| GitHub conversation | `github.issue_comment.created` / `.edited`, `github.pull_request_review.submitted` / `.edited`, `github.pull_request_review_comment.created` / `.edited` |
+| GitHub issues | `github.issue.opened` / `.edited` |
+| GitHub issue comments | `github.issue.comment.created` / `.edited` |
+| GitHub PR conversation | `github.issue_comment.created` / `.edited`, `github.pull_request_review.submitted` / `.edited`, `github.pull_request_review_comment.created` / `.edited` |
 | GitHub CI | `github.check_run.completed`, `github.push` |
 | Linear | `linear.issue.created`, `linear.issue.updated` |
 | Chat (Slack/Telegram/Linear) | `chat.message.mentioned`, `chat.message.direct`, `chat.message.subscribed`, `chat.reaction.added`, `chat.reaction.removed` |
 | Custom | any `webhook.*` name you choose on an `endpoint:` trigger |
 | Scheduled | `kind: heartbeat` with `cron` |
+
+PR comments use `github.issue_comment.*`; plain issue comments use `github.issue.comment.*`.
+GitHub issue payloads expose `{{github.issue.number}}`,
+`{{github.issue.htmlUrl}}`, and `{{github.issue.title}}` for prompt and
+trigger message templates.
 
 ### Filters (`where:`)
 
@@ -179,7 +186,7 @@ routing:
 
 routing:
   kind: bind                         # continue the session bound to the event's target
-  target: github.pull_request        # or slack.thread | agent.singleton
+  target: github.pull_request        # or github.issue | slack.thread | agent.singleton
   onUnmatched: drop                  # or warn | error | spawn
 ```
 
@@ -194,10 +201,11 @@ legacy sugar — for `deliver` + `onUnmatched: spawn`, a routeBy-less `deliver`,
 and `bind` over the same target respectively; parsing normalizes them and they
 must not be authored in new specs.)
 
-`bind` resolves the event's target (`github.pull_request`, `slack.thread`,
-`agent.singleton`) to the one session bound to it, written via `auto.bind` or
-bind-at-spawn. This is how check failures, merge conflicts, and review
-comments on a PR route back to the run that owns it.
+`bind` resolves the event's target (`github.pull_request`, `github.issue`,
+`slack.thread`, `agent.singleton`) to the one session bound to it, written via
+`auto.bind` or bind-at-spawn. This is how check failures, merge conflicts, and
+review comments on a PR route back to the run that owns it, and how follow-up
+comments on an issue route back to the run that owns it.
 
 `routeBy` options for `deliver`:
 
