@@ -179,7 +179,7 @@ triggers:
     connection: github-acme
     where:
       $.github.repository.fullName: acme/widgets
-      $.auto.authored: false
+      $.github.auto.authored: false
     message: |
       A PR conversation update arrived for acme/widgets PR #{{github.pullRequest.number}}.
 

@@ -85,7 +85,7 @@ triggers:
     connection: slack
     where:
       $.chat.provider: slack
-      $.auto.authored: false
+      $.auto.authored: false   # chat events: top-level $.auto.authored (GitHub uses $.github.auto.authored)
     message: |
       {{message.author.userName}} mentioned you on Slack:
 
@@ -153,6 +153,16 @@ GitHub issue payloads expose `{{github.issue.number}}`,
 `{{github.issue.htmlUrl}}`, and `{{github.issue.title}}` for prompt and
 trigger message templates.
 
+**Self-trigger loops on GitHub.** GitHub events do **not** carry a top-level
+`$.auto.authored` flag — that path exists only on chat events. On GitHub
+events the platform nests the same flag under `$.github.auto.authored`, so a
+`where: { $.auto.authored: false }` filter on a `github.issue.*` /
+`github.issue_comment.*` trigger never matches and silently drops real events.
+Filter `$.github.auto.authored: false` to skip events your own agent caused.
+To also suppress third-party bot noise (status bots, CI bots) while still
+matching human and Auto-authored events, filter
+`$.github.auto.externalBot: false`.
+
 ### Filters (`where:`)
 
 Keys are payload paths (`$.github.repository.fullName`) or bare keys; values are either a scalar to match exactly or one operator object:
@@ -166,9 +176,11 @@ where:
   $.github.auto.mentioned: { changedTo: true }         # edge-trigger on edits
 ```
 
-Useful payload facts the platform adds under `$.auto.*`:
+Useful payload facts the platform adds under `$.auto.*` (chat events) and
+`$.github.auto.*` (GitHub events):
 
-- `$.auto.authored` — the event was caused by an auto agent (filter `false` to avoid self-trigger loops).
+- `$.auto.authored` (chat) / `$.github.auto.authored` (GitHub) — the event was caused by an auto agent. Filter `false` to avoid self-trigger loops. A GitHub trigger filtered on the top-level `$.auto.authored` never matches and silently drops real events.
+- `$.github.auto.externalBot` (GitHub) — the author is a bot other than Auto's own GitHub App. Filter `false` to drop third-party bot noise (status bots re-editing their comments, CI bots) while still matching human and Auto-authored events.
 - `$.auto.attributions` — the event is attributed to an existing run (a reply in a thread an agent participates in).
 
 ### Routing
@@ -220,7 +232,7 @@ Deliver triggers should carry a `message:` template (same `{{...}}` placeholders
 
 ### The two attribution rules (validation will enforce them)
 
-1. A chat-message `deliver`/`attributedSessions` trigger must filter `$.auto.authored: false`, or the agent will react to its own messages.
+1. A chat-message `deliver`/`attributedSessions` trigger must filter `$.auto.authored: false`, or the agent will react to its own messages. (Chat events only — GitHub events use `$.github.auto.authored: false` for the same purpose; the top-level path does not exist on GitHub payloads.)
 2. When the same chat event has both a `spawn` trigger and an `attributedSessions` deliver trigger, they must be mutually exclusive on `$.auto.attributions`: spawn requires `{ exists: false }`, deliver requires `{ exists: true }`. Fresh mentions start sessions; thread replies continue them.
 
 The complement on the output side: agents posting to GitHub append a hidden attribution marker so the platform can recognize their own side effects:
