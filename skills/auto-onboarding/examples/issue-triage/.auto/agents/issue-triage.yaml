@@ -8,97 +8,110 @@ identity:
 imports:
   - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |
-  You are the issue triage agent for acme/widgets. Work from Linear as the
-  source of truth, using chat.issue.get, chat.issue.update, chat.history,
-  and chat.send with target provider `linear`.
+  You are the issue triage agent for acme/widgets. Work from GitHub Issues as
+  the source of truth, using issue_read, issue_write, and add_issue_comment
+  through the github tool to inspect, update, and comment on issues.
 
   The `auto-triage` label is a one-shot request token, not a standing
-  subscription. Remove it once you have acted on the request.
+  subscription. Remove it with issue_write once you have acted on the request.
 
   Triage responsibilities:
   - Identify duplicates; close or link them only when the match is clear,
     preserving important detail on the parent issue.
   - Rank priority from impact, urgency, user signal, and blocked work.
-    Explain non-obvious priority changes in a Linear comment.
-  - Categorize with the most specific existing labels, project, and team
-    metadata you can justify. Never create Linear labels, statuses,
-    projects, teams, or users — if the expected metadata does not exist,
-    note that in a comment and continue without it.
+    Explain non-obvious priority changes in a GitHub issue comment.
+  - Categorize with the most specific existing labels you can justify. Never
+    create GitHub labels — if the expected label does not exist, note that in
+    a comment and continue without it.
   - Split broad reports into targeted child issues when one issue mixes
     unrelated tracks; keep the parent as context.
   - Ask for missing reproduction steps, desired behavior, or acceptance
-    criteria in a Linear comment. Do not invent requirements.
+    criteria in a GitHub issue comment. Do not invent requirements.
 
   When an issue is clear enough to implement:
   - Comment on the issue with concise handoff context for the coder.
-  - Update the issue state to an existing in-progress state if one fits.
-  - Remove the `auto-triage` label.
-  - Call auto.sessions.spawn with session `issue-coder` and a message carrying
-    the issue identifier, title, URL, triage summary, acceptance criteria,
+  - Remove the `auto-triage` label with issue_write.
+  - Call auto.sessions.spawn with agent `issue-coder` and a message carrying
+    the issue number, title, URL, triage summary, acceptance criteria,
     and constraints. Tell the coder to open a PR against main with a Review
-    Map section and to comment back on the Linear issue with the PR link,
+    Map section and to comment back on the GitHub issue with the PR link,
     tests run, and residual risks.
-  - Post a brief note in Slack #dev: a top-level message with only the
-    issue link and a one-sentence reason it is ready, details threaded.
-    Slack renders mrkdwn links: <https://url|text>.
 
   Keep changes small and reversible. Prefer comments that explain what you
-  did over silent metadata churn.
+  did over silent metadata churn. When posting GitHub comments, append this
+  hidden attribution marker with the environment variables expanded:
+
+    <!-- auto:v=1 session_id=$AUTO_SESSION_ID agent=$AUTO_AGENT_NAME -->
 initialPrompt: |
-  Triage Linear issue {{linear.issue.identifier}}: {{linear.issue.title}}
+  Triage GitHub issue #{{github.issue.number}}: {{github.issue.title}}
 
   Trigger event: {{type}}
-  Issue URL: {{linear.issue.url}}
+  Issue URL: {{github.issue.htmlUrl}}
 
-  Inspect the issue and related Linear context, then apply your triage
-  instructions. Remember the `auto-triage` label is a one-shot request
-  token — remove it once you have acted.
+  Inspect the issue and related GitHub context with issue_read, then apply
+  your triage instructions. Remember the `auto-triage` label is a one-shot
+  request token — remove it with issue_write once you have acted.
+mounts:
+  - kind: git
+    repository: acme/widgets
+    mountPath: /workspace/widgets
+    ref: main
+    auth:
+      kind: githubApp
+      capabilities:
+        contents: read
+        pullRequests: none
+        issues: write
+        checks: none
+        actions: none
+workingDirectory: /workspace/widgets
 tools:
   auto:
     kind: local
     implementation: auto
-  chat:
-    kind: local
-    implementation: chat
-    auth:
-      kind: connections
-      connections:
-        - provider: linear
-          connection: linear
-        - provider: slack
-          connection: slack
+  github:
+    kind: github
+    tools:
+      - issue_read
+      - issue_write
+      - add_issue_comment
 triggers:
-  - event: chat.message.mentioned
-    connection: slack
+  - name: issue-opened
+    event: github.issue.opened
+    connection: github-acme
     where:
-      $.chat.provider: slack
-      $.auto.authored: false
+      $.github.repository.fullName: acme/widgets
+      $.github.auto.authored: false
     message: |
-      {{message.author.userName}} mentioned you on Slack:
+      A new issue was opened on acme/widgets:
+      #{{github.issue.number}} — {{github.issue.title}}.
 
-      {{message.text}}
+      Issue URL: {{github.issue.htmlUrl}}
 
-      Channel: {{chat.channelId}}
-      Thread: {{chat.threadId}}
-
-      Reply in that thread with chat.send. If the user clearly links or asks
-      about a Linear issue, triage it. If required context is missing, ask for
-      the issue link. Otherwise, briefly explain that you triage Linear issues
-      labeled `auto-triage`, prepare implementation handoffs, and post
-      ready-work notes to #dev.
+      Inspect it with issue_read and apply your triage instructions. If it is
+      implementation-ready, comment with handoff context, remove the
+      `auto-triage` label if present, and spawn the issue-coder.
     routing:
-      kind: spawn
-  - event: linear.issue.created
-    connection: linear
+      kind: bind
+      target: github.issue
+      onUnmatched: spawn
+  - name: issue-labeled
+    event: github.issue.labeled
+    connection: github-acme
     where:
-      $.linear.issue.labelNames:
-        contains: auto-triage
+      $.github.repository.fullName: acme/widgets
+      $.github.auto.authored: false
+      $.github.label.name: auto-triage
+    message: |
+      The `auto-triage` label was just added to acme/widgets
+      issue #{{github.issue.number}} — {{github.issue.title}}.
+
+      Issue URL: {{github.issue.htmlUrl}}
+
+      The label is a one-shot re-triage request. Inspect the issue with
+      issue_read, apply your triage instructions, then remove the label with
+      issue_write once you have acted.
     routing:
-      kind: spawn
-  - event: linear.issue.updated
-    connection: linear
-    where:
-      $.linear.updatedFrom.labelNames.added:
-        contains: auto-triage
-    routing:
-      kind: spawn
+      kind: bind
+      target: github.issue
+      onUnmatched: spawn

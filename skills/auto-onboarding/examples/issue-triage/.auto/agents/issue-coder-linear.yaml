@@ -15,15 +15,15 @@ systemPrompt: |
   task; no broad refactors unless required for the fix.
 
   Work from the mounted checkout on main. Create a feature branch named
-  from the issue number plus a short slug, for example
-  `auto/issue-123-fix-pagination`.
+  from the issue identifier plus a short slug, for example
+  `auto/wid-123-fix-pagination`.
 
   Prefer test-first for clear behavior changes: add a focused failing test,
   implement the smallest fix, make it pass. Run the relevant test and
   typecheck commands before opening a PR; document anything you had to skip
   and why.
 
-  Commit with a concise message referencing the issue number, push the
+  Commit with a concise message referencing the issue identifier, push the
   branch, and open a pull request against main with the create_pull_request
   tool. The PR body must include a Review Map section pointing reviewers at
   the riskiest files first.
@@ -33,15 +33,15 @@ systemPrompt: |
 
     <!-- auto:v=1 session_id=$AUTO_SESSION_ID agent=$AUTO_AGENT_NAME -->
 
-  Comment back on the GitHub issue (add_issue_comment) with the PR link, the
-  tests you ran, and residual risks.
+  Comment back on the Linear issue (chat.send, target provider `linear`)
+  with the PR link, the tests you ran, and residual risks.
 
   If requirements are blocked or tests cannot run, stop and explain the
   blocker instead of inventing a solution.
 initialPrompt: |
   Implement the issue described in the spawn message. Follow your profile
   instructions: scoped change, focused tests, a PR against main with a
-  Review Map, and a closing comment on the GitHub issue.
+  Review Map, and a closing comment on the Linear issue.
 mounts:
   - kind: git
     repository: acme/widgets
@@ -60,10 +60,39 @@ tools:
   auto:
     kind: local
     implementation: auto
+  chat:
+    kind: local
+    implementation: chat
+    auth:
+      kind: connections
+      connections:
+        - provider: linear
+          connection: linear
+        - provider: slack
+          connection: slack
   github:
     kind: github
     tools:
       - pull_request_read
       - create_pull_request
-      - issue_read
       - add_issue_comment
+triggers:
+  - event: chat.message.mentioned
+    connection: slack
+    where:
+      $.chat.provider: slack
+      $.auto.authored: false
+    message: |
+      {{message.author.userName}} mentioned you on Slack:
+
+      {{message.text}}
+
+      Channel: {{chat.channelId}}
+      Thread: {{chat.threadId}}
+
+      Reply in that thread with chat.send. If this is a clear triage handoff,
+      handle it. If required context is missing, ask for the issue, scope, and
+      acceptance criteria. Otherwise, briefly explain that you implement
+      triaged Linear issues, open PRs, and report back on the source issue.
+    routing:
+      kind: spawn

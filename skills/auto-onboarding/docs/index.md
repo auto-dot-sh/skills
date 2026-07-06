@@ -76,6 +76,7 @@ ownership. See `docs/auto-mcp.md` and `docs/ci-cd.md`.
 
 ## Where to go next
 
+- `docs/glossary.md` — canonical one-liner definitions for every Auto-specific term
 - `docs/resource-model.md` — the `.auto/` directory and apply semantics
 - `docs/agents-and-triggers.md` — the trigger/event/routing vocabulary
 - `docs/environments-and-profiles.md` — sandboxes and reusable agents
