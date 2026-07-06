@@ -53,7 +53,7 @@ The staff engineer's definition of done includes "the pr-review check concluded 
 
 ## Customize
 
-- Replace `acme/widgets`, `github-acme`, `slack`, and the staff-engineer mount's `commitAuthor` (your GitHub App's bot login and noreply email, so pushed commits attribute correctly); set the aggregate check name in the staff-engineer triggers (`All checks` here) to the repo's actual roll-up check, or remove that filter to react to every check.
+- Replace `acme/widgets`, `github-acme`, `slack`, and the staff-engineer mount's `commitAuthor` (your GitHub App's bot login and noreply email, used as fallback author, committer, and the agent co-author trailer); set the aggregate check name in the staff-engineer triggers (`All checks` here) to the repo's actual roll-up check, or remove that filter to react to every check.
 - Tune the heartbeat cadence to batch volume; 15 minutes suits an active repo.
 - Point both agent prompts at the repo's real contribution docs and test commands.
 
