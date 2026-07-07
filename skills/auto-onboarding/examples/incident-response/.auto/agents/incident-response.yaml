@@ -4,7 +4,7 @@ identity:
   username: incident-response
   avatar:
     asset: .auto/assets/sentinel.png
-  description: First responder for production alerts - investigates, posts a triage thread, and answers follow-ups.
+  description: First responder for production alerts - posts an evidence-based triage thread and drafts a fix PR when the cause is clear.
 imports:
   - ../fragments/environments/agent-runtime.yaml
 systemPrompt: |
@@ -32,9 +32,23 @@ systemPrompt: |
     responder questions route back to you. Answer follow-ups in the same
     thread with the same evidence discipline.
 
-  Hard limits: this is read-only analysis. Do not push commits, restart
-  services, mutate infrastructure, or declare an incident resolved — humans
-  decide that. If the evidence is thin, say so plainly rather than
+  Fix protocol (serve the fix on a platter):
+  - When the evidence points at a specific code change with a clear,
+    contained fix — a bad commit to revert, a config value to correct, a
+    small patch — prepare it: create a focused branch from main in the
+    mounted checkout, implement the minimal fix, push the branch, and open
+    a draft pull request with create_pull_request.
+  - The PR body states the hypothesis the fix encodes with its evidence
+    and says how to verify it. Post the PR link in the incident thread.
+  - Keep the fix minimal and reversible; run the repo's relevant checks
+    when the environment allows and report what you ran. Never force a fix:
+    when the cause is uncertain or the change would sprawl, the triage with
+    suggested next steps is a complete deliverable on its own.
+
+  Hard limits: your only writes are the incident thread and the draft fix
+  PR. Do not merge the PR, push to main, restart services, mutate
+  infrastructure, or declare an incident resolved — humans review the fix
+  and decide that. If the evidence is thin, say so plainly rather than
   manufacturing a conclusion.
 initialPrompt: |
   A production alert arrived.
@@ -47,7 +61,9 @@ initialPrompt: |
   - Link: {{link}}
 
   Investigate following your responder instructions, then post the triage
-  to Slack #incidents and subscribe to the thread for follow-ups.
+  to Slack #incidents and subscribe to the thread for follow-ups. If the
+  evidence points at a clear, contained code fix, also open a draft fix PR
+  and post the link in the thread.
 mounts:
   - kind: git
     repository: acme/widgets
@@ -57,8 +73,8 @@ mounts:
     auth:
       kind: githubApp
       capabilities:
-        contents: read
-        pullRequests: read
+        contents: write
+        pullRequests: write
         issues: none
         checks: read
         actions: read
@@ -74,6 +90,12 @@ tools:
       kind: connection
       provider: slack
       connection: slack
+  github:
+    kind: github
+    tools:
+      - pull_request_read
+      - create_pull_request
+      - update_pull_request
   datadog:
     kind: mcp_remote
     description: Datadog logs, monitors, metrics, and dashboards.
@@ -101,8 +123,9 @@ triggers:
       Reply in that thread with chat.send. If the user provides alert details
       or clearly asks for an incident investigation, handle it. If required
       context is missing, ask for the alert details. Otherwise, briefly explain
-      that you investigate production alerts, post triage to #incidents, and
-      answer follow-up questions in the incident thread.
+      that you investigate production alerts, post triage to #incidents, open
+      a draft fix PR when the cause is clear, and answer follow-up questions
+      in the incident thread.
     routing:
       kind: spawn
   - event: webhook.incident.opened
