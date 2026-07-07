@@ -29,7 +29,13 @@ belong in the other docs in this directory (`resource-model.md`,
   most users never interact with it directly.
 - **Trigger** — A rule that starts sessions automatically when something
   happens: a pull request opens, an issue gets a label, someone mentions the
-  agent in chat, or a schedule fires.
+  agent in chat, or a schedule fires. A trigger can also listen on a webhook
+  endpoint — a named, authenticated ingest URL external systems POST to.
+  Agents with the `webhook_endpoints:write` scope can reserve an endpoint
+  ahead of time with the `auto.webhooks.create` MCP tool, which returns the
+  authoritative slug and ingest URL to reference in committed files; the
+  reservation holds for an hour, and the trigger apply that declares the same
+  endpoint name and auth makes it permanent.
 - **Identity** — An agent's outward presence: its name, avatar, and
   description — how it appears when it comments on GitHub or speaks in Slack.
 
