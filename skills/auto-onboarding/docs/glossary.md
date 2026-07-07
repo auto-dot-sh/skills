@@ -45,7 +45,9 @@ belong in the other docs in this directory (`resource-model.md`,
   read and change its code.
 - **Secret** — A named, encrypted value (an API key, a token) stored by
   Auto. Resources reference secrets by name (`$secret: my-key`); the value is
-  injected only at runtime and never lives in your repo.
+  injected only at runtime and never lives in your repo. Secrets can carry an
+  optional expiry — an absolute deadline and/or an unused-for window — after
+  which they behave as if they were never set.
 - **Connection** — A link between your project and an external provider
   such as GitHub, Slack, or Linear. Connections are what let agents open pull
   requests, post messages, and read issues.
