@@ -47,7 +47,11 @@ belong in the other docs in this directory (`resource-model.md`,
   Auto. Resources reference secrets by name (`$secret: my-key`); the value is
   injected only at runtime and never lives in your repo. Secrets can carry an
   optional expiry — an absolute deadline and/or an unused-for window — after
-  which they behave as if they were never set.
+  which they behave as if they were never set. Agents with the
+  `secrets:write` scope can create secrets from a session with the
+  `auto.secrets.create` MCP tool; passing a `generate` pattern (instead of a
+  `value`) has the platform draw a random value server-side, so the plaintext
+  never enters the session transcript.
 - **Connection** — A link between your project and an external provider
   such as GitHub, Slack, or Linear. Connections are what let agents open pull
   requests, post messages, and read issues.
