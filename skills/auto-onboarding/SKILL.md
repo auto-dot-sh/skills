@@ -3,7 +3,7 @@ name: auto-onboarding
 description: Onboard a user into auto from the hosted Slack guide — pitch, interview, repo recon, a first deployed workflow, GitHub Sync, and a self-improvement loop.
 metadata:
   version: 0.1.0
-  source-commit: 7fb91d72b2b28e16027270a8ec750d4add357703
+  source-commit: 3bb1d62c198dd2475683090aec95a592096d2498
 ---
 
 # Intent
@@ -81,6 +81,8 @@ Hold these throughout the onboarding:
 - **Validate before PRs, deploy through Sync.** Use `mcp__auto__auto_resources_dry_run` to validate `.auto/` changes and inspect the plan. The normal deployment path is PR merge followed by GitHub Sync.
 - **Start from the connected repo and Slack workspace.** Treat the mounted GitHub repo and the Slack thread that launched onboarding as already available to Auto. Examine the mounted repo and `git remote get-url origin` to identify the repository instead of asking the user for it. Confirm channels when useful, but do not spend the onboarding reinstalling GitHub or Slack unless an Auto MCP lookup proves the connection is missing or the user asks to connect a different account.
 - **Use Auto MCP connection tools before resource PRs.** When a workflow needs an additional provider or remote MCP OAuth tool such as Notion, Datadog, or Vercel, use the relevant Auto MCP connection/connect tool first. For example, draft the full agent tool configuration, call `mcp__auto__auto_agent_tools_connect` for that agent/tool source, send any returned authorization URL to the user, and verify the connection. After the connection is live, stage, validate, commit, and open the PR containing the full agent resource.
+- **Be ambitious about provider connections.** A well-chosen connection or MCP tool is often the difference between a demo and a workflow the user keeps. When the repo shows the team already uses a provider (a Sentry SDK, Datadog config, Linear links in docs or issue templates, a Vercel deployment) or one is a natural fit for the chosen workflow, pitch the connection with that concrete evidence and offer to set it up on the spot. Pick the lightest shape that does the job: inbound triggers need a provider connection, but outbound-only work (read logs, write a page, update an issue, publish a report) should prefer an MCP tool — `kind: connection` for built-in hosted MCP providers, `kind: mcp_remote` for any other MCP server — whenever inbound triggers are not a requirement. Suggest once with the reason, then respect the answer.
+- **Keep agent output off GitHub issues by default.** Agents deliver reports as their run output (or to the chat channel the user chose); never wire a workflow to publish reports, research, lead data, or other newly generated content to GitHub issues unless the user explicitly asks for issue delivery. GitHub writes belong to workflows whose subject already lives there (PR review, issue triage, handoffs). Before anything posts new content to GitHub, check whether the repository is public — and if it is, confirm with the user that the content belongs there. The same rule binds you: never open a GitHub issue carrying the user's business context without asking first.
 - **Keep secrets out of Slack.** If a workflow needs a secret value, direct the user to enter it from their own terminal with the Auto CLI and reference only the secret name in YAML. A clean example: `read -rsp "SENTRY_TOKEN: " SENTRY_TOKEN; printf %s "$SENTRY_TOKEN" | auto secrets set sentry-token --stdin; unset SENTRY_TOKEN`. Never ask the user to paste a secret value into the thread.
 - **Asynchronous means asynchronous.** Triggered sessions take time to spawn and act. Tell the user when a wait is expected, and tail session state rather than declaring failure early.
 - **Never fabricate success.** Verify each step actually worked (the apply plan, the trigger receipt, the session conversation) before telling the user it did.
@@ -119,7 +121,7 @@ Tell the user you're going to explore the connected repo for a few minutes and t
 
 Read **both**:
 
-- **The repo:** what the project does, how the team works (CI, review culture, issue-tracker and chat integrations), the conventions written down in `CLAUDE.md`/`AGENTS.md`/`docs/`, and — most importantly — where the recurring, automatable toil is.
+- **The repo:** what the project does, how the team works (CI, review culture, issue-tracker and chat integrations), which external providers the team already relies on (error tracking, analytics, hosting, issue trackers — each SDK or config file you spot is a connection candidate for later), the conventions written down in `CLAUDE.md`/`AGENTS.md`/`docs/`, and — most importantly — where the recurring, automatable toil is.
 - **This onboarding package's `docs/` and `examples/`**, so your ideas are already expressed in auto's vocabulary (agents, triggers, inline tools, and fragments) and mapped to a concrete archetype.
 
 Produce a structured shortlist for yourself: for each candidate workflow, a one-line description, the matching archetype, the trigger/event that would fire it, and the _specific evidence in this repo_ that the toil is real (a file, a workflow, a documented rule, a past incident). That shortlist is the raw material for Beat 3.
@@ -131,6 +133,8 @@ When you finish, don't just move on — **surface 1-2 concrete observations to t
 Combine what you know about the user, their goals, and their codebase, and brainstorm workflows they could deploy _today_. Usually include PR reviewer, handoff coder, and self-improvement as options: they reinforce one another when the repo has enough code and PR activity. Do not treat that sequence as mandatory; an empty or early-stage repo may need an architecture/planning agent first. Tailor every pitch to this project, and include other workflows when the repo evidence supports them.
 
 Present a short numbered list, make one project-specific recommendation, and let them pick or propose their own idea. When the core path fits, say why PR review should come first: it gives handoff and self-improvement agents concrete feedback to use later.
+
+When a pitch would be concretely stronger with a provider the team already uses — Sentry traces for incident response, Linear for triage, Notion for a digest destination — include the connection in the pitch with the repo evidence and offer to set it up as part of the build (see the connection principles above). The magic moment usually lands harder when the workflow touches the tools the team lives in.
 
 ## Beat 4: Setup & smoke test
 

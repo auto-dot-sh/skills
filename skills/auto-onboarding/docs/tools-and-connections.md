@@ -27,6 +27,35 @@ Auto MCP flow for additional providers:
 
 Trigger `connection:` fields and chat-tool `auth.connection` fields reference these grants by name.
 
+## Choosing the integration shape
+
+Match the integration to what the workflow actually needs:
+
+- **Inbound triggers** — the agent must react to provider events (a Linear
+  issue update, a Slack mention, a Telegram DM) — require a provider
+  connection; events only flow through connections.
+- **Outbound-only work** — read logs, write a page, update an issue, publish
+  a report — needs no events: prefer an MCP tool. Use `kind: connection` for
+  the built-in hosted MCP providers above, and a raw `kind: mcp_remote` tool
+  for any other MCP server. Remote MCP tools are cheap to adopt and easy to
+  drop, so they are the default answer whenever inbound triggers are not a
+  requirement.
+
+Be ambitious on the user's behalf. When the repo shows the team already
+uses a provider — a Sentry SDK, Datadog config, Linear links in docs or
+issue templates, a Vercel deployment — a connection or MCP tool for it
+usually makes the proposed workflow concretely better. Pitch it with that
+evidence and offer to run the consent flow; suggest once with the reason,
+then respect the answer.
+
+Delivery defaults stay conservative even as connections get ambitious:
+agents deliver reports as their run output unless the user opts into a
+channel or tool. Never use GitHub issues as a default report or delivery
+surface — reserve GitHub writes for workflows whose subject already lives
+on GitHub (PR review, issue triage, handoffs), and before wiring anything
+that posts new content to GitHub, check whether the repository is public
+and confirm the content belongs there.
+
 For onboarding-authored agents, Slack is the default communication backstop.
 Even agents whose primary job is GitHub, Linear, a webhook, or a schedule
 should have a Slack-backed `chat` tool. If Slack is only a backstop for
