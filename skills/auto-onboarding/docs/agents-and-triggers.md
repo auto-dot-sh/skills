@@ -147,6 +147,16 @@ triggers:
 | Chat (Slack/Telegram/Linear) | `chat.message.mentioned`, `chat.message.direct`, `chat.message.subscribed`, `chat.reaction.added`, `chat.reaction.removed` |
 | Custom | any `webhook.*` name you choose on an `endpoint:` trigger |
 | Scheduled | `kind: heartbeat` with `cron` |
+| Platform | `auto.project_resource_apply.started` / `.completed` / `.failed`, `auto.connection.established` / `.removed` |
+
+`auto.connection.established` fires when a connection becomes available in the
+project (OAuth completes, GitHub App installed, `auto connections allow`, an
+agent-tool MCP OAuth finishes); `auto.connection.removed` fires when it is
+revoked or replaced. Filter with `where:` on `$.provider`, `$.connection`, or
+`$.kind` (`provider` vs `mcp`) — do not use the trigger-level `connection:`
+binding for these, since the connection may not exist yet at apply time. The
+canonical use is an onboarding agent that continues setup the moment the
+connection it asked for succeeds.
 
 PR comments use `github.issue_comment.*`; plain issue comments use `github.issue.comment.*`.
 GitHub issue payloads expose `{{github.issue.number}}`,
