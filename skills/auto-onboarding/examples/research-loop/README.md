@@ -1,6 +1,6 @@
 # Research / optimization loop
 
-A multi-agent autoresearch loop: give the **research-coordinator** a measurable objective ("get p95 API latency under 200ms", "cut sandbox startup time", "raise the benchmark score") and a budget, and it sessions the experimental method on a fleet — proposing hypotheses, dispatching parallel **experimenter** sessions to test them in isolated sandboxes, collating measurements into a running lab log, and iterating round after round until the objective is met or the budget is spent. The shape comes from the optimization loops we run against our own infrastructure (sandbox startup benchmarking).
+A multi-agent autoresearch loop: give the **research-coordinator** a measurable objective ("get p95 API latency under 200ms", "cut sandbox startup time", "raise the benchmark score") and a budget, and it runs the experimental method on a fleet — proposing hypotheses, dispatching parallel **experimenter** sessions to test them in isolated sandboxes, collating measurements into a running lab log, and iterating round after round until the objective is met or the budget is spent. The shape comes from the optimization loops we run against our own infrastructure (sandbox startup benchmarking).
 
 ```
 .auto/
@@ -37,7 +37,7 @@ Set the variables to the user's repo, connection names, and channel. Override an
 
 - **Long-horizon singleton**: like the agent fleet, the coordinator is a `concurrency: 1` agent (deliver + `onUnmatched: spawn`) woken by mentions, subscribed replies, and a heartbeat. A campaign survives across many wake-ups — and even across coordinator restarts, because the lab log lives in the Slack thread, not in the run's memory.
 - **Rounds, not sprawl**: each round the coordinator proposes 2-4 falsifiable hypotheses, spawns one experimenter per hypothesis (idempotency-keyed on campaign + round + hypothesis slug), and waits for results to arrive via `auto.sessions.message`.
-- **Experiments are isolated and complete**: each experimenter gets its own sandbox and checkout, implements exactly one variant, sessions the measurement protocol from the brief (same warmup, same iterations, baseline + variant), and reports numbers — explicitly including null and negative results. Experimenters never open PRs during the loop.
+- **Experiments are isolated and complete**: each experimenter gets its own sandbox and checkout, implements exactly one variant, runs the measurement protocol from the brief (same warmup, same iterations, baseline + variant), and reports numbers — explicitly including null and negative results. Experimenters never open PRs during the loop.
 - **The lab log is the artifact**: after each round the coordinator posts a structured update in the campaign thread — round number, each hypothesis with its measured effect, the running best configuration, and the next round's plan. Anyone can read the thread and know exactly where the search stands.
 - **Convergence and handoff**: when the objective is met, the budget is exhausted, or two consecutive rounds yield no improvement, the coordinator closes the campaign: a final summary with the winning variant and the evidence, then — only on explicit human approval in the thread — instructs the winning experimenter's variant to be turned into a real PR.
 

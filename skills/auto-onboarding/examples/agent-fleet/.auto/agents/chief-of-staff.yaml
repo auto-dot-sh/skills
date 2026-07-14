@@ -1,4 +1,7 @@
 name: chief-of-staff
+model:
+  provider: anthropic
+  id: claude-fable-5
 identity:
   displayName: Chief of Staff Engineers
   username: chief

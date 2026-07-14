@@ -1,4 +1,7 @@
 name: self-improvement
+model:
+  provider: anthropic
+  id: claude-opus-4-8
 identity:
   displayName: Self Improvement
   username: self-improvement

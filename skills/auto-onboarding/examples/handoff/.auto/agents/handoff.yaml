@@ -1,4 +1,7 @@
 name: handoff
+model:
+  provider: anthropic
+  id: claude-opus-4-8
 identity:
   displayName: Handoff
   username: handoff

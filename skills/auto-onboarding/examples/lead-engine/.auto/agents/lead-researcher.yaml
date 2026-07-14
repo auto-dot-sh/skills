@@ -1,4 +1,7 @@
 name: lead-researcher
+model:
+  provider: anthropic
+  id: claude-sonnet-5
 identity:
   displayName: Lead Researcher
   username: lead-researcher

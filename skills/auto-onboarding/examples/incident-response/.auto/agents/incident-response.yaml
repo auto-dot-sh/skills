@@ -1,4 +1,7 @@
 name: incident-response
+model:
+  provider: anthropic
+  id: claude-opus-4-8
 identity:
   displayName: Incident Response
   username: incident-response

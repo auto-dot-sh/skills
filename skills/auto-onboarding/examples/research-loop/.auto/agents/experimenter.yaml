@@ -1,4 +1,7 @@
 name: experimenter
+model:
+  provider: anthropic
+  id: claude-opus-4-8
 identity:
   displayName: Experimenter
   username: experimenter

@@ -1,4 +1,7 @@
 name: issue-triage
+model:
+  provider: anthropic
+  id: claude-sonnet-5
 identity:
   displayName: Issue Triage
   username: issue-triage

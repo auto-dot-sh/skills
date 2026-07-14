@@ -1,4 +1,7 @@
 name: ship-digest
+model:
+  provider: anthropic
+  id: claude-sonnet-5
 identity:
   displayName: Ship Digest
   username: ship-digest

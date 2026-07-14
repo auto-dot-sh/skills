@@ -77,7 +77,9 @@ Notes:
 
 ## Triggers
 
-Each trigger names one or more events, an event source, optional filters, an optional message template, and a routing decision.
+Each trigger names one or more events, an event source, optional filters, an
+optional `message` template, an optional spawn-only `attachedUserPrompt`, and a
+routing decision.
 
 ```yaml
 triggers:
@@ -108,6 +110,49 @@ triggers:
     routing:
       kind: spawn
 ```
+
+### Attached user prompts and hidden trigger messages
+
+Without `attachedUserPrompt`, `message` keeps its exact legacy behavior: it is
+the visible conversation input, templates resolve from the normalized event
+payload (`{{github.…}}`, `{{chat.…}}`, `{{message.…}}`), and chat-shaped
+events may append the coordinates or attachment references the agent needs to
+act.
+
+With `attachedUserPrompt`, the roles split. The attached prompt is the visible
+requester-style input and display discriminator; `message`, when present, is
+rendered normally but persisted as hidden model context instead of becoming a
+conversation entry:
+
+```yaml
+triggers:
+  - event: auto.example.started
+    attachedUserPrompt: "{{ $commission }}"
+    message: |
+      Use the rollout constraints recorded for {{request.team}}.
+      Prefer the smallest reversible change.
+    routing:
+      kind: spawn
+```
+
+In v1, `attachedUserPrompt` is valid only with `routing.kind: spawn`. It is an
+apply-resolved literal, not an event-payload template: `{{ $variable }}`
+substitution works when importing a template, but resulting `{{…}}` text is
+preserved verbatim rather than rendered again. The session persists the exact
+prompt as `attachedUserPrompt` and the rendered hidden message as
+`triggerMessageContext`; operators can inspect both through session reads and
+`auto.sessions.get`.
+
+Trigger authors already control the agent's system instructions. Hidden trigger
+messages are an organization tool for separating the requester's visible words
+from event-specific launch guidance, not a new security boundary. Keep payload
+interpolation in `message` minimal: include only fields the new session needs,
+and do not duplicate large event bodies or secrets.
+
+An automatic `replace: auto` successor is a pool replacement, not a replay of
+the event that originally spawned its predecessor. Replacement does not rerun
+the original trigger or recreate its attached prompt or hidden trigger message;
+put replacement guidance in `onReplace` and durable system instructions instead.
 
 ### Event sources
 

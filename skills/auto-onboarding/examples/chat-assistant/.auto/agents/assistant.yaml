@@ -1,4 +1,7 @@
 name: assistant
+model:
+  provider: anthropic
+  id: claude-sonnet-5
 identity:
   displayName: Assistant
   username: assistant

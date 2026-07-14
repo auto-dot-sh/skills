@@ -1,4 +1,7 @@
 name: research-coordinator
+model:
+  provider: anthropic
+  id: claude-fable-5
 identity:
   displayName: Research Coordinator
   username: research
