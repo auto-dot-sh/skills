@@ -76,9 +76,9 @@ belong in the other docs in this directory (`resource-model.md`,
   `.auto/` changes when they merge to the default branch, reporting the
   result as a check on the merge.
 - **Managed Template** — A pre-built, Auto-maintained package of resources
-  (named like `@auto/onboarding`) that you import into `.auto/` instead of
+  (named like `@auto/code-review`) that you import into `.auto/` instead of
   writing everything from scratch. Importing at `@latest` tracks updates
-  automatically; pinning a version (`@auto/onboarding@1.2.0`) opts out.
+  automatically; pinning a version (`@auto/code-review@1.2.0`) opts out.
 - **Fragment** — A local, reusable partial under `.auto/fragments/` that
   your agents import to share common configuration within one repo.
 
